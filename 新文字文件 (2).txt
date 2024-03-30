@@ -1,0 +1,41 @@
+辨識語音API
+voice record <-> web APT
+correct
+voice <-> text
+
+
+1.翻譯語音+AI對話
+	
+2.將對話內容較常出現的單字加入單字庫
+
+3.對話頁面中提供筆記功能(螢光筆畫線、改變文字顏色)
+
+4.主題對話 - (1)選擇各種主題，由AI先開始生成對話。
+	     (2)選擇主題對話閱讀(有語音功能)
+
+5.主題單字
+
+
+
+
+
+
+
+
+
+
+Q1:錄音-允許麥克風存取
+
+Q2:語音辨識
+	2.1 whispen
+	2.2 commmon voice
+
+Q3:stt ttt
+
+
+
+3/26
+
+stream ->webAPI(Flack)->save
+(stream錄音黨丟到後端)
+1.offline chrome-stop->websever->webAPI-> save ->Speech->offline
