@@ -7,55 +7,87 @@
 </head>
 <body>
 <h1>測試</h1>
-<button id="request-mic">按我</button>
-<button id="pause-resume">暫停</button> <!-- New pause/resume button -->
+<button id="start-record">開始錄音</button>
+<button id="stop-record" disabled>停止錄音</button>
+<div id="audio-controls"></div>
 <div id="transcript"></div>
 
 <script>
-  // JavaScript code
-  const recognition = new window.webkitSpeechRecognition();
-  recognition.lang = 'en-US'; // Set language to English (United States)
-  recognition.continuous = true;
-  let isPaused = false; // Track whether recognition is paused
+  let mediaRecorder;
+  let audioChunks = [];
+  let audioIndex = 0;
 
-  const requestMicButton = document.getElementById('request-mic');
-  const pauseResumeButton = document.getElementById('pause-resume');
+  const startRecordButton = document.getElementById('start-record');
+  const stopRecordButton = document.getElementById('stop-record');
+  const audioControlsDiv = document.getElementById('audio-controls');
+  const transcriptDiv = document.getElementById('transcript');
 
-  requestMicButton.addEventListener('click', () => {
-      if (!isPaused) { // Only request mic access if not paused
-          navigator.mediaDevices.getUserMedia({ audio: true })
-              .then(stream => {
-                  console.log("公威");
-                  recognition.stream = stream;
-                  recognition.start();
-              })
-              .catch(error => {
-                  console.error("壞了", error);
-              });
-      }
-  });
+  startRecordButton.addEventListener('click', startRecording);
+  stopRecordButton.addEventListener('click', stopRecording);
 
-  pauseResumeButton.addEventListener('click', () => {
-      if (isPaused) { // If recognition is paused, resume it
-          recognition.start();
-          pauseResumeButton.textContent = '暫停';
-          isPaused = false;
-      } else { // If recognition is ongoing, pause it
-          recognition.abort();
-          pauseResumeButton.textContent = '繼續';
-          isPaused = true;
-      }
-  });
+  function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(function(stream) {
+        mediaRecorder = new MediaRecorder(stream);
 
-  recognition.onresult = function(event) {
+        mediaRecorder.ondataavailable = function(event) {
+          audioChunks.push(event.data);
+        }
+
+        mediaRecorder.onstop = function() {
+          createAudioElement(audioChunks[audioIndex], audioIndex);
+          audioIndex++;
+          startRecordButton.disabled = false;
+          stopRecordButton.disabled = true;
+        }
+
+        mediaRecorder.start();
+        startRecordButton.disabled = true;
+        stopRecordButton.disabled = false;
+        transcriptDiv.textContent = ""; // Clear transcript display
+        startSpeechRecognition(); // Start speech recognition
+      })
+      .catch(function(err) {
+        console.error('錯誤:', err);
+      });
+  }
+
+  function stopRecording() {
+    mediaRecorder.stop();
+  }
+
+  function createAudioElement(blob, index) {
+    const audioUrl = URL.createObjectURL(blob);
+    const audio = new Audio(audioUrl);
+    const audioDiv = document.createElement('div'); // Create a new div for each recorded segment
+    const playButton = document.createElement('button');
+    playButton.textContent = "播放第 " + (index + 1) + " 段錄音";
+    playButton.addEventListener('click', function() {
+      audio.play();
+    });
+    const transcriptParagraph = document.createElement('p');
+    transcriptParagraph.textContent =  transcriptDiv.textContent.trim(); // Use the generated transcript
+    audioDiv.appendChild(playButton); // Append playback button to the div
+    audioDiv.appendChild(transcriptParagraph); // Append transcript below the playback button
+    audioControlsDiv.appendChild(audioDiv); // Append the div to the parent container
+  }
+
+  function startSpeechRecognition() {
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.lang = 'en-US'; // Set language to English (United States)
+    recognition.continuous = true;
+
+    recognition.onresult = function(event) {
       const transcript = event.results[event.results.length - 1][0].transcript;
-      const transcriptDiv = document.getElementById('transcript');
       transcriptDiv.textContent += transcript + ' ';
-  };
+    };
 
-  recognition.onerror = function(event) {
+    recognition.onerror = function(event) {
       console.error("不能用原因:", event.error);
-  };
+    };
+
+    recognition.start();
+  }
 </script>
 </body>
 </html>
