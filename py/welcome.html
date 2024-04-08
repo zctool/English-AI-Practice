@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>好煩喔</title>
+</head>
+<body>
+<h1>測試</h1>
+<button id="request-mic">按我</button>
+<button id="pause-resume">暫停</button> <!-- New pause/resume button -->
+<div id="transcript"></div>
+
+<script>
+  // JavaScript code
+  const recognition = new window.webkitSpeechRecognition();
+  recognition.lang = 'en-US'; // Set language to English (United States)
+  recognition.continuous = true;
+  let isPaused = false; // Track whether recognition is paused
+
+  const requestMicButton = document.getElementById('request-mic');
+  const pauseResumeButton = document.getElementById('pause-resume');
+
+  requestMicButton.addEventListener('click', () => {
+      if (!isPaused) { // Only request mic access if not paused
+          navigator.mediaDevices.getUserMedia({ audio: true })
+              .then(stream => {
+                  console.log("公威");
+                  recognition.stream = stream;
+                  recognition.start();
+              })
+              .catch(error => {
+                  console.error("壞了", error);
+              });
+      }
+  });
+
+  pauseResumeButton.addEventListener('click', () => {
+      if (isPaused) { // If recognition is paused, resume it
+          recognition.start();
+          pauseResumeButton.textContent = '暫停';
+          isPaused = false;
+      } else { // If recognition is ongoing, pause it
+          recognition.abort();
+          pauseResumeButton.textContent = '繼續';
+          isPaused = true;
+      }
+  });
+
+  recognition.onresult = function(event) {
+      const transcript = event.results[event.results.length - 1][0].transcript;
+      const transcriptDiv = document.getElementById('transcript');
+      transcriptDiv.textContent += transcript + ' ';
+  };
+
+  recognition.onerror = function(event) {
+      console.error("不能用原因:", event.error);
+  };
+</script>
+</body>
+</html>
