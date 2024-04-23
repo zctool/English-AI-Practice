@@ -39,3 +39,10 @@ Q3:stt ttt
 stream ->webAPI(Flack)->save
 (stream錄音黨丟到後端)
 1.offline chrome-stop->websever->webAPI-> save ->Speech->offline
+
+
+4/23 (文件)
+小功能
+文字比對
+簽到練習功能
+紀錄
