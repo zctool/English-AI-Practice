@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>好煩喔</title>
 </head>
 <body>
-<h1>測試</h1>
+<h1>聊天機器人測試</h1>
 <button id="start-record">開始錄音</button>
 <button id="stop-record" disabled>停止錄音</button>
 <div id="audio-controls"></div>
@@ -26,67 +26,69 @@
   stopRecordButton.addEventListener('click', stopRecording);
 
   function startRecording() {
+    audioChunks = [];
+    transcriptDiv.textContent = "";
+    
     navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(function(stream) {
+      .then(stream => {
         mediaRecorder = new MediaRecorder(stream);
-
-        mediaRecorder.ondataavailable = function(event) {
-          audioChunks.push(event.data);
-        }
-
-        mediaRecorder.onstop = function() {
-          createAudioElement(audioChunks[audioIndex], audioIndex);
-          audioIndex++;
-          startRecordButton.disabled = false;
-          stopRecordButton.disabled = true;
-        }
-
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunks);
+          createAudioElement(audioBlob);
+          sendToChatbot(transcriptDiv.textContent.trim());
+        };
         mediaRecorder.start();
         startRecordButton.disabled = true;
         stopRecordButton.disabled = false;
-        transcriptDiv.textContent = ""; // Clear transcript display
-        startSpeechRecognition(); // Start speech recognition
+        startSpeechRecognition();
       })
-      .catch(function(err) {
-        console.error('錯誤:', err);
-      });
+      .catch(err => console.error('錯誤:', err));
   }
 
   function stopRecording() {
     mediaRecorder.stop();
+    recognition.stop(); // 停止语音识别
+    stopRecordButton.disabled = true;
+    startRecordButton.disabled = false;
   }
 
-  function createAudioElement(blob, index) {
+  function createAudioElement(blob) {
     const audioUrl = URL.createObjectURL(blob);
     const audio = new Audio(audioUrl);
-    const audioDiv = document.createElement('div'); // Create a new div for each recorded segment
     const playButton = document.createElement('button');
-    playButton.textContent = "播放第 " + (index + 1) + " 段錄音";
-    playButton.addEventListener('click', function() {
-      audio.play();
-    });
-    const transcriptParagraph = document.createElement('p');
-    transcriptParagraph.textContent =  transcriptDiv.textContent.trim(); // Use the generated transcript
-    audioDiv.appendChild(playButton); // Append playback button to the div
-    audioDiv.appendChild(transcriptParagraph); // Append transcript below the playback button
-    audioControlsDiv.appendChild(audioDiv); // Append the div to the parent container
+    playButton.textContent = "播放录音";
+    playButton.onclick = () => audio.play();
+    audioControlsDiv.appendChild(playButton);
   }
 
+  let recognition;
   function startSpeechRecognition() {
-    const recognition = new window.webkitSpeechRecognition();
-    recognition.lang = 'en-US'; // Set language to English (United States)
+    recognition = new window.webkitSpeechRecognition();
+    recognition.lang = 'en-US';
     recognition.continuous = true;
-
-    recognition.onresult = function(event) {
+    recognition.onresult = event => {
       const transcript = event.results[event.results.length - 1][0].transcript;
       transcriptDiv.textContent += transcript + ' ';
     };
-
-    recognition.onerror = function(event) {
-      console.error("不能用原因:", event.error);
-    };
-
+    recognition.onerror = event => console.error("语音识别错误:", event.error);
     recognition.start();
+  }
+
+  function sendToChatbot(text) {
+    fetch('http://localhost:5000/chatbot', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text: text})
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.audio) {
+        const audio = new Audio('data:audio/mp3;base64,' + data.audio);
+        audio.play();
+      }
+    })
+    .catch(error => console.error('Error:', error));
   }
 </script>
 </body>
