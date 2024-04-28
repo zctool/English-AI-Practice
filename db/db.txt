@@ -1,0 +1,8 @@
+users(user_id, username, email, pwd)
+
+sentences(sent_id, sent, explanation, sent_file, do_date)
+
+vocabularys(voc_id, voc, explanation, part_of_speech, voc_file, do_date)
+
+conversations(con_id, topic, con_role, con_file, con_date)
+
