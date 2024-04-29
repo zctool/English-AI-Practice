@@ -1,0 +1,35 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+}
+
+header {
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+}
+
+nav {
+    text-align: center;
+    margin-top: 20px;
+}
+
+nav button {
+    background-color: #f0f0f0;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 10px;
+    cursor: pointer;
+}
+
+nav button:hover {
+    background-color: #ddd;
+}
+
+#conversation {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 20px;
+    min-height: 100px;
+}
