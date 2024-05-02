@@ -1,38 +1,45 @@
 from flask import Flask, request, jsonify, redirect, url_for
-from flask_mysqldb import MySQL
 import yaml
+import mysql.connector
 
 app = Flask(__name__)
 
 # Load DB config from a YAML file
 db_config = yaml.load(open('db.yaml'), Loader=yaml.FullLoader)
-app.config['MYSQL_HOST'] = db_config['140.131.114.242']
-app.config['MYSQL_USER'] = db_config['case113201']
-app.config['MYSQL_PASSWORD'] = db_config['@Ntub_113201']
-app.config['MYSQL_DB'] = db_config['113-NTUB']
-
-mysql = MySQL(app)
+config = {
+    'user': db_config['MYSQL_USER'],
+    'password': db_config['MYSQL_PASSWORD'],
+    'host': db_config['MYSQL_HOST'],
+    'database': db_config['MYSQL_DB'],
+    'raise_on_warnings': True
+}
 
 @app.route('/register', methods=['POST'])
 def register():
     user_details = request.form
     username = user_details['username']
     email = user_details['email']
-    password = user_details['password']
-    cur = mysql.connection.cursor()
-    cur.execute("INSERT INTO users(username, email, password) VALUES (%s, %s, %s)", (username, email, password))
-    mysql.connection.commit()
+    password = user_details['pwd']
+    conn = mysql.connector.connect(**config)
+    cur = conn.cursor()
+    cur.execute("INSERT INTO users(username, email, pwd) VALUES (%s, %s, %s)", (username, email, password))
+    conn.commit()
     cur.close()
+    conn.close()
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['POST'])
 def login():
     user_details = request.form
     username = user_details['username']
-    password = user_details['password']
-    cur = mysql.connection.cursor()
-    result_value = cur.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, password))
-    if result_value > 0:
+    password = user_details['pwd']
+    conn = mysql.connector.connect(**config)
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE username = %s AND pwd = %s", (username, password))
+    result_value = cur.fetchone()
+    cur.close()
+    conn.close()
+    if result_value:
         return 'Logged in successfully'
     else:
         return 'Username or Password is wrong'

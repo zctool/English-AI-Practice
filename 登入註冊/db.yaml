@@ -1,4 +1,5 @@
-mysql_host: '140.131.114.242'
-mysql_user: 'case113201'
-mysql_password: '@Ntub_113201'
-mysql_db: '113-NTUB'
+MYSQL_USER: 'case113201'
+MYSQL_PASSWORD: '@Ntub_113201'
+MYSQL_HOST: '140.131.114.242'
+MYSQL_DB: '113-NTUB'
+raise_on_warnings: True
