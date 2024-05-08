@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Split Page Layout</title>
+    <style>
+        /* Container styles */
+        .container {
+            display: flex;
+            height: 100vh; /* 设置容器高度为视口高度的100% */
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            width: 20%; /* 设置侧边栏宽度为20% */
+            background-color: #f0f0f0;
+            padding: 10px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto; /* 添加滚动条 */
+        }
+
+        /* Sidebar list styles */
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        /* Sidebar link styles */
+        .sidebar li a {
+            display: block;
+            padding: 8px;
+            text-decoration: none;
+            color: black;
+        }
+
+        /* Highlight sidebar links on hover */
+        .sidebar li a:hover {
+            background-color: #d0d0d0;
+        }
+
+        /* Main content styles */
+        .main-content {
+            flex: 1; /* 让主要内容区域填充剩余空间 */
+            padding: 20px;
+            position: relative; /* 相对定位，以便绝对定位的子元素 */
+        }
+
+        /* Input and button container */
+        .input-container {
+            position: absolute; /* 使用绝对定位 */
+            bottom: 20px; /* 定位到主要内容区域底部 */
+            left: 50%; /* 水平居中 */
+            transform: translateX(-50%); /* 使容器居中对齐 */
+            display: flex; /* 使用弹性布局 */
+        }
+
+        /* Input and button styles */
+        input[type="text"] {
+            padding: 10px;
+            width: 70%; /* 设置输入框宽度为70% */
+            margin-right: 10px; /* 添加右侧间距 */
+            border-radius: 15px; /* 设置椭圆形边框半径 */
+        }
+
+        button {
+            padding: 10px;
+            border-radius: 15px; /* 设置椭圆形边框半径 */
+            cursor: pointer;
+        }
+
+        /* Paragraph styles */
+        p {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left side: Sidebar with a list of items -->
+        <div class="sidebar">
+            <ul>
+                <li><a href="#">Item 1</a></li>
+                <li><a href="#">Item 2</a></li>
+                <li><a href="#">Item 3</a></li>
+                <li><a href="#">Item 4</a></li>
+                <li><a href="#">Item 5</a></li>
+            </ul>
+        </div>
+
+        <!-- Right side: Main content area -->
+        <div class="main-content">
+            <!-- Text input and button in a container -->
+            <div class="input-container">
+                <input type="text" id="textInput" placeholder="Type something...">
+                <button onclick="displayText()">Submit</button>
+            </div>
+
+            <!-- Display user input text -->
+            <p id="displayText"></p>
+        </div>
+    </script>
+
+    <script>
+        // This function displays the text entered in the text input
+        function displayText() {
+            // Get the text from the input field
+            const inputText = document.getElementById('textInput').value;
+
+            // Display the text below the input field
+            const displayElement = document.getElementById('displayText');
+            displayElement.textContent = 'You entered: ' + inputText;
+        }
+    </script>
+</body>
+</html>
