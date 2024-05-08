@@ -1,18 +1,16 @@
 from flask import Flask, request, jsonify, redirect, url_for
-import yaml
 import mysql.connector
+import pymysql
 
 app = Flask(__name__)
 
-# Load DB config from a YAML file
-db_config = yaml.load(open('db.yaml'), Loader=yaml.FullLoader)
-config = {
-    'user': db_config['MYSQL_USER'],
-    'password': db_config['MYSQL_PASSWORD'],
-    'host': db_config['MYSQL_HOST'],
-    'database': db_config['MYSQL_DB'],
-    'raise_on_warnings': True
-}
+config=pymysql.connect(
+            user='case113201',
+            password='@Ntub_113201',
+            port='3306',
+            host='140.131.114.242',
+            auth_plugin='mysql_native_password'
+)
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -22,7 +20,7 @@ def register():
     password = user_details['pwd']
     conn = mysql.connector.connect(**config)
     cur = conn.cursor()
-    cur.execute("INSERT INTO users(username, email, pwd) VALUES (%s, %s, %s)", (username, email, password))
+    cur.execute("INSERT INTO users(username, email, pwd) VALUES (%s, %s, %s);", (username, email, password))
     conn.commit()
     cur.close()
     conn.close()
@@ -35,7 +33,7 @@ def login():
     password = user_details['pwd']
     conn = mysql.connector.connect(**config)
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE username = %s AND pwd = %s", (username, password))
+    cur.execute("SELECT * FROM users WHERE username = %s AND pwd = %s;", (username, password))
     result_value = cur.fetchone()
     cur.close()
     conn.close()
