@@ -25,6 +25,9 @@
             text-align: center;
             font-size: 24px;
             margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .weekdays {
@@ -33,10 +36,11 @@
             background-color: #ddd;
             padding: 8px 0;
             border-radius: 4px;
+            margin-bottom: 10px;
         }
 
         .weekdays>div {
-            flex-basis: calc(100% / 7);
+            flex: 1;
             text-align: center;
             font-weight: bold;
         }
@@ -52,14 +56,7 @@
             text-align: center;
             border: 1px solid #ccc;
             border-radius: 4px;
-        }
-
-        /* 箭頭按鈕樣式 */
-        button {
-            font-size: 20px;
-            background: none;
-            border: none;
-            cursor: pointer;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -67,7 +64,11 @@
 <body>
 
     <div class="calendar">
-        <div class="month" id="month"></div>
+        <div class="month" id="month">
+            <button id="prev">&#9664;</button>
+            <span id="month-year"></span>
+            <button id="next">&#9654;</button>
+        </div>
         <div class="weekdays">
             <div>Sun</div>
             <div>Mon</div>
@@ -78,16 +79,9 @@
             <div>Sat</div>
         </div>
         <div class="days" id="days"></div>
-        <button id="prev">&#9664;</button>
-        <button id="next">&#9654;</button>
     </div>
 
     <script>
-        // Get current date
-        const today = new Date();
-        let currentMonth = today.getMonth();
-        let currentYear = today.getFullYear();
-
         // Function to generate calendar
         function generateCalendar(month, year) {
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -113,7 +107,27 @@
                 newDay.classList.add("day");
                 daysContainer.appendChild(newDay);
             }
+
+            // Calculate the total number of displayed days
+            const totalDaysDisplayed = firstDay + daysInMonth;
+
+            // Calculate the number of empty cells to add at the end
+            const remainingDays = totalDaysDisplayed % 7;
+            const emptyCells = remainingDays === 0 ? 0 : 7 - remainingDays;
+
+            // Add empty cells for next month
+            for (let i = 0; i < emptyCells; i++) {
+                const emptyCell = document.createElement("div");
+                emptyCell.classList.add("day");
+                daysContainer.appendChild(emptyCell);
+            }
         }
+
+
+        // Get current date
+        const today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
 
         // Initial generation
         generateCalendar(currentMonth, currentYear);
@@ -137,7 +151,6 @@
             }
             generateCalendar(currentMonth, currentYear);
         });
-
     </script>
 
 </body>
