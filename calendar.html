@@ -121,6 +121,11 @@
                 newDay.textContent = day;
                 newDay.classList.add("day");
                 newDay.addEventListener("click", function () {
+                    // Hide all existing dialogs
+                    const dialogs = document.querySelectorAll(".dialog");
+                    dialogs.forEach(dialog => {
+                        dialog.style.display = "none";
+                    });
                     // Display a dialog with the clicked date information
                     const dialog = document.createElement("div");
                     dialog.classList.add("dialog");
@@ -162,6 +167,12 @@
 
         // Next month button functionality
         document.getElementById("next").addEventListener("click", function () {
+            // Hide all existing dialogs
+            const dialogs = document.querySelectorAll(".dialog");
+            dialogs.forEach(dialog => {
+                dialog.style.display = "none";
+            });
+            // Move to next month
             currentMonth++;
             if (currentMonth > 11) {
                 currentMonth = 0;
@@ -172,6 +183,12 @@
 
         // Previous month button functionality
         document.getElementById("prev").addEventListener("click", function () {
+            // Hide all existing dialogs
+            const dialogs = document.querySelectorAll(".dialog");
+            dialogs.forEach(dialog => {
+                dialog.style.display = "none";
+            });
+            // Move to previous month
             currentMonth--;
             if (currentMonth < 0) {
                 currentMonth = 11;
