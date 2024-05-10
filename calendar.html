@@ -47,7 +47,7 @@
 
         .days {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: wrap; /* Make sure each row has 7 columns */
         }
 
         .day {
@@ -57,6 +57,7 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             margin-bottom: 10px;
+            cursor: pointer; /* Add cursor pointer */
         }
     </style>
 </head>
@@ -105,7 +106,15 @@
                 const newDay = document.createElement("div");
                 newDay.textContent = day;
                 newDay.classList.add("day");
+                newDay.addEventListener("click", function () {
+                    alert(`You clicked on ${monthNames[month]} ${day}, ${year}`);
+                });
                 daysContainer.appendChild(newDay);
+
+                // Check if a new row is needed
+                if ((firstDay + day - 1) % 7 === 6) {
+                    daysContainer.appendChild(document.createElement("div")); // Add an empty div to start a new row
+                }
             }
 
             // Calculate the total number of displayed days
