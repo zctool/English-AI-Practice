@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>月曆</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .calendar {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .month {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .weekdays {
+            display: flex;
+            justify-content: space-between;
+            background-color: #ddd;
+            padding: 8px 0;
+            border-radius: 4px;
+        }
+
+        .weekdays>div {
+            flex-basis: calc(100% / 7);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .days {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .day {
+            flex-basis: calc(100% / 7);
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* 箭頭按鈕樣式 */
+        button {
+            font-size: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="calendar">
+        <div class="month" id="month"></div>
+        <div class="weekdays">
+            <div>Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+        </div>
+        <div class="days" id="days"></div>
+        <button id="prev">&#9664;</button>
+        <button id="next">&#9654;</button>
+    </div>
+
+    <script>
+        // Get current date
+        const today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+
+        // Function to generate calendar
+        function generateCalendar(month, year) {
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = 32 - new Date(year, month, 32).getDate();
+
+            document.getElementById("month").textContent = `${monthNames[month]} ${year}`;
+
+            const daysContainer = document.getElementById("days");
+            daysContainer.innerHTML = "";
+
+            // Add empty cells for previous month
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement("div");
+                emptyCell.classList.add("day");
+                daysContainer.appendChild(emptyCell);
+            }
+
+            // Add days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const newDay = document.createElement("div");
+                newDay.textContent = day;
+                newDay.classList.add("day");
+                daysContainer.appendChild(newDay);
+            }
+        }
+
+        // Initial generation
+        generateCalendar(currentMonth, currentYear);
+
+        // Next month button functionality
+        document.getElementById("next").addEventListener("click", function () {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            generateCalendar(currentMonth, currentYear);
+        });
+
+        // Previous month button functionality
+        document.getElementById("prev").addEventListener("click", function () {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            generateCalendar(currentMonth, currentYear);
+        });
+
+    </script>
+
+</body>
+
+</html>
