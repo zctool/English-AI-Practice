@@ -58,6 +58,20 @@
             border-radius: 4px;
             margin-bottom: 10px;
             cursor: pointer; /* Add cursor pointer */
+            position: relative; /* Add position relative for absolute positioning of dialog */
+        }
+
+        .dialog {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            bottom: -80px; /* Initial position below the date */
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
         }
     </style>
 </head>
@@ -107,7 +121,12 @@
                 newDay.textContent = day;
                 newDay.classList.add("day");
                 newDay.addEventListener("click", function () {
-                    alert(`You clicked on ${monthNames[month]} ${day}, ${year}`);
+                    // Display a dialog with the clicked date information
+                    const dialog = document.createElement("div");
+                    dialog.classList.add("dialog");
+                    dialog.textContent = `${monthNames[month]} ${day}, ${year}`;
+                    newDay.appendChild(dialog);
+                    dialog.style.display = "block";
                 });
                 daysContainer.appendChild(newDay);
 
