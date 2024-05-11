@@ -12,14 +12,16 @@
             padding: 0;
         }
 
+
         .calendar {
-            max-width: 600px;
+            max-width: 1200; /* 或者設定一個更大的值，例如 800px */
             margin: 0 auto;
             padding: 20px;
             background-color: #f9f9f9;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
 
         .month {
             text-align: center;
@@ -46,23 +48,25 @@
         }
 
         .days {
-            display: flex;
-            flex-wrap: wrap;
-            /* Make sure each row has 7 columns */
-        }
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; /* 确保元素均匀分布 */
+}
 
-        .day {
-            flex-basis: calc(100% / 7);
-            padding: 10px;
-            text-align: center;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            /* Add cursor pointer */
-            position: relative;
-            /* Add position relative for absolute positioning of dialog */
-        }
+.day {
+    flex: 1 0 14%; /* 这将确保每个.day元素占据行宽的1/7 */
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    box-sizing: border-box; /* 包含边框和填充在内的总宽度 */
+    cursor: pointer;
+    /* Add cursor pointer */
+    position: relative;
+}
+
+
 
         .dialog {
             position: absolute;
@@ -97,6 +101,7 @@
             <span id="month-year"></span>
             <button id="next">&#9654;</button>
         </div>
+
         <div class="weekdays">
             <div>Sun</div>
             <div>Mon</div>
@@ -110,16 +115,19 @@
     </div>
 
     <script>
-        // Function to generate calendar
+        
         function generateCalendar(month, year) {
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            const firstDay = new Date(year, month, 1).getDay();
+            let firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = 32 - new Date(year, month, 32).getDate();
 
-            document.getElementById("month").textContent = `${monthNames[month]} ${year}`;
+            document.getElementById("month-year").textContent = `${monthNames[month]} ${year}`;
 
             const daysContainer = document.getElementById("days");
             daysContainer.innerHTML = "";
+
+            // Adjust the firstDay index to make Monday the first day of the week
+            firstDay = (firstDay === 0) ? 6 : firstDay ;  // Sunday becomes 6, other days decrement by 1
 
             // Add empty cells for previous month
             for (let i = 0; i < firstDay; i++) {
@@ -168,6 +176,7 @@
                 daysContainer.appendChild(emptyCell);
             }
         }
+
 
 
         // Get current date
