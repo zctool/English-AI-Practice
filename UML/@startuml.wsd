@@ -1,0 +1,64 @@
+@startuml
+!define Rectangle class
+
+skinparam class {
+    BackgroundColor LightBlue
+    ArrowColor Navy
+}
+
+package "Frontend" {
+    Rectangle HTML {
+        :HTML;
+    }
+    Rectangle JS {
+        :JavaScript;
+    }
+    Rectangle CSS {
+        :CSS;
+    }
+}
+
+package "Backend" {
+    Rectangle Flask {
+        :Python Flask;
+    }
+}
+
+package "Database" {
+    Rectangle MySQL {
+        :MySQL Database;
+    }
+}
+
+package "AI Dialogue Flow" {
+    Rectangle Chrome {
+        :Offline Chrome Speech Recognition;
+    }
+    Rectangle WebServer {
+        :Web Server Logic;
+    }
+    Rectangle WebAPI {
+        :Web API for Processing;
+    }
+    Rectangle Save {
+        :Save Data;
+    }
+    Rectangle Speech {
+        :Speech Output;
+    }
+}
+
+User -right-> HTML : Accesses
+HTML -right-> JS : Uses
+JS -right-> CSS : Styles
+JS -down-> Flask : Requests
+Flask -down-> MySQL : Queries
+MySQL -up-> Flask : Returns Data
+Flask -right-> Chrome : Initiates
+Chrome -right-> WebServer : Sends Data
+WebServer -right-> WebAPI : Processes
+WebAPI -down-> Save : Stores Interaction
+Save -right-> Speech : Converts to Speech
+Speech -up-> User : Outputs
+
+@enduml
