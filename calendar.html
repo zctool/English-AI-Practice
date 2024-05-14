@@ -12,17 +12,14 @@
             padding: 0;
         }
 
-
         .calendar {
-            max-width: 1200;
-            /* 或者設定一個更大的值，例如 800px */
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f9f9f9;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
 
         .month {
             text-align: center;
@@ -52,25 +49,30 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
-            /* 确保元素均匀分布 */
         }
 
         .day {
             flex: 1 0 14%;
-            /* 这将确保每个.day元素占据行宽的1/7 */
             padding: 10px;
             text-align: center;
             border: 1px solid #ccc;
             border-radius: 4px;
             margin-bottom: 10px;
             box-sizing: border-box;
-            /* 包含边框和填充在内的总宽度 */
             cursor: pointer;
-            /* Add cursor pointer */
             position: relative;
         }
 
-
+        .day .circle {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            border: 2px solid #000;
+            border-radius: 50%;
+            text-align: center;
+            box-sizing: border-box;
+        }
 
         .dialog {
             position: absolute;
@@ -80,27 +82,16 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             z-index: 1;
             bottom: -40px;
-            /* Initial position below the date */
             left: 50%;
             transform: translateX(-50%);
-            display: flex;
-            /* 使用flexbox佈局 */
-            justify-content: center;
-            /* 水平置中 */
-            /*align-items: center;
-            /* 垂直置中 */
+            display: none;
+            /* Initially hidden */
             width: 200px;
-            /* 固定寬度 */
             height: 20px;
-            /* 固定高度 */
             text-align: center;
-            /* 將文本置中 */
-            border-radius: 10px; /* 添加圓角 */
+            border-radius: 10px;
         }
 
-
-
-        /* Added CSS to show next and previous buttons */
         #prev,
         #next {
             background-color: transparent;
@@ -145,7 +136,7 @@
             daysContainer.innerHTML = "";
 
             // Adjust the firstDay index to make Monday the first day of the week
-            firstDay = (firstDay === 0) ? 6 : firstDay;  // Sunday becomes 6, other days decrement by 1
+            firstDay = (firstDay === 0) ? 6 : firstDay - 1; // Sunday becomes 6, other days decrement by 1
 
             // Add empty cells for previous month
             for (let i = 0; i < firstDay; i++) {
@@ -157,20 +148,41 @@
             // Add days of the month
             for (let day = 1; day <= daysInMonth; day++) {
                 const newDay = document.createElement("div");
-                newDay.textContent = day;
+                const circle = document.createElement("div"); // Create circle div
+                circle.textContent = day;
+                circle.classList.add("circle");
                 newDay.classList.add("day");
-                newDay.addEventListener("click", function () {
-                    // Hide all existing dialogs
-                    const dialogs = document.querySelectorAll(".dialog");
-                    dialogs.forEach(dialog => {
-                        dialog.style.display = "none";
+                newDay.appendChild(circle); // Append circle to day
+                newDay.addEventListener("click", function (event) {
+                    event.stopPropagation(); // Prevent event bubbling
+
+                    // Check if the dialog already exists
+                    let dialog = newDay.querySelector(".dialog");
+                    if (dialog) {
+                        // Toggle the display of the existing dialog
+                        dialog.style.display = (dialog.style.display === "block") ? "none" : "block";
+                    } else {
+                        // Hide all existing dialogs
+                        const dialogs = document.querySelectorAll(".dialog");
+                        dialogs.forEach(dialog => {
+                            dialog.style.display = "none";
+                        });
+
+                        // Create and display a new dialog
+                        dialog = document.createElement("div");
+                        dialog.classList.add("dialog");
+                        dialog.textContent = `${monthNames[month]} ${day}, ${year}`;
+                        newDay.appendChild(dialog);
+                        dialog.style.display = "block";
+                    }
+
+                    // Hide the dialog when clicking outside of it
+                    document.addEventListener("click", function hideDialog(event) {
+                        if (!newDay.contains(event.target)) {
+                            dialog.style.display = "none";
+                            document.removeEventListener("click", hideDialog);
+                        }
                     });
-                    // Display a dialog with the clicked date information
-                    const dialog = document.createElement("div");
-                    dialog.classList.add("dialog");
-                    dialog.textContent = `${monthNames[month]} ${day}, ${year}`;
-                    newDay.appendChild(dialog);
-                    dialog.style.display = "block";
                 });
                 daysContainer.appendChild(newDay);
 
@@ -195,8 +207,6 @@
             }
         }
 
-
-
         // Get current date
         const today = new Date();
         let currentMonth = today.getMonth();
@@ -207,12 +217,6 @@
 
         // Next month button functionality
         document.getElementById("next").addEventListener("click", function () {
-            // Hide all existing dialogs
-            const dialogs = document.querySelectorAll(".dialog");
-            dialogs.forEach(dialog => {
-                dialog.style.display = "none";
-            });
-            // Move to next month
             currentMonth++;
             if (currentMonth > 11) {
                 currentMonth = 0;
@@ -223,12 +227,6 @@
 
         // Previous month button functionality
         document.getElementById("prev").addEventListener("click", function () {
-            // Hide all existing dialogs
-            const dialogs = document.querySelectorAll(".dialog");
-            dialogs.forEach(dialog => {
-                dialog.style.display = "none";
-            });
-            // Move to previous month
             currentMonth--;
             if (currentMonth < 0) {
                 currentMonth = 11;
@@ -236,6 +234,7 @@
             }
             generateCalendar(currentMonth, currentYear);
         });
+
 
 
     </script>
