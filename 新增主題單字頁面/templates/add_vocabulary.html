@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Vocabulary</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Add Vocabulary</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <form action="/add_vocabulary" method="post" enctype="multipart/form-data">
+        <label for="topic_id">Topic:</label>
+        <select id="topic_id" name="topic_id" required>
+            {% for topic in topics %}
+                <option value="{{ topic[0] }}">{{ topic[1] }}</option>
+            {% endfor %}
+        </select><br><br>
+        <label for="vocabulary_en">English:</label>
+        <input type="text" id="vocabulary_en" name="vocabulary_en" required><br><br>
+        <label for="vocabulary_tw">Chinese:</label>
+        <input type="text" id="vocabulary_tw" name="vocabulary_tw" required><br><br>
+        <label for="PartOfSpeech">Part of Speech:</label>
+        <input type="text" id="PartOfSpeech" name="PartOfSpeech" required><br><br>
+        <label for="IPA">IPA:</label>
+        <input type="text" id="IPA" name="IPA" required><br><br>
+        <label for="example">Example Sentence:</label>
+        <input type="text" id="example" name="example" required><br><br>
+        <label for="class">Difficulty:</label>
+        <select id="class" name="class" required>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+        </select><br><br>
+        <label for="vocabulary_voice">Voice File:</label>
+        <input type="file" id="vocabulary_voice" name="vocabulary_voice" accept=".mp3" required><br><br>
+        <input type="submit" value="Add Vocabulary">
+    </form>
+</body>
+</html>
