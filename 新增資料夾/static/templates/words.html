@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单词页面</title>
+    <style>
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .word-box {
+            border: 2px solid #007bff;
+            width: 30%;
+            margin: 1%;
+            padding: 10px;
+            text-align: center;
+        }
+        audio, button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% for word in words %}
+        <div class="word-box">
+            <p>{{ word.vocabulary_en }} ({{ word.vocabulary_tw }})</p>
+            <p>{{ word.PartOfSpeech }} - {{ word.IPA }}</p>
+            <p>{{ word.example }}</p>
+            <audio controls>
+                <source src="{{ url_for('static', filename='recordings/' + word.vocabulary_voice) }}" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" name="file">
+                <button type="submit">上传录音</button>
+            </form>
+            <button onclick="collectWord('{{ word.vocabulary_en }}')">收藏</button>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        function collectWord(word) {
+            fetch('/collect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ collect: word })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message));
+        }
+    </script>
+</body>
+</html>
