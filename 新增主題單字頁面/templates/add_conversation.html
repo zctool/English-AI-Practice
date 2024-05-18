@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Conversation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Add Conversation</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <form action="/add_conversation" method="post" enctype="multipart/form-data">
+        <label for="topic_id">Topic:</label>
+        <select id="topic_id" name="topic_id" required>
+            {% for topic in topics %}
+                <option value="{{ topic[0] }}">{{ topic[1] }}</option>
+            {% endfor %}
+        </select><br><br>
+        <label for="charath_id">Character ID:</label>
+        <input type="number" id="charath_id" name="charath_id" required><br><br>
+        <label for="charather_name">Character Name:</label>
+        <input type="text" id="charather_name" name="charather_name" required><br><br>
+        <label for="conversation_en">English Conversation:</label>
+        <input type="text" id="conversation_en" name="conversation_en" required><br><br>
+        <label for="conversation_tw">Chinese Conversation:</label>
+        <input type="text" id="conversation_tw" name="conversation_tw" required><br><br>
+        <label for="example">Example Sentence:</label>
+        <input type="text" id="example" name="example" required><br><br>
+        <label for="class">Difficulty:</label>
+        <select id="class" name="class" required>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+        </select><br><br>
+        <label for="conversation_voice">Voice File:</label>
+        <input type="file" id="conversation_voice" name="conversation_voice" accept=".mp3" required><br><br>
+        <input type="submit" value="Add Conversation">
+    </form>
+</body>
+</html>
