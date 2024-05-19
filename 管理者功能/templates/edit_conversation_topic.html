@@ -6,20 +6,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Edit Conversation Topic</h1>
-    <form method="post">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" value="{{ topic[1] }}" required><br>
-        <label for="class">Class (Difficulty):</label>
-        <select id="class" name="class" required>
-            <option value="Easy" {% if topic[2] == 'Easy' %}selected{% endif %}>Easy</option>
-            <option value="Normal" {% if topic[2] == 'Normal' %}selected{% endif %}>Normal</option>
-            <option value="Hard" {% if topic[2] == 'Hard' %}selected{% endif %}>Hard</option>
-        </select><br>
-        <label for="character_name">Character Name:</label>
-        <input type="text" id="character_name" name="character_name" value="{{ topic[3] }}" required><br>
-        <input type="submit" value="Update Topic">
-    </form>
-    <button onclick="location.href='{{ url_for('conversation_topics') }}';">Back to Topics</button>
+    <div class="container">
+        <h1>Edit Conversation Topic</h1>
+        <form method="post">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{{ topic[1] }}" required><br>
+            <label for="class">Class (Difficulty):</label>
+            <select id="class" name="class" required>
+                <option value="Easy" {% if topic[2] == 'Easy' %}selected{% endif %}>Easy</option>
+                <option value="Normal" {% if topic[2] == 'Normal' %}selected{% endif %}>Normal</option>
+                <option value="Hard" {% if topic[2] == 'Hard' %}selected{% endif %}>Hard</option>
+            </select><br><br>
+            <input type="submit" value="Update Topic">
+        </form>
+        <button onclick="location.href='{{ url_for('conversation_topics') }}';">Back to Conversation Topics</button>
+    </div>
 </body>
 </html>

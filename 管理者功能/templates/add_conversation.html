@@ -4,63 +4,30 @@
     <meta charset="UTF-8">
     <title>Add Conversation</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <h1>Add Conversation</h1>
-    <form action="/add_conversation" method="post" enctype="multipart/form-data">
+    <form method="post" action="{{ url_for('add_conversation') }}" enctype="multipart/form-data">
         <label for="topic_id">Topic:</label>
-        <select id="topic_id" name="topic_id" required>
+        <select id="topic_id" name="topic_id">
             {% for topic in topics %}
                 <option value="{{ topic[0] }}">{{ topic[1] }}</option>
             {% endfor %}
-        </select><br><br>
-        <label for="character_id">Character (optional):</label>
-        <select id="character_id" name="character_id">
-            <!-- 动态加载 -->
-        </select><br><br>
-        <label for="conversation_en">English Conversation:</label>
-        <input type="text" id="conversation_en" name="conversation_en" required><br><br>
-        <label for="conversation_tw">Chinese Conversation:</label>
-        <input type="text" id="conversation_tw" name="conversation_tw" required><br><br>
-        <label for="class">Difficulty:</label>
-        <select id="class" name="class" required>
-            <option value="Easy">Easy</option>
-            <option value="Normal">Normal</option>
-            <option value="Hard">Hard</option>
-        </select><br><br>
-        <label for="conversation_voice">Voice File:</label>
-        <input type="file" id="conversation_voice" name="conversation_voice" accept=".mp3" required><br><br>
-        <input type="submit" value="Add Conversation">
+        </select>
+        <label for="conversation_en">English:</label>
+        <input type="text" id="conversation_en" name="conversation_en" required>
+        <label for="conversation_tw">Chinese:</label>
+        <input type="text" id="conversation_tw" name="conversation_tw" required>
+        <label for="class">Class:</label>
+        <select id="class" name="class">
+          <option value="Easy">Easy</option>
+          <option value="Normal">Normal</option>
+          <option value="Hard">Hard</option>
+        </select>
+        <label for="conversation_voice">Voice:</label>
+        <input type="file" id="conversation_voice" name="conversation_voice" required>
+        <button type="submit">Add Conversation</button>
     </form>
-    <button onclick="location.href='{{ url_for('index') }}';">Back to Home</button>
-    <script>
-        $('#topic_id').change(function() {
-            var topicId = $(this).val();
-            $.get('/get_characters/' + topicId, function(data) {
-                var characterSelect = $('#character_id');
-                characterSelect.empty();
-                characterSelect.append($('<option>', {
-                    value: '',
-                    text: 'None'
-                }));
-                $.each(data, function(index, character) {
-                    characterSelect.append($('<option>', {
-                        value: character[0],
-                        text: character[1]
-                    }));
-                });
-            });
-        });
-    </script>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="flashes">
-        {% for category, message in messages %}
-          <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+    <a href="{{ url_for('index') }}">Back to Home</a>
 </body>
 </html>

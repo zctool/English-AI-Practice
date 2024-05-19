@@ -2,25 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Vocabulary Topic</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h1>Add Vocabulary Topic</h1>
-    <form method="post">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required><br>
-        <input type="submit" value="Add Topic">
+    <form action="{{ url_for('add_vocabulary_topic') }}" method="post">
+        <label for="name">Topic Name:</label>
+        <input type="text" id="name" name="name" required>
+        <button type="submit">Add Topic</button>
     </form>
-    <button onclick="location.href='{{ url_for('index') }}';">Back to Home</button>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="flashes">
-        {% for category, message in messages %}
-          <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+    <a href="{{ url_for('index') }}">Back to Home</a>
 </body>
 </html>

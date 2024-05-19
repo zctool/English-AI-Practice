@@ -10,12 +10,12 @@
         <h1>Main Page</h1>
         <button onclick="location.href='{{ url_for('add_conversation') }}';">Add Conversation</button>
         <button onclick="location.href='{{ url_for('add_conversation_topic') }}';">Add Conversation Topic</button>
+        <button onclick="location.href='{{ url_for('conversations') }}';">View/Edit/Delete Conversations</button>
+        <button onclick="location.href='{{ url_for('conversation_topics') }}';">View/Edit/Delete Conversation Topics</button>
         <button onclick="location.href='{{ url_for('add_vocabulary') }}';">Add Vocabulary</button>
         <button onclick="location.href='{{ url_for('add_vocabulary_topic') }}';">Add Vocabulary Topic</button>
-        <button onclick="location.href='{{ url_for('conversation_topics') }}';">View/Edit/Delete Conversation Topics</button>
-        <button onclick="location.href='{{ url_for('vocabulary_topics') }}';">View/Edit/Delete Vocabulary Topics</button>
-        <button onclick="location.href='{{ url_for('conversations') }}';">View/Edit/Delete Conversations</button>
         <button onclick="location.href='{{ url_for('vocabularies') }}';">View/Edit/Delete Vocabularies</button>
+        <button onclick="location.href='{{ url_for('vocabulary_topics') }}';">View/Edit/Delete Vocabulary Topics</button>
     </div>
 </body>
 </html>

@@ -6,26 +6,24 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Edit Conversation</h1>
-    <form method="post" enctype="multipart/form-data">
-        <label for="topic_id">Topic:</label>
-        <input type="text" id="topic_id" name="topic_id" value="{{ conversation[1] }}" required><br>
-        <label for="character_id">Character:</label>
-        <input type="text" id="character_id" name="character_id" value="{{ conversation[2] }}"><br>
-        <label for="conversation_en">English:</label>
-        <input type="text" id="conversation_en" name="conversation_en" value="{{ conversation[3] }}" required><br>
-        <label for="conversation_tw">Chinese:</label>
-        <input type="text" id="conversation_tw" name="conversation_tw" value="{{ conversation[4] }}" required><br>
-        <label for="class">Difficulty:</label>
-        <select id="class" name="class" required>
-            <option value="Easy" {% if conversation[5] == 'Easy' %}selected{% endif %}>Easy</option>
-            <option value="Normal" {% if conversation[5] == 'Normal' %}selected{% endif %}>Normal</option>
-            <option value="Hard" {% if conversation[5] == 'Hard' %}selected{% endif %}>Hard</option>
-        </select><br><br>
-        <label for="conversation_voice">Voice File (optional):</label>
-        <input type="file" id="conversation_voice" name="conversation_voice" accept=".mp3"><br>
-        <input type="submit" value="Update Conversation">
-    </form>
-    <button onclick="location.href='{{ url_for('conversations') }}';">Back to Conversations</button>
+    <div class="container">
+        <h1>Edit Conversation</h1>
+        <form method="post" enctype="multipart/form-data">
+            <label for="topic_id">Topic:</label>
+            <select id="topic_id" name="topic_id" required>
+                {% for topic in topics %}
+                <option value="{{ topic[0] }}" {% if topic[0] == conversation[1] %}selected{% endif %}>{{ topic[1] }}</option>
+                {% endfor %}
+            </select><br>
+            <label for="conversation_en">Conversation (English):</label>
+            <input type="text" id="conversation_en" name="conversation_en" value="{{ conversation[2] }}" required><br>
+            <label for="conversation_tw">Conversation (Chinese):</label>
+            <input type="text" id="conversation_tw" name="conversation_tw" value="{{ conversation[3] }}" required><br>
+            <label for="conversation_voice">Upload Voice (MP3):</label>
+            <input type="file" id="conversation_voice" name="conversation_voice" accept=".mp3"><br><br>
+            <input type="submit" value="Update Conversation">
+        </form>
+        <button onclick="location.href='{{ url_for('conversations') }}';">Back to Conversations</button>
+    </div>
 </body>
 </html>
