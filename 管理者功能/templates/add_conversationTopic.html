@@ -7,17 +7,19 @@
 </head>
 <body>
     <h1>Add Conversation Topic</h1>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
-        <br>
+        <input type="text" id="name" name="name" required><br>
         <label for="class">Class (Difficulty):</label>
         <select id="class" name="class" required>
-          <option value="Easy">Easy</option>
-          <option value="Normal">Normal</option>
-          <option value="Hard">Hard</option>
-      </select><br><br>
-        <br>
+            <option value="Easy">Easy</option>
+            <option value="Normal">Normal</option>
+            <option value="Hard">Hard</option>
+        </select><br><br>
+        <label for="character_name">Character Name:</label>
+        <input type="text" id="character_name" name="character_name" required><br>
+        <label for="icon">Upload Icon (JPG, PNG):</label>
+        <input type="file" id="icon" name="icon" accept=".jpg, .jpeg, .png" required><br>
         <input type="submit" value="Add Topic">
     </form>
     <button onclick="location.href='{{ url_for('index') }}';">Back to Home</button>

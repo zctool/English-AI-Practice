@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Vocabulary Topic</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Edit Vocabulary Topic</h1>
+    <form method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="{{ topic[1] }}" required><br>
+        <label for="class">Class (Difficulty):</label>
+        <select id="class" name="class" required>
+            <option value="A1" {% if topic[2] == 'A1' %}selected{% endif %}>A1</option>
+            <option value="A2" {% if topic[2] == 'A2' %}selected{% endif %}>A2</option>
+            <option value="B1" {% if topic[2] == 'B1' %}selected{% endif %}>B1</option>
+            <option value="B2" {% if topic[2] == 'B2' %}selected{% endif %}>B2</option>
+            <option value="C1" {% if topic[2] == 'C1' %}selected{% endif %}>C1</option>
+            <option value="C2" {% if topic[2] == 'C2' %}selected{% endif %}>C2</option>
+        </select><br><br>
+        <input type="submit" value="Update Topic">
+    </form>
+    <button onclick="location.href='{{ url_for('vocabulary_topics') }}';">Back to Topics</button>
+</body>
+</html>
