@@ -128,7 +128,6 @@ def add_conversation():
         charather_name = request.form['charather_name']
         conversation_en = request.form['conversation_en']
         conversation_tw = request.form['conversation_tw']
-        example = request.form['example']
         difficulty_class = request.form['class']
         conversation_voice = request.files['conversation_voice']
 
@@ -137,10 +136,10 @@ def add_conversation():
             cursor = connection.cursor()
             voice_data = conversation_voice.read()
             query = """
-                INSERT INTO conversation (topic_id, charath_id, charather_name, conversation_en, conversation_tw, example, conversation_voice, class)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO conversation (topic_id, charath_id, charather_name, conversation_en, conversation_tw, conversation_voice, class)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(query, (topic_id, charath_id, charather_name, conversation_en, conversation_tw, example, voice_data, difficulty_class))
+            cursor.execute(query, (topic_id, charath_id, charather_name, conversation_en, conversation_tw, voice_data, difficulty_class))
             connection.commit()
             flash('Conversation added successfully!', 'success')
         except mysql.connector.Error as err:
