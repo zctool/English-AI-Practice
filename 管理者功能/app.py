@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, jsonify, render_template, request, redirect, url_for, flash
 import mysql.connector
 
 app = Flask(__name__)
@@ -320,11 +320,12 @@ def add_conversation_topic():
         return redirect(url_for('add_conversation_topic'))
     return render_template('add_conversationTopic.html')
 
-# 新增對話內容
+# 新增对话内容
 @app.route('/add_conversation', methods=['GET', 'POST'])
 def add_conversation():
     if request.method == 'POST':
         topic_id = request.form['topic_id']
+        character_id = request.form['character_id']
         conversation_en = request.form['conversation_en']
         conversation_tw = request.form['conversation_tw']
         difficulty_class = request.form['class']
@@ -333,14 +334,23 @@ def add_conversation():
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
-            voice_data = conversation_voice.read()
-            query = """
-                INSERT INTO conversation (topic_id, conversation_en, conversation_tw, class, conversation_voice)
-                VALUES (%s, %s, %s, %s, %s)
-            """
-            cursor.execute(query, (topic_id, conversation_en, conversation_tw, difficulty_class, voice_data))
-            connection.commit()
-            flash('Conversation added successfully!', 'success')
+
+            # 检查是否存在相同 topic_id 和 class 的对话内容
+            check_query = "SELECT COUNT(*) FROM conversation WHERE topic_id = %s AND class = %s"
+            cursor.execute(check_query, (topic_id, difficulty_class))
+            result = cursor.fetchone()
+
+            if result[0] > 0:
+                flash('Conversation with the same topic and class already exists!', 'danger')
+            else:
+                voice_data = conversation_voice.read()
+                query = """
+                    INSERT INTO conversation (topic_id, character_id, conversation_en, conversation_tw, class, conversation_voice)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """
+                cursor.execute(query, (topic_id, character_id, conversation_en, conversation_tw, difficulty_class, voice_data))
+                connection.commit()
+                flash('Conversation added successfully!', 'success')
         except mysql.connector.Error as err:
             flash(f"Error: {err}", 'danger')
             if connection:
@@ -366,6 +376,28 @@ def add_conversation():
             if connection:
                 connection.close()
         return render_template('add_conversation.html', topics=topics)
+
+@app.route('/get_characters/<int:topic_id>/<string:difficulty_class>', methods=['GET'])
+def get_characters(topic_id, difficulty_class):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        query = """
+            SELECT characters.id, characters.character_name 
+            FROM characters 
+            JOIN conversationTopic ON characters.topic_id = conversationTopic.id 
+            WHERE characters.topic_id = %s AND conversationTopic.class = %s
+        """
+        cursor.execute(query, (topic_id, difficulty_class))
+        characters = cursor.fetchall()
+        return jsonify(characters)
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)})
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
 
 # 查看和编辑对话主题
 @app.route('/conversation_topics')
