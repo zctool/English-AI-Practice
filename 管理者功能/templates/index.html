@@ -1,21 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Main Page</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Main Page</h1>
-        <button onclick="location.href='{{ url_for('add_conversation') }}';">Add Conversation</button>
-        <button onclick="location.href='{{ url_for('add_conversation_topic') }}';">Add Conversation Topic</button>
-        <button onclick="location.href='{{ url_for('conversations') }}';">View/Edit/Delete Conversations</button>
-        <button onclick="location.href='{{ url_for('conversation_topics') }}';">View/Edit/Delete Conversation Topics</button>
-        <button onclick="location.href='{{ url_for('add_vocabulary') }}';">Add Vocabulary</button>
-        <button onclick="location.href='{{ url_for('add_vocabulary_topic') }}';">Add Vocabulary Topic</button>
-        <button onclick="location.href='{{ url_for('vocabularies') }}';">View/Edit/Delete Vocabularies</button>
-        <button onclick="location.href='{{ url_for('vocabulary_topics') }}';">View/Edit/Delete Vocabulary Topics</button>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <script>
+      function changeContent(url) {
+        document.getElementById("mainFrame").src = url;
+      }
+    </script>
+  </head>
+  <body>
+    <header>
+      <h1>Main Page</h1>
+    </header>
+    <div class="sidebar">
+      <button onclick="changeContent('{{ url_for('add_conversation') }}')">
+        Add Conversation
+      </button>
+      <button
+        onclick="changeContent('{{ url_for('add_conversation_topic') }}')"
+      >
+        Add Conversation Topic
+      </button>
+      <button onclick="changeContent('{{ url_for('conversations') }}')">
+        View/Edit/Delete Conversations
+      </button>
+      <button onclick="changeContent('{{ url_for('conversation_topics') }}')">
+        View/Edit/Delete Conversation Topics
+      </button>
+      <button onclick="changeContent('{{ url_for('add_vocabulary') }}')">
+        Add Vocabulary
+      </button>
+      <button onclick="changeContent('{{ url_for('add_vocabulary_topic') }}')">
+        Add Vocabulary Topic
+      </button>
+      <button onclick="changeContent('{{ url_for('vocabularies') }}')">
+        View/Edit/Delete Vocabularies
+      </button>
+      <button onclick="changeContent('{{ url_for('vocabulary_topics') }}')">
+        View/Edit/Delete Vocabulary Topics
+      </button>
     </div>
-</body>
+    <div class="content">
+      <iframe
+        id="mainFrame"
+        src=""
+        style="width: 100%; height: 100vh; border: none"
+      ></iframe>
+    </div>
+  </body>
 </html>

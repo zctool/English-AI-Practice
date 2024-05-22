@@ -1,5 +1,4 @@
 Flask
 Flask-SQLAlchemy
 PyMySQL
-mysql-connector -python
---user cursor
+mysql-connector
