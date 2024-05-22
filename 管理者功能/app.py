@@ -483,7 +483,12 @@ def conversations():
     try:
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor()
-        cursor.execute("SELECT id, topic_id, conversation_en, conversation_tw FROM conversation")
+        query = """
+            SELECT c.id, c.conversation_en, c.conversation_tw, ct.name AS topic_name
+            FROM conversation c
+            JOIN conversationTopic ct ON c.topic_id = ct.id
+        """
+        cursor.execute(query)
         conversations = cursor.fetchall()
     except mysql.connector.Error as err:
         flash(f"Error: {err}", 'danger')
@@ -536,7 +541,12 @@ def edit_conversation(conversation_id):
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
-            cursor.execute("SELECT id, topic_id, conversation_en, conversation_tw FROM conversation WHERE id = %s", (conversation_id,))
+            cursor.execute("""
+                SELECT c.id, c.conversation_en, c.conversation_tw, ct.id AS topic_id, ct.name AS topic_name
+                FROM conversation c
+                JOIN conversationTopic ct ON c.topic_id = ct.id
+                WHERE c.id = %s
+            """, (conversation_id,))
             conversation = cursor.fetchone()
             cursor.execute("SELECT id, name FROM conversationTopic")
             topics = cursor.fetchall()
