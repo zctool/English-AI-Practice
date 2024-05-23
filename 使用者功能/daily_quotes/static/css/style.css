@@ -1,0 +1,31 @@
+.quotes-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.quote {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin: 10px;
+    text-align: center;
+}
+
+.quote img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+}
+
+.quote h2 {
+    margin: 10px 0;
+}
+
+.quote p {
+    margin: 5px 0;
+}
+
+.quote button {
+    margin-top: 10px;
+}
