@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Edit Vocabulary Topic</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
     <div class="container">
-        <h1>Edit Vocabulary Topic</h1>
-        <form method="post">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" value="{{ topic[1] }}" required><br>
-            <input type="submit" value="Update Topic">
-        </form>
-        <button onclick="location.href='{{ url_for('vocabulary_topics') }}';">Back to Vocabulary Topics</button>
+      <h1>Edit Vocabulary Topic</h1>
+      <form method="post">
+        <label for="name">Name:</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value="{{ topic[1] }}"
+          required
+        /><br />
+        <input type="submit" value="Update Topic" />
+      </form>
+      <button onclick="location.href='{{ url_for('vocabulary_topics') }}';">
+        Back to Vocabulary Topics
+      </button>
     </div>
-</body>
+  </body>
 </html>

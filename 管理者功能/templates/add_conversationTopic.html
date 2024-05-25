@@ -45,14 +45,16 @@
                 <input type="text" id="character_name_0" name="character_name" required>
                 <label for="icon_0">Upload Icon (JPG, PNG):</label>
                 <input type="file" id="icon_0" name="icon" accept=".jpg, .jpeg, .png" required>
-                <button type="button" onclick="removeCharacterField(0)">Remove</button>
-                <br>
-            </div>
-        </div>
-        <button type="button" onclick="addCharacterField()">Add Character</button><br><br>
-        <input type="submit" value="Add Topic">
+                <div class="button-container">
+                    <div class="left-buttons">
+                        <button type="button" onclick="addCharacterField()" class="btn20">Add Character</button>
+                        <button type="button" onclick="removeCharacterField(0)" class="btn21">Remove</button>
+                    </div>
+                    <div class="right-button"> <input type="submit" value="Add Topic" class="submit-button" /></div>
+                   
+                </div>
     </form>
-    <button onclick="location.href='{{ url_for('index') }}';">Back to Home</button>
+   
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <ul class="flashes">

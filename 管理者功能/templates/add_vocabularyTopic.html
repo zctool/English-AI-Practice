@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Add Vocabulary Topic</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
     <h1>Add Vocabulary Topic</h1>
     <form action="{{ url_for('add_vocabulary_topic') }}" method="post">
-        <label for="name">Topic Name:</label>
-        <input type="text" id="name" name="name" required>
-        <button type="submit">Add Topic</button>
+      <label for="name">Topic Name:</label>
+      <input type="text" id="name" name="name" required />
+      <button type="submit">Add Topic</button>
     </form>
-    <a href="{{ url_for('index') }}">Back to Home</a>
-</body>
+  </body>
 </html>
