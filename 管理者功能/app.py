@@ -16,17 +16,25 @@ config = {
 def index():
     return render_template('index.html')
 
-# 新增單字主題
+# 新增单词主题
 @app.route('/add_vocabulary_topic', methods=['GET', 'POST'])
 def add_vocabulary_topic():
     if request.method == 'POST':
         name = request.form['name']
+        icon_file = request.files.get('icon')
 
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
+
             query = "INSERT INTO vocabularyTopic (name) VALUES (%s)"
             cursor.execute(query, (name,))
+            topic_id = cursor.lastrowid
+
+            if icon_file and allowed_file(icon_file.filename):
+                icon_data = icon_file.read()
+                cursor.execute("INSERT INTO vocabularyTopicIcon (topic_id, icon) VALUES (%s, %s)", (topic_id, icon_data))
+
             connection.commit()
             flash('Vocabulary Topic added successfully!', 'success')
         except mysql.connector.Error as err:
@@ -114,12 +122,19 @@ def vocabulary_topics():
 def edit_vocabulary_topic(topic_id):
     if request.method == 'POST':
         name = request.form['name']
+        icon_file = request.files.get('icon')
 
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
+            
             query = "UPDATE vocabularyTopic SET name = %s WHERE id = %s"
             cursor.execute(query, (name, topic_id))
+            
+            if icon_file and allowed_file(icon_file.filename):
+                icon_data = icon_file.read()
+                cursor.execute("REPLACE INTO vocabularyTopicIcon (topic_id, icon) VALUES (%s, %s)", (topic_id, icon_data))
+                
             connection.commit()
             flash('Vocabulary Topic updated successfully!', 'success')
         except mysql.connector.Error as err:
@@ -136,17 +151,22 @@ def edit_vocabulary_topic(topic_id):
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
-            cursor.execute("SELECT id, name FROM vocabularyTopic WHERE id = %s", (topic_id,))
+            cursor.execute("SELECT name FROM vocabularyTopic WHERE id = %s", (topic_id,))
             topic = cursor.fetchone()
+            
+            cursor.execute("SELECT icon FROM vocabularyTopicIcon WHERE topic_id = %s", (topic_id,))
+            icon = cursor.fetchone()
+            
         except mysql.connector.Error as err:
             flash(f"Error: {err}", 'danger')
             topic = None
+            icon = None
         finally:
             if cursor:
                 cursor.close()
             if connection:
                 connection.close()
-        return render_template('edit_vocabulary_topic.html', topic=topic)
+        return render_template('edit_vocabulary_topic.html', topic=topic, icon=icon, topic_id=topic_id)
 
 # 删除单字主题
 @app.route('/delete_vocabulary_topic/<int:topic_id>')
@@ -154,7 +174,13 @@ def delete_vocabulary_topic(topic_id):
     try:
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor()
+
+        # 删除相关的图标
+        cursor.execute("DELETE FROM vocabularyTopicIcon WHERE topic_id = %s", (topic_id,))
+
+        # 删除主題
         cursor.execute("DELETE FROM vocabularyTopic WHERE id = %s", (topic_id,))
+        
         connection.commit()
         flash('Vocabulary Topic deleted successfully!', 'success')
     except mysql.connector.Error as err:
@@ -266,18 +292,18 @@ def delete_vocabulary(vocabulary_id):
             connection.close()
     return redirect(url_for('vocabularies'))
 
-# 新增對話主題
+# 新增对话主题
 @app.route('/add_conversation_topic', methods=['GET', 'POST'])
 def add_conversation_topic():
     if request.method == 'POST':
         name = request.form['name']
         difficulty_class = request.form['class']
+        icon_file = request.files.get('icon')
 
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
 
-            # 检查是否存在重复的 name 和 class
             check_query = "SELECT COUNT(*) FROM conversationTopic WHERE name = %s AND class = %s"
             cursor.execute(check_query, (name, difficulty_class))
             result = cursor.fetchone()
@@ -285,25 +311,25 @@ def add_conversation_topic():
             if result[0] > 0:
                 flash('Topic with the same name and class already exists!', 'danger')
             else:
-                # 插入conversationTopic数据
                 query = "INSERT INTO conversationTopic (name, class) VALUES (%s, %s)"
                 cursor.execute(query, (name, difficulty_class))
                 topic_id = cursor.lastrowid
 
-                # 插入人物数据
+                if icon_file and allowed_file(icon_file.filename):
+                    icon_data = icon_file.read()
+                    cursor.execute("INSERT INTO conversationTopicIcon (topic_id, icon) VALUES (%s, %s)", (topic_id, icon_data))
+
                 character_names = request.form.getlist('character_name')
-                icons = request.files.getlist('icon')
+                icons = request.files.getlist('character_icon')
 
                 for i in range(len(character_names)):
                     character_name = character_names[i]
-                    icon_file = icons[i]
+                    character_icon_file = icons[i]
 
-                    if icon_file and allowed_file(icon_file.filename):
-                        icon_data = icon_file.read()
-                        cursor.execute("INSERT INTO icon (icon) VALUES (%s)", (icon_data,))
+                    if character_icon_file and allowed_file(character_icon_file.filename):
+                        character_icon_data = character_icon_file.read()
+                        cursor.execute("INSERT INTO icon (icon) VALUES (%s)", (character_icon_data,))
                         icon_id = cursor.lastrowid
-
-                        # 将人物和话题关联
                         cursor.execute("INSERT INTO characters (character_name, icon_id, topic_id) VALUES (%s, %s, %s)", (character_name, icon_id, topic_id))
 
                 connection.commit()
@@ -423,12 +449,19 @@ def edit_conversation_topic(topic_id):
     if request.method == 'POST':
         name = request.form['name']
         difficulty_class = request.form['class']
+        icon_file = request.files.get('icon')
 
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
+            
             query = "UPDATE conversationTopic SET name = %s, class = %s WHERE id = %s"
             cursor.execute(query, (name, difficulty_class, topic_id))
+            
+            if icon_file and allowed_file(icon_file.filename):
+                icon_data = icon_file.read()
+                cursor.execute("REPLACE INTO conversationTopicIcon (topic_id, icon) VALUES (%s, %s)", (topic_id, icon_data))
+                
             connection.commit()
             flash('Conversation Topic updated successfully!', 'success')
         except mysql.connector.Error as err:
@@ -445,17 +478,22 @@ def edit_conversation_topic(topic_id):
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
-            cursor.execute("SELECT id, name, class FROM conversationTopic WHERE id = %s", (topic_id,))
+            cursor.execute("SELECT name, class FROM conversationTopic WHERE id = %s", (topic_id,))
             topic = cursor.fetchone()
+            
+            cursor.execute("SELECT icon FROM conversationTopicIcon WHERE topic_id = %s", (topic_id,))
+            icon = cursor.fetchone()
+            
         except mysql.connector.Error as err:
             flash(f"Error: {err}", 'danger')
             topic = None
+            icon = None
         finally:
             if cursor:
                 cursor.close()
             if connection:
                 connection.close()
-        return render_template('edit_conversation_topic.html', topic=topic)
+        return render_template('edit_conversation_topic.html', topic=topic, icon=icon, topic_id=topic_id)
 
 # 删除对话主题
 @app.route('/delete_conversation_topic/<int:topic_id>')
@@ -463,7 +501,15 @@ def delete_conversation_topic(topic_id):
     try:
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor()
+
+        # 删除相关的图标
+        cursor.execute("DELETE FROM conversationTopicIcon WHERE topic_id = %s", (topic_id,))
+        cursor.execute("DELETE FROM characters WHERE topic_id = %s", (topic_id,))
+        cursor.execute("DELETE FROM icon WHERE id IN (SELECT icon_id FROM characters WHERE topic_id = %s)", (topic_id,))
+        
+        # 删除主題
         cursor.execute("DELETE FROM conversationTopic WHERE id = %s", (topic_id,))
+        
         connection.commit()
         flash('Conversation Topic deleted successfully!', 'success')
     except mysql.connector.Error as err:

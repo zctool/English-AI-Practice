@@ -1,40 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8">
     <title>Edit Character</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
-  </head>
-  <body>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
     <div class="container">
-      <h1>Edit Character</h1>
-      <form method="post" enctype="multipart/form-data">
-        <input type="hidden" name="topic_id" value="{{ topic_id }}" />
-        <label for="character_name">Character Name:</label>
-        <input
-          type="text"
-          id="character_name"
-          name="character_name"
-          value="{{ character[1] }}"
-          required
-        /><br />
-        <label for="icon">Upload Icon (JPG, PNG):</label>
-        <input
-          type="file"
-          id="icon"
-          name="icon"
-          accept=".jpg, .jpeg, .png"
-        /><br /><br />
-        <input type="submit" value="Update Character" />
-      </form>
-      <button
-        onclick="location.href='{{ url_for('characters', topic_id=topic_id) }}';"
-      >
-        Back to Characters
-      </button>
+        <h1>Edit Character</h1>
+        <form method="post" enctype="multipart/form-data">
+            <input type="hidden" name="topic_id" value="{{ topic_id }}">
+            <label for="character_name">Character Name:</label>
+            <input type="text" id="character_name" name="character_name" value="{{ character[1] }}" required><br>
+            <label for="icon">Upload Icon (JPG, PNG):</label>
+            <input type="file" id="icon" name="icon" accept=".jpg, .jpeg, .png"><br><br>
+            <input type="submit" value="Update Character">
+        </form>
+        <button onclick="location.href='{{ url_for('characters', topic_id=topic_id) }}';">Back to Characters</button>
     </div>
-  </body>
+</body>
 </html>
