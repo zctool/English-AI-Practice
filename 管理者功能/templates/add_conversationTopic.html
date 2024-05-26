@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Add Conversation Topic</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
     <script>
-        function addCharacterField() {
-            const characterContainer = document.getElementById('characterContainer');
-            const characterCount = characterContainer.childElementCount;
+      function addCharacterField() {
+        const characterContainer =
+          document.getElementById("characterContainer");
+        const characterCount = characterContainer.childElementCount;
 
-            const div = document.createElement('div');
-            div.id = 'character_' + characterCount;
-            div.innerHTML = `
+        const div = document.createElement("div");
+        div.id = "character_" + characterCount;
+        div.innerHTML = `
                 <label for="character_name_${characterCount}">Character Name:</label>
                 <input type="text" id="character_name_${characterCount}" name="character_name" required>
                 <label for="character_icon_${characterCount}">Upload Icon (JPG, PNG):</label>
@@ -20,50 +24,71 @@
                 <button type="button" onclick="removeCharacterField(${characterCount})">Remove</button>
                 <br>
             `;
-            characterContainer.appendChild(div);
-        }
+        characterContainer.appendChild(div);
+      }
 
-        function removeCharacterField(index) {
-            const characterField = document.getElementById('character_' + index);
-            characterField.remove();
-        }
+      function removeCharacterField(index) {
+        const characterField = document.getElementById("character_" + index);
+        characterField.remove();
+      }
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Add Conversation Topic</h1>
-    <form action="{{ url_for('add_conversation_topic') }}" method="post" enctype="multipart/form-data">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required><br>
-        <label for="class">Class (Difficulty):</label>
-        <select id="class" name="class" required>
-            <option value="Easy">Easy</option>
-            <option value="Normal">Normal</option>
-            <option value="Hard">Hard</option>
-        </select><br><br>
-        <label for="icon">Icon:</label>
-        <input type="file" id="icon" name="icon" accept="image/jpeg, image/png"><br>
-        <div id="characterContainer">
-            <div id="character_0">
-                <label for="character_name_0">Character Name:</label>
-                <input type="text" id="character_name_0" name="character_name" required>
-                <label for="character_icon_0">Upload Icon (JPG, PNG):</label>
-                <input type="file" id="character_icon_0" name="character_icon" accept=".jpg, .jpeg, .png" required>
-                <button type="button" onclick="removeCharacterField(0)">Remove</button>
-                <br>
+    <form
+      action="{{ url_for('add_conversation_topic') }}"
+      method="post"
+      enctype="multipart/form-data"
+    >
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required /><br />
+      <label for="class">Class (Difficulty):</label>
+      <select id="class" name="class" required>
+        <option value="Easy">Easy</option>
+        <option value="Normal">Normal</option>
+        <option value="Hard">Hard</option></select
+      ><br /><br />
+      <label for="icon">Icon:</label>
+      <input
+        type="file"
+        id="icon"
+        name="icon"
+        accept="image/jpeg, image/png"
+      /><br />
+      <div id="characterContainer">
+        <div id="character_0">
+          <label for="character_name_0">Character Name:</label>
+          <input
+            type="text"
+            id="character_name_0"
+            name="character_name"
+            required
+          />
+          <label for="character_icon_0">Upload Icon (JPG, PNG):</label>
+          <input
+            type="file"
+            id="character_icon_0"
+            name="character_icon"
+            accept=".jpg, .jpeg, .png"
+            required
+          />
+          <div class="button-container">
+            <div class="left-buttons">
+                <button type="button" onclick="addCharacterField()" class="btn20">Add Character</button>
+                <button type="button" onclick="removeCharacterField(0)" class="btn21">Remove</button>
             </div>
+            <div class="right-button"> <input type="submit" value="Add Topic" class="submit-button" /></div>
+           
         </div>
-        <button type="button" onclick="addCharacterField()">Add Character</button><br><br>
-        <input type="submit" value="Add Topic">
     </form>
-    <button onclick="location.href='{{ url_for('index') }}';">Back to Home</button>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="flashes">
-        {% for category, message in messages %}
-          <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-</body>
+
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <ul class="flashes">
+      {% for category, message in messages %}
+      <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
+  </body>
 </html>

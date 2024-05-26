@@ -144,7 +144,8 @@ h1 {
 }
 
 button {
-  background-color: #4caf50;
+  background-color: #566cdd;
+  width: 200px;
   color: white;
   padding: 10px 20px;
   margin: 10px 0;
@@ -181,7 +182,14 @@ header {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000; /* 确保头部在滚动时保持在顶部 */
+  height: 70px;
+  z-index: 1000;
+  align-items: center;
+  display: flex;
+  text-align: center;
+}
+header img {
+  margin-right: 10px; /* 为logo和标题之间提供一些间隔 */
 }
 .sidebar {
   width: 200px;
@@ -256,4 +264,91 @@ tr:nth-child(odd) {
 /* 偶数行样式 */
 tr:nth-child(even) {
   background-color: #ffffff; /* 偶数行的背景色 */
+}
+.button-container {
+  display: flex;
+  justify-content: space-between; /* 在两端对齐 */
+  width: 100%; /* 或者根据实际需要调整宽度 */
+}
+
+.left-buttons,
+.right-button {
+  display: flex; /* 使用Flex布局 */
+  align-items: center; /* 在交叉轴上居中对齐 */
+}
+
+/* 如果左侧按钮之间需要一些间隔 */
+.left-buttons button {
+  margin-right: 10px; /* 添加适当的右边距 */
+}
+
+.button-container input[type="submit"] {
+  width: 101px; /* 按钮宽度 */
+  height: 39px;
+  text-align: center;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+}
+
+.submit-button:hover {
+  background-color: #45a049; /* 鼠标悬停时的背景颜色 */
+}
+.btn20 {
+  background-color: #29ed1b;
+  width: 150px;
+  color: white;
+  padding: 10px 20px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+.btn20:hover {
+  background-color: #2ba923;
+}
+.btn21 {
+  background-color: #ff0000;
+  width: 150px;
+  color: white;
+  padding: 10px 20px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+.btn21:hover {
+  background-color: #ad2108;
+}
+.edit-btn,
+.delete-btn {
+  display: inline-block;
+  padding: 5px 10px;
+  text-decoration: none;
+  color: white;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.edit-btn {
+  transition: 0.5s;
+  background-color: green;
+}
+
+.delete-btn {
+  transition: 0.5s;
+  background-color: red;
+}
+.edit-btn:hover {
+  transition: 0.5s;
+  background-color: darkgreen; /* 鼠标悬停时颜色变深 */
+}
+
+.delete-btn:hover {
+  transition: 0.5s;
+  background-color: darkred; /* 鼠标悬停时颜色变深 */
 }
