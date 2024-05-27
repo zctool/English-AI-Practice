@@ -267,7 +267,7 @@ tr:nth-child(even) {
 }
 .button-container {
   display: flex;
-  justify-content: space-between; /* 在两端对齐 */
+  justify-content: ; /* 在两端对齐 */
   width: 100%; /* 或者根据实际需要调整宽度 */
 }
 
@@ -351,4 +351,18 @@ tr:nth-child(even) {
 .delete-btn:hover {
   transition: 0.5s;
   background-color: darkred; /* 鼠标悬停时颜色变深 */
+}
+.view-btn {
+  display: inline-block;
+  padding: 5px 10px;
+  text-decoration: none;
+  color: white;
+  background-color: blue;
+  border-radius: 4px;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+.view-btn:hover {
+  background-color: darkblue;
 }
