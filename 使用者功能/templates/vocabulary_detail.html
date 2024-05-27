@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>每日三句</title>
+    <title>单词详情</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         .star-button {
@@ -26,43 +26,41 @@
     </style>
 </head>
 <body>
-    <h1>每日三句</h1>
-    {% for conv in conversations %}
-    <div class="conversation">
-        <div class="character">
-            <img src="data:image/png;base64,{{ conv.icon }}" alt="{{ conv.character_name }}" width="50" height="50">
-            <strong>{{ conv.character_name }}</strong>
-        </div>
-        <p>英文: {{ conv.conversation_en }}</p>
-        <p>中文: {{ conv.conversation_tw }}</p>
+    <h1>单词详情</h1>
+    <div class="vocabulary">
+        <p>英文: {{ vocabulary.vocabulary_en }}</p>
+        <p>中文: {{ vocabulary.vocabulary_tw }}</p>
+        <p>词性: {{ vocabulary.part_of_speech }}</p>
+        <p>音标: {{ vocabulary.ipa }}</p>
+        <p>例句: {{ vocabulary.example }}</p>
+        <p>难度: {{ vocabulary.class }}</p>
         <div class="recording">
-            <button onclick="startRecording('{{ conv.id }}', this)">开始录音</button>
-            <button onclick="stopRecording('{{ conv.id }}', this)" disabled>停止录音</button>
-            <audio id="playback-{{ conv.id }}" controls style="display: none; margin-left: 10px;"></audio>
+            <button onclick="startRecording('{{ vocabulary.id }}', this)">开始录音</button>
+            <button onclick="stopRecording('{{ vocabulary.id }}', this)" disabled>停止录音</button>
+            <audio id="playback-{{ vocabulary.id }}" controls style="display: none; margin-left: 10px;"></audio>
         </div>
         <audio controls>
-            <source src="data:audio/wav;base64,{{ conv.conversation_voice }}" type="audio/wav">
+            <source src="data:audio/wav;base64,{{ vocabulary.vocabulary_voice }}" type="audio/wav">
             Your browser does not support the audio element.
         </audio>
-        <button class="star-button {{ 'filled' if conv.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ conv.id }}', this)">
+        <button class="star-button {{ 'filled' if is_collected else 'unfilled' }}" onclick="toggleCollect('{{ vocabulary.id }}', this)">
         </button>
     </div>
-    {% endfor %}
     <script>
         let recognition;
         let mediaRecorder;
         let recordedChunks = [];
-        let currentConvId;
+        let currentVocabId;
         let speechToText = '';
 
-        function startRecording(convId, startButton) {
+        function startRecording(vocabId, startButton) {
             const stopButton = startButton.nextElementSibling;
 
             startButton.disabled = true;
             stopButton.disabled = false;
 
             recordedChunks = []; // Reset recorded chunks
-            currentConvId = convId; // Set the current conversation ID
+            currentVocabId = vocabId; // Set the current vocabulary ID
 
             if (!('webkitSpeechRecognition' in window)) {
                 alert('Your browser does not support speech recognition.');
@@ -91,7 +89,7 @@
             }
         }
 
-        function stopRecording(convId, stopButton) {
+        function stopRecording(vocabId, stopButton) {
             const startButton = stopButton.previousElementSibling;
 
             stopButton.disabled = true;
@@ -104,35 +102,35 @@
                 const blob = new Blob(recordedChunks, { type: 'audio/webm' });
                 const audioURL = URL.createObjectURL(blob);
 
-                const playback = document.getElementById(`playback-${convId}`);
+                const playback = document.getElementById(`playback-${vocabId}`);
                 playback.src = audioURL;
                 playback.style.display = 'block';
 
                 const reader = new FileReader();
                 reader.onloadend = function() {
                     const base64data = reader.result.split(',')[1];
-                    saveRecording(encodeURIComponent(base64data), currentConvId);
+                    saveRecording(encodeURIComponent(base64data), currentVocabId);
                 };
                 reader.readAsDataURL(blob);
             };
         }
 
-        function saveRecording(base64data, convId) {
+        function saveRecording(base64data, vocabId) {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/save_recording', true);
+            xhr.open('POST', '/save_vocabulary_recording', true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     console.log('Recording saved');
                 }
             };
-            xhr.send(`user_voice=${base64data}&stt=${speechToText}&conversation_id=${convId}`);
+            xhr.send(`user_voice=${base64data}&stt=${speechToText}&vocabulary_id=${vocabId}`);
         }
 
-        function toggleCollect(convId, starButton) {
+        function toggleCollect(vocabId, starButton) {
             const isCollected = starButton.classList.contains('filled');
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/toggle_conversation_collect', true);
+            xhr.open('POST', '/toggle_collect', true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
@@ -145,7 +143,7 @@
                     }
                 }
             };
-            xhr.send(`conversation_id=${convId}&collect=${!isCollected}`);
+            xhr.send(`vocabulary_id=${vocabId}&collect=${!isCollected}`);
         }
     </script>
 </body>
