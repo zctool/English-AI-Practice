@@ -16,7 +16,7 @@ config = {
 def index():
     return render_template('index.html')
 
-# 新增单词主题
+# 新增單詞主題
 @app.route('/add_vocabulary_topic', methods=['GET', 'POST'])
 def add_vocabulary_topic():
     if request.method == 'POST':
@@ -99,7 +99,7 @@ def add_vocabulary():
                 connection.close()
         return render_template('add_vocabulary.html', topics=topics)
 
-# 查看和编辑单字主题
+# 查看和编辑单字主題
 @app.route('/vocabulary_topics')
 def vocabulary_topics():
     try:
@@ -117,7 +117,7 @@ def vocabulary_topics():
             connection.close()
     return render_template('vocabulary_topics.html', topics=topics)
 
-# 编辑单字主题
+# 编辑單字主題
 @app.route('/edit_vocabulary_topic/<int:topic_id>', methods=['GET', 'POST'])
 def edit_vocabulary_topic(topic_id):
     if request.method == 'POST':
@@ -168,7 +168,7 @@ def edit_vocabulary_topic(topic_id):
                 connection.close()
         return render_template('edit_vocabulary_topic.html', topic=topic, icon=icon, topic_id=topic_id)
 
-# 删除单字主题
+# 删除單字主題
 @app.route('/delete_vocabulary_topic/<int:topic_id>')
 def delete_vocabulary_topic(topic_id):
     try:
@@ -194,7 +194,7 @@ def delete_vocabulary_topic(topic_id):
             connection.close()
     return redirect(url_for('vocabulary_topics'))
 
-# 查看和编辑单字
+# 查看和编辑單字
 @app.route('/vocabularies')
 def vocabularies():
     try:
@@ -212,7 +212,7 @@ def vocabularies():
             connection.close()
     return render_template('vocabularies.html', vocabularies=vocabularies)
 
-# 编辑单字
+# 编辑單字
 @app.route('/edit_vocabulary/<int:vocabulary_id>', methods=['GET', 'POST'])
 def edit_vocabulary(vocabulary_id):
     if request.method == 'POST':
@@ -272,7 +272,7 @@ def edit_vocabulary(vocabulary_id):
                 connection.close()
         return render_template('edit_vocabulary.html', vocabulary=vocabulary, topics=topics)
 
-# 删除单字
+# 删除單字
 @app.route('/delete_vocabulary/<int:vocabulary_id>')
 def delete_vocabulary(vocabulary_id):
     try:
@@ -292,7 +292,7 @@ def delete_vocabulary(vocabulary_id):
             connection.close()
     return redirect(url_for('vocabularies'))
 
-# 新增对话主题
+# 新增对话主題
 @app.route('/add_conversation_topic', methods=['GET', 'POST'])
 def add_conversation_topic():
     if request.method == 'POST':
@@ -319,19 +319,6 @@ def add_conversation_topic():
                     icon_data = icon_file.read()
                     cursor.execute("INSERT INTO conversationTopicIcon (topic_id, icon) VALUES (%s, %s)", (topic_id, icon_data))
 
-                character_names = request.form.getlist('character_name')
-                icons = request.files.getlist('character_icon')
-
-                for i in range(len(character_names)):
-                    character_name = character_names[i]
-                    character_icon_file = icons[i]
-
-                    if character_icon_file and allowed_file(character_icon_file.filename):
-                        character_icon_data = character_icon_file.read()
-                        cursor.execute("INSERT INTO icon (icon) VALUES (%s)", (character_icon_data,))
-                        icon_id = cursor.lastrowid
-                        cursor.execute("INSERT INTO characters (character_name, icon_id, topic_id) VALUES (%s, %s, %s)", (character_name, icon_id, topic_id))
-
                 connection.commit()
                 flash('Conversation Topic added successfully!', 'success')
         except mysql.connector.Error as err:
@@ -346,11 +333,67 @@ def add_conversation_topic():
         return redirect(url_for('add_conversation_topic'))
     return render_template('add_conversationTopic.html')
 
+# 新增对话情境
+@app.route('/add_conversation_situation', methods=['GET', 'POST'])
+def add_conversation_situation():
+    if request.method == 'POST':
+        situation = request.form['situation']
+        topic_id = request.form['topic_id']
+
+        try:
+            connection = mysql.connector.connect(**config)
+            cursor = connection.cursor()
+
+            query = "INSERT INTO conversationSituation (situation, topic_id) VALUES (%s, %s)"
+            cursor.execute(query, (situation, topic_id))
+            situation_id = cursor.lastrowid
+
+            character_names = request.form.getlist('character_name')
+            icons = request.files.getlist('character_icon')
+
+            for i in range(len(character_names)):
+                character_name = character_names[i]
+                character_icon_file = icons[i]
+
+                if character_icon_file and allowed_file(character_icon_file.filename):
+                    character_icon_data = character_icon_file.read()
+                    cursor.execute("INSERT INTO icon (icon) VALUES (%s)", (character_icon_data,))
+                    icon_id = cursor.lastrowid
+                    cursor.execute("INSERT INTO characters (character_name, icon_id, topic_id) VALUES (%s, %s, %s)", (character_name, icon_id, topic_id))
+
+            connection.commit()
+            flash('Conversation Situation added successfully!', 'success')
+        except mysql.connector.Error as err:
+            flash(f"Error: {err}", 'danger')
+            if connection:
+                connection.rollback()
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+        return redirect(url_for('add_conversation_situation'))
+    else:
+        try:
+            connection = mysql.connector.connect(**config)
+            cursor = connection.cursor()
+            cursor.execute("SELECT id, name FROM conversationTopic")
+            topics = cursor.fetchall()
+        except mysql.connector.Error as err:
+            flash(f"Error: {err}", 'danger')
+            topics = []
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+        return render_template('add_conversation_situation.html', topics=topics)
+
 # 新增对话内容
 @app.route('/add_conversation', methods=['GET', 'POST'])
 def add_conversation():
     if request.method == 'POST':
-        topic_id = request.form['topic_id']
+        situation_id = request.form['situation_id']
         character_id = request.form['character_id']
         conversation_en = request.form['conversation_en']
         conversation_tw = request.form['conversation_tw']
@@ -361,20 +404,20 @@ def add_conversation():
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
 
-            # 检查是否存在相同 topic_id 和 class 的对话内容
-            check_query = "SELECT COUNT(*) FROM conversation WHERE topic_id = %s AND class = %s"
-            cursor.execute(check_query, (topic_id, difficulty_class))
+            # 檢查是否存在相同 situation_id 和 class 的對話內容
+            check_query = "SELECT COUNT(*) FROM conversation WHERE situation_id = %s AND class = %s"
+            cursor.execute(check_query, (situation_id, difficulty_class))
             result = cursor.fetchone()
 
             if result[0] > 0:
-                flash('Conversation with the same topic and class already exists!', 'danger')
+                flash('Conversation with the same situation and class already exists!', 'danger')
             else:
                 voice_data = conversation_voice.read()
                 query = """
-                    INSERT INTO conversation (topic_id, character_id, conversation_en, conversation_tw, class, conversation_voice)
+                    INSERT INTO conversation (situation_id, character_id, conversation_en, conversation_tw, class, conversation_voice)
                     VALUES (%s, %s, %s, %s, %s, %s)
                 """
-                cursor.execute(query, (topic_id, character_id, conversation_en, conversation_tw, difficulty_class, voice_data))
+                cursor.execute(query, (situation_id, character_id, conversation_en, conversation_tw, difficulty_class, voice_data))
                 connection.commit()
                 flash('Conversation added successfully!', 'success')
         except mysql.connector.Error as err:
@@ -391,41 +434,19 @@ def add_conversation():
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
-            cursor.execute("SELECT id, name FROM conversationTopic")
-            topics = cursor.fetchall()
+            cursor.execute("SELECT id, situation FROM conversationSituation")
+            situations = cursor.fetchall()
         except mysql.connector.Error as err:
             flash(f"Error: {err}", 'danger')
-            topics = []
+            situations = []
         finally:
             if cursor:
                 cursor.close()
             if connection:
                 connection.close()
-        return render_template('add_conversation.html', topics=topics)
+        return render_template('add_conversation.html', situations=situations)
 
-@app.route('/get_characters/<int:topic_id>/<string:difficulty_class>', methods=['GET'])
-def get_characters(topic_id, difficulty_class):
-    try:
-        connection = mysql.connector.connect(**config)
-        cursor = connection.cursor()
-        query = """
-            SELECT characters.id, characters.character_name 
-            FROM characters 
-            JOIN conversationTopic ON characters.topic_id = conversationTopic.id 
-            WHERE characters.topic_id = %s AND conversationTopic.class = %s
-        """
-        cursor.execute(query, (topic_id, difficulty_class))
-        characters = cursor.fetchall()
-        return jsonify(characters)
-    except mysql.connector.Error as err:
-        return jsonify({'error': str(err)})
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
-
-# 查看和编辑对话主题
+# 查看和编辑对话主題
 @app.route('/conversation_topics')
 def conversation_topics():
     try:
@@ -443,7 +464,7 @@ def conversation_topics():
             connection.close()
     return render_template('conversation_topics.html', topics=topics)
 
-# 编辑对话主题
+# 编辑对话主題
 @app.route('/edit_conversation_topic/<int:topic_id>', methods=['GET', 'POST'])
 def edit_conversation_topic(topic_id):
     if request.method == 'POST':
@@ -495,19 +516,19 @@ def edit_conversation_topic(topic_id):
                 connection.close()
         return render_template('edit_conversation_topic.html', topic=topic, icon=icon, topic_id=topic_id)
 
-# 删除对话主题
+# 删除对话主題
 @app.route('/delete_conversation_topic/<int:topic_id>')
 def delete_conversation_topic(topic_id):
     try:
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor()
 
-        # 删除相关的图标
+        # 刪除相關的圖標
         cursor.execute("DELETE FROM conversationTopicIcon WHERE topic_id = %s", (topic_id,))
         cursor.execute("DELETE FROM characters WHERE topic_id = %s", (topic_id,))
         cursor.execute("DELETE FROM icon WHERE id IN (SELECT icon_id FROM characters WHERE topic_id = %s)", (topic_id,))
         
-        # 删除主題
+        # 刪除主題
         cursor.execute("DELETE FROM conversationTopic WHERE id = %s", (topic_id,))
         
         connection.commit()
@@ -530,9 +551,10 @@ def conversations():
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor()
         query = """
-            SELECT c.id, c.conversation_en, c.conversation_tw, ct.name AS topic_name
+            SELECT c.id, c.conversation_en, c.conversation_tw, cs.situation, ct.name AS topic_name
             FROM conversation c
-            JOIN conversationTopic ct ON c.topic_id = ct.id
+            JOIN conversationSituation cs ON c.situation_id = cs.id
+            JOIN conversationTopic ct ON cs.topic_id = ct.id
         """
         cursor.execute(query)
         conversations = cursor.fetchall()
@@ -550,7 +572,8 @@ def conversations():
 @app.route('/edit_conversation/<int:conversation_id>', methods=['GET', 'POST'])
 def edit_conversation(conversation_id):
     if request.method == 'POST':
-        topic_id = request.form['topic_id']
+        situation_id = request.form['situation_id']
+        character_id = request.form['character_id']
         conversation_en = request.form['conversation_en']
         conversation_tw = request.form['conversation_tw']
         conversation_voice = request.files.get('conversation_voice')
@@ -561,16 +584,16 @@ def edit_conversation(conversation_id):
             if conversation_voice:
                 voice_data = conversation_voice.read()
                 query = """
-                    UPDATE conversation SET topic_id = %s, conversation_en = %s, conversation_tw = %s, conversation_voice = %s
+                    UPDATE conversation SET situation_id = %s, character_id = %s, conversation_en = %s, conversation_tw = %s, conversation_voice = %s
                     WHERE id = %s
                 """
-                cursor.execute(query, (topic_id, conversation_en, conversation_tw, voice_data, conversation_id))
+                cursor.execute(query, (situation_id, character_id, conversation_en, conversation_tw, voice_data, conversation_id))
             else:
                 query = """
-                    UPDATE conversation SET topic_id = %s, conversation_en = %s, conversation_tw = %s
+                    UPDATE conversation SET situation_id = %s, character_id = %s, conversation_en = %s, conversation_tw = %s
                     WHERE id = %s
                 """
-                cursor.execute(query, (topic_id, conversation_en, conversation_tw, conversation_id))
+                cursor.execute(query, (situation_id, character_id, conversation_en, conversation_tw, conversation_id))
             connection.commit()
             flash('Conversation updated successfully!', 'success')
         except mysql.connector.Error as err:
@@ -588,24 +611,25 @@ def edit_conversation(conversation_id):
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
             cursor.execute("""
-                SELECT c.id, c.conversation_en, c.conversation_tw, ct.id AS topic_id, ct.name AS topic_name
+                SELECT c.id, c.conversation_en, c.conversation_tw, c.character_id, cs.id AS situation_id, cs.situation, ct.id AS topic_id, ct.name AS topic_name
                 FROM conversation c
-                JOIN conversationTopic ct ON c.topic_id = ct.id
+                JOIN conversationSituation cs ON c.situation_id = cs.id
+                JOIN conversationTopic ct ON cs.topic_id = ct.id
                 WHERE c.id = %s
             """, (conversation_id,))
             conversation = cursor.fetchone()
-            cursor.execute("SELECT id, name FROM conversationTopic")
-            topics = cursor.fetchall()
+            cursor.execute("SELECT id, situation FROM conversationSituation")
+            situations = cursor.fetchall()
         except mysql.connector.Error as err:
             flash(f"Error: {err}", 'danger')
             conversation = None
-            topics = []
+            situations = []
         finally:
             if cursor:
                 cursor.close()
             if connection:
                 connection.close()
-        return render_template('edit_conversation.html', conversation=conversation, topics=topics)
+        return render_template('edit_conversation.html', conversation=conversation, situations=situations)
 
 # 删除对话
 @app.route('/delete_conversation/<int:conversation_id>')
@@ -626,6 +650,95 @@ def delete_conversation(conversation_id):
         if connection:
             connection.close()
     return redirect(url_for('conversations'))
+
+# 查看和编辑对话情境
+@app.route('/conversation_situations')
+def conversation_situations():
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT cs.id, cs.situation, ct.name AS topic_name
+            FROM conversationSituation cs
+            JOIN conversationTopic ct ON cs.topic_id = ct.id
+        """)
+        situations = cursor.fetchall()
+    except mysql.connector.Error as err:
+        flash(f"Error: {err}", 'danger')
+        situations = []
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+    return render_template('conversation_situations.html', situations=situations)
+
+# 编辑对话情境
+@app.route('/edit_conversation_situation/<int:situation_id>', methods=['GET', 'POST'])
+def edit_conversation_situation(situation_id):
+    if request.method == 'POST':
+        situation = request.form['situation']
+        topic_id = request.form['topic_id']
+
+        try:
+            connection = mysql.connector.connect(**config)
+            cursor = connection.cursor()
+            
+            query = "UPDATE conversationSituation SET situation = %s, topic_id = %s WHERE id = %s"
+            cursor.execute(query, (situation, topic_id, situation_id))
+            
+            connection.commit()
+            flash('Conversation Situation updated successfully!', 'success')
+        except mysql.connector.Error as err:
+            flash(f"Error: {err}", 'danger')
+            if connection:
+                connection.rollback()
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+        return redirect(url_for('conversation_situations'))
+    else:
+        try:
+            connection = mysql.connector.connect(**config)
+            cursor = connection.cursor()
+            cursor.execute("SELECT situation, topic_id FROM conversationSituation WHERE id = %s", (situation_id,))
+            situation = cursor.fetchone()
+            
+            cursor.execute("SELECT id, name FROM conversationTopic")
+            topics = cursor.fetchall()
+            
+        except mysql.connector.Error as err:
+            flash(f"Error: {err}", 'danger')
+            situation = None
+            topics = []
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+        return render_template('edit_conversation_situation.html', situation=situation, topics=topics, situation_id=situation_id)
+
+# 删除对话情境
+@app.route('/delete_conversation_situation/<int:situation_id>')
+def delete_conversation_situation(situation_id):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM conversationSituation WHERE id = %s", (situation_id,))
+        connection.commit()
+        flash('Conversation Situation deleted successfully!', 'success')
+    except mysql.connector.Error as err:
+        flash(f"Error: {err}", 'danger')
+        if connection:
+            connection.rollback()
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+    return redirect(url_for('conversation_situations'))
 
 # 查看和编辑人物
 @app.route('/characters/<int:topic_id>')

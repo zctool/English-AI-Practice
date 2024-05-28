@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Conversation</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -9,18 +10,64 @@
     <h1>Edit Conversation</h1>
     <form action="{{ url_for('edit_conversation', conversation_id=conversation[0]) }}" method="post" enctype="multipart/form-data">
         <label for="topic_id">Topic:</label>
-        <select name="topic_id" id="topic_id" required>
+        <select id="topic_id" name="topic_id" required>
             {% for topic in topics %}
             <option value="{{ topic[0] }}" {% if topic[0] == conversation[3] %}selected{% endif %}>{{ topic[1] }}</option>
             {% endfor %}
         </select><br>
-        <label for="conversation_en">English Conversation:</label>
-        <input type="text" id="conversation_en" name="conversation_en" value="{{ conversation[1] }}" required><br>
-        <label for="conversation_tw">Chinese Conversation:</label>
-        <input type="text" id="conversation_tw" name="conversation_tw" value="{{ conversation[2] }}" required><br>
-        <label for="conversation_voice">Voice:</label>
-        <input type="file" id="conversation_voice" name="conversation_voice"><br>
-        <button type="submit">Update</button>
+        <label for="character_id">Character:</label>
+        <select id="character_id" name="character_id" required>
+            <!-- Dynamic options loaded via JS -->
+        </select><br>
+        <label for="conversation_en">Conversation (English):</label>
+        <textarea id="conversation_en" name="conversation_en" required>{{ conversation[1] }}</textarea><br>
+        <label for="conversation_tw">Conversation (Chinese):</label>
+        <textarea id="conversation_tw" name="conversation_tw" required>{{ conversation[2] }}</textarea><br>
+        <label for="class">Class (Difficulty):</label>
+        <select id="class" name="class" required>
+            <option value="Easy" {% if conversation[4] == 'Easy' %}selected{% endif %}>Easy</option>
+            <option value="Normal" {% if conversation[4] == 'Normal' %}selected{% endif %}>Normal</option>
+            <option value="Hard" {% if conversation[4] == 'Hard' %}selected{% endif %}>Hard</option>
+        </select><br>
+        <label for="conversation_voice">Upload New Voice (MP3):</label>
+        <input type="file" id="conversation_voice" name="conversation_voice" accept="audio/mpeg"><br>
+        <button type="submit">Update Conversation</button>
     </form>
+    <a href="{{ url_for('conversations') }}">Back to Conversations</a>
+    <script>
+        document.getElementById('topic_id').addEventListener('change', function() {
+            const topicId = this.value;
+            const difficultyClass = document.getElementById('class').value;
+            fetch(`/get_characters/${topicId}/${difficultyClass}`)
+                .then(response => response.json())
+                .then(data => {
+                    const characterSelect = document.getElementById('character_id');
+                    characterSelect.innerHTML = '';
+                    data.forEach(character => {
+                        const option = document.createElement('option');
+                        option.value = character[0];
+                        option.text = character[1];
+                        characterSelect.appendChild(option);
+                    });
+                });
+        });
+
+        document.getElementById('class').addEventListener('change', function() {
+            const topicId = document.getElementById('topic_id').value;
+            const difficultyClass = this.value;
+            fetch(`/get_characters/${topicId}/${difficultyClass}`)
+                .then(response => response.json())
+                .then(data => {
+                    const characterSelect = document.getElementById('character_id');
+                    characterSelect.innerHTML = '';
+                    data.forEach(character => {
+                        const option = document.createElement('option');
+                        option.value = character[0];
+                        option.text = character[1];
+                        characterSelect.appendChild(option);
+                    });
+                });
+        });
+    </script>
 </body>
 </html>

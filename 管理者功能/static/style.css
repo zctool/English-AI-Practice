@@ -144,8 +144,7 @@ h1 {
 }
 
 button {
-  background-color: #85c3d6;
-  width: 200px;
+  background-color: #4caf50;
   color: white;
   padding: 10px 20px;
   margin: 10px 0;
@@ -173,24 +172,19 @@ audio {
   width: 100%;
   margin-top: 10px;
 }
+
 header {
   width: 100%;
-  background-color: #9fd4e7;
+  background-color: #17a2b8;
   padding: 10px;
   text-align: center;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 70px;
-  z-index: 1000;
-  align-items: center;
-  display: flex;
-  text-align: center;
+  z-index: 1000; /* 確保頭部在滾動時保持在頂部 */
 }
-header img {
-  margin-right: 10px; /* 为logo和标题之间提供一些间隔 */
-}
+
 .sidebar {
   width: 200px;
   background-color: #f4f4f4;
@@ -198,19 +192,20 @@ header img {
   box-shadow: 3px 0px 5px rgba(0, 0, 0, 0.1);
   height: 100vh;
   position: fixed;
-  top: 80px; /* 考虑到header的高度 */
+  top: 80px; /* 考慮到header的高度 */
   bottom: 0;
-  overflow-y: auto; /* 添加滚动条 */
+  overflow-y: auto; /* 添加滾動條 */
 }
+
 .content {
   flex-grow: 1;
   margin-left: 220px;
   padding: 20px;
-  padding-top: 60px; /* 留出头部空间 */
+  padding-top: 60px; /* 留出頭部空間 */
 }
+
 .bn60 {
   background-color: #2c76c6;
-
   color: #ffffff;
   font-size: 1em;
   font-weight: 600;
@@ -224,145 +219,45 @@ header img {
   height: 55px;
   width: 200px;
 }
-/* 表格基本样式 */
+
+/* 表格基本樣式 */
 table {
-  width: 100%; /* 表格宽度占满容器 */
-  border-collapse: collapse; /* 边框合并，使得表格看起来更紧凑 */
-  table-layout: fixed; /* 优化表格的布局 */
+  width: 100%; /* 表格寬度佔滿容器 */
+  border-collapse: collapse; /* 邊框合併，使得表格看起來更緊湊 */
+  table-layout: fixed; /* 優化表格的佈局 */
 }
 
-/* 表格头部样式 */
+/* 表格頭部樣式 */
 thead {
-  background-color: #f4f4f4; /* 表头背景色 */
+  background-color: #f4f4f4; /* 表頭背景色 */
 }
 
-/* 表头单元格样式 */
+/* 表頭單元格樣式 */
 th {
-  padding: 10px 15px; /* 单元格内边距 */
-  text-align: left; /* 文字左对齐 */
-  font-weight: bold; /* 字体加粗 */
-  border-bottom: 2px solid #e0e0e0; /* 表头下方的边框 */
+  padding: 10px 15px; /* 單元格內邊距 */
+  text-align: left; /* 文字左對齊 */
+  font-weight: bold; /* 字體加粗 */
+  border-bottom: 2px solid #e0e0e0; /* 表頭下方的邊框 */
 }
 
-/* 表格数据单元格样式 */
+/* 表格數據單元格樣式 */
 td {
-  padding: 10px 15px; /* 单元格内边距 */
-  text-align: left; /* 文字左对齐 */
-  border-bottom: 1px solid #e0e0e0; /* 单元格之间的边框 */
+  padding: 10px 15px; /* 單元格內邊距 */
+  text-align: left; /* 文字左對齊 */
+  border-bottom: 1px solid #e0e0e0; /* 單元格之間的邊框 */
 }
 
-/* 鼠标悬浮行的样式 */
+/* 滑鼠懸浮行的樣式 */
 tr:hover {
-  background-color: #f0f0f0; /* 鼠标悬浮时的背景色 */
+  background-color: #f0f0f0; /* 滑鼠懸浮時的背景色 */
 }
 
-/* 奇数行样式 */
+/* 奇數行樣式 */
 tr:nth-child(odd) {
-  background-color: #fafafa; /* 奇数行的背景色 */
+  background-color: #fafafa; /* 奇數行的背景色 */
 }
 
-/* 偶数行样式 */
+/* 偶數行樣式 */
 tr:nth-child(even) {
-  background-color: #ffffff; /* 偶数行的背景色 */
-}
-.button-container {
-  display: flex;
-  justify-content: ; /* 在两端对齐 */
-  width: 100%; /* 或者根据实际需要调整宽度 */
-}
-
-.left-buttons,
-.right-button {
-  display: flex; /* 使用Flex布局 */
-  align-items: center; /* 在交叉轴上居中对齐 */
-}
-
-/* 如果左侧按钮之间需要一些间隔 */
-.left-buttons button {
-  margin-right: 10px; /* 添加适当的右边距 */
-}
-
-.button-container input[type="submit"] {
-  width: 101px; /* 按钮宽度 */
-  height: 39px;
-  text-align: center;
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-}
-
-.submit-button:hover {
-  background-color: #45a049; /* 鼠标悬停时的背景颜色 */
-}
-.btn20 {
-  background-color: #29ed1b;
-  width: 150px;
-  color: white;
-  padding: 10px 20px;
-  margin: 10px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
-}
-.btn20:hover {
-  background-color: #2ba923;
-}
-.btn21 {
-  background-color: #ff0000;
-  width: 150px;
-  color: white;
-  padding: 10px 20px;
-  margin: 10px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
-}
-.btn21:hover {
-  background-color: #ad2108;
-}
-.edit-btn,
-.delete-btn {
-  display: inline-block;
-  padding: 5px 10px;
-  text-decoration: none;
-  color: white;
-  border-radius: 4px;
-  text-align: center;
-}
-
-.edit-btn {
-  transition: 0.5s;
-  background-color: green;
-}
-
-.delete-btn {
-  transition: 0.5s;
-  background-color: red;
-}
-.edit-btn:hover {
-  transition: 0.5s;
-  background-color: darkgreen; /* 鼠标悬停时颜色变深 */
-}
-
-.delete-btn:hover {
-  transition: 0.5s;
-  background-color: darkred; /* 鼠标悬停时颜色变深 */
-}
-.view-btn {
-  display: inline-block;
-  padding: 5px 10px;
-  text-decoration: none;
-  color: white;
-  background-color: blue;
-  border-radius: 4px;
-  text-align: center;
-  transition: background-color 0.3s;
-}
-
-.view-btn:hover {
-  background-color: darkblue;
+  background-color: #ffffff; /* 偶數行的背景色 */
 }

@@ -11,11 +11,8 @@
     <form action="{{ url_for('edit_vocabulary_topic', topic_id=topic_id) }}" method="post" enctype="multipart/form-data">
         <label for="name">Topic Name:</label>
         <input type="text" id="name" name="name" value="{{ topic[0] }}" required><br>
-        <label for="icon">Topic Icon:</label>
-        {% if icon %}
-            <img src="data:image/png;base64,{{ icon[0] | b64encode }}" alt="Topic Icon" width="100"><br>
-        {% endif %}
-        <input type="file" id="icon" name="icon" accept="image/jpeg, image/png"><br><br>
+        <label for="icon">Upload New Icon (JPG, PNG):</label>
+        <input type="file" id="icon" name="icon" accept="image/jpeg, image/png"><br>
         <button type="submit">Update Topic</button>
     </form>
     <a href="{{ url_for('vocabulary_topics') }}">Back to Vocabulary Topics</a>
