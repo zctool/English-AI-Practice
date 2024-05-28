@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Conversation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Add Conversation</h1>
+    <form action="{{ url_for('add_conversation') }}" method="post" enctype="multipart/form-data">
+        <label for="topic_id">Topic:</label>
+        <select name="topic_id" id="topic_id" required>
+            <option value="">Select Topic</option>
+            {% for topic in topics %}
+                <option value="{{ topic[0] }}">{{ topic[1] }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        
+        <label for="class">Class:</label>
+        <select name="class" id="class" required>
+            <option value="Easy">Easy</option>
+            <option value="Normal">Normal</option>
+            <option value="Hard">Hard</option>
+        </select>
+        <br>
+        
+        <label for="character_id">Character:</label>
+        <select name="character_id" id="character_id" required>
+            <option value="">Select Character</option>
+        </select>
+        <br>
+
+        <label for="conversation_en">Conversation (EN):</label>
+        <input type="text" name="conversation_en" id="conversation_en" required>
+        <br>
+
+        <label for="conversation_tw">Conversation (TW):</label>
+        <input type="text" name="conversation_tw" id="conversation_tw" required>
+        <br>
+
+        <label for="conversation_voice">Conversation Voice:</label>
+        <input type="file" name="conversation_voice" id="conversation_voice" accept=".mp3,.wav" required>
+        <br>
+
+        <button type="submit">Add Conversation</button>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            $('#topic_id, #class').change(function() {
+                var topic_id = $('#topic_id').val();
+                var difficulty_class = $('#class').val();
+                if (topic_id && difficulty_class) {
+                    $.ajax({
+                        url: '/get_characters/' + topic_id + '/' + difficulty_class,
+                        method: 'GET',
+                        success: function(data) {
+                            $('#character_id').empty();
+                            $('#character_id').append('<option value="">Select Character</option>');
+                            data.forEach(function(character) {
+                                $('#character_id').append('<option value="' + character[0] + '">' + character[1] + '</option>');
+                            });
+                        },
+                        error: function(error) {
+                            console.log(error);
+                        }
+                    });
+                } else {
+                    $('#character_id').empty();
+                    $('#character_id').append('<option value="">Select Character</option>');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
