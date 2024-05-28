@@ -4,3 +4,4 @@ PyMySQL
 mysql-connector-python
 cursor
 oauthlib requests-oauthlib
+oauthlib requests-oauthlib flask
