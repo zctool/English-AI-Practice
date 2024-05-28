@@ -3,3 +3,4 @@ Flask-SQLAlchemy
 PyMySQL
 mysql-connector-python
 cursor
+oauthlib requests-oauthlib
