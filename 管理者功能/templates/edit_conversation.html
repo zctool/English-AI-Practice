@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Conversation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Edit Conversation</h1>
+    <form action="{{ url_for('edit_conversation', conversation_id=conversation[0]) }}" method="post" enctype="multipart/form-data">
+        <label for="topic_id">Topic:</label>
+        <select name="topic_id" id="topic_id" required>
+            {% for topic in topics %}
+            <option value="{{ topic[0] }}" {% if topic[0] == conversation[3] %}selected{% endif %}>{{ topic[1] }}</option>
+            {% endfor %}
+        </select><br>
+        <label for="conversation_en">English Conversation:</label>
+        <input type="text" id="conversation_en" name="conversation_en" value="{{ conversation[1] }}" required><br>
+        <label for="conversation_tw">Chinese Conversation:</label>
+        <input type="text" id="conversation_tw" name="conversation_tw" value="{{ conversation[2] }}" required><br>
+        <label for="conversation_voice">Voice:</label>
+        <input type="file" id="conversation_voice" name="conversation_voice"><br>
+        <button type="submit">Update</button>
+    </form>
+</body>
+</html>
