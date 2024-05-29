@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>每日三句</title>
+    <title>對話練習</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         .star-button {
@@ -26,7 +26,7 @@
     </style>
 </head>
 <body>
-    <h1>每日三句</h1>
+    <h1>對話練習</h1>
     {% for conv in conversations %}
     <div class="conversation">
         <div class="character">
@@ -150,7 +150,7 @@
                     }
                 }
             };
-            xhr.send(`conversation_id=${convId}&collect=${!isCollected}`);
+            xhr.send(`conversation_id=${convId}`);
         }
     </script>
 </body>

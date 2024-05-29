@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>對話情境</title>
+</head>
+<body>
+    <h1>選擇對話情境</h1>
+    <ul>
+        {% for situation in situations %}
+        <li><a href="{{ url_for('conversation_practice', topic_id=topic_id, situation_id=situation.id) }}">{{ situation.situation }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

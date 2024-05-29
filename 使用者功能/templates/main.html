@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>主页面</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>主頁面</title>
 </head>
 <body>
-    <h1>歡迎來到EUDORA</h1>
-    <div class="main-buttons">
-        <button onclick="location.href='{{ url_for('daily_quotes') }}'">每日三句</button>
-        <button onclick="location.href='{{ url_for('vocabulary_topics') }}'">单词练习</button>
-    </div>
-    <p>使用者: {{ user_email }}</p>  <!-- 顯示固定的GoogleEmail -->
+    <h1>歡迎, {{ name }} ({{ email }})</h1>
+    <a href="{{ url_for('logout') }}">登出</a>
+    <ul>
+        <li><a href="{{ url_for('daily_quotes') }}">每日三句</a></li>
+        <li><a href="{{ url_for('conversation_topics') }}">對話練習</a></li>
+        <li><a href="{{ url_for('vocabulary_topics') }}">單字練習</a></li>
+    </ul>
 </body>
 </html>
