@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Account Information</title>
+    <style>
+      body,
+      html {
+        height: 100%;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f0f0f0;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between; /* Aligns logo to left and nav-container to right */
+        align-items: center;
+        background-color: #f1f1f1;
+        padding: 10px 20px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        font-size: 24px;
+        color: #007bff;
+      }
+
+      .logo img {
+        height: 80px;
+        width: 150px;
+      }
+
+      .nav-container {
+        display: flex;
+        align-items: center;
+      }
+
+      nav {
+        margin-right: 20px; /* Optional: Adjust based on your spacing preferences */
+      }
+
+      nav ul {
+        display: flex;
+        padding: 0;
+        margin: 0; /* Removes default margin */
+      }
+
+      nav ul li {
+        padding: 0 10px; /* Provides padding between items */
+      }
+
+      nav ul li::marker {
+        content: none; /* Removes the list item markers */
+      }
+
+      nav ul li a {
+        text-decoration: none;
+        color: black;
+      }
+
+      .join-class {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      .container {
+        display: flex;
+        height: calc(100% - 48px);
+      }
+
+      .sidebar {
+        width: 200px;
+        background: #333;
+        color: white;
+        padding: 20px;
+      }
+
+      .menu-item {
+        margin-bottom: 10px;
+        padding: 10px;
+        background: #444;
+        cursor: pointer;
+      }
+
+      .menu-item.active {
+        background: #555;
+      }
+
+      .main-content {
+        flex-grow: 1;
+        padding: 20px;
+        background: white;
+      }
+
+      .profile-picture img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 3px solid #007bff;
+        object-fit: cover;
+        display: block;
+        margin: 0 auto 20px;
+      }
+
+      .user-info {
+        background: #fff;
+        padding: 20px;
+        border-radius: 5px;
+      }
+
+      .info-group {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        align-items: center;
+      }
+
+      .info-group label {
+        font-weight: bold;
+      }
+
+      .info {
+        background: #f4f4f4;
+        padding: 8px;
+        border-radius: 5px;
+        flex-grow: 1;
+        margin-left: 20px;
+      }
+    </style>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <img src="D:\北商專題\圖檔\logo02-1.png" alt="Eudora Logo" />
+        <!-- Replace 'logo.png' with your actual logo image path -->
+      </div>
+      <div class="nav-container">
+        <nav>
+          <ul>
+            <li><a href="#home">首頁</a></li>
+            <li><a href="#ai">AI導話</a></li>
+            <li><a href="#courses">課程</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+        <button class="join-class">Join Class</button>
+      </div>
+    </header>
+    <div class="container">
+      <div class="sidebar">
+        <div class="menu-item active">帳戶資料</div>
+        <div class="menu-item">視頻管理</div>
+        <div class="menu-item">視頻分析</div>
+        <div class="menu-item">視頻設置</div>
+      </div>
+      <div class="main-content">
+        <h1>User Account Information</h1>
+        <div class="profile-picture">
+          <img
+            src="C:\Users\sharo\OneDrive\圖片\74165.jpg"
+            alt="User Profile Picture"
+          />
+        </div>
+        <div class="user-info">
+          <div class="info-group">
+            <label>帳戶名稱:</label>
+            <div class="info">username123</div>
+          </div>
+          <div class="info-group">
+            <label>電子郵件:</label>
+            <div class="info">user@example.com</div>
+          </div>
+          <div class="info-group">
+            <label>註冊日期:</label>
+            <div class="info">2024-01-15</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
