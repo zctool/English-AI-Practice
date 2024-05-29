@@ -1,60 +1,80 @@
 body {
-    font-family: Arial, sans-serif;
+  font-family: Arial, sans-serif;
 }
 
 .main-buttons {
-    display: flex;
-    justify-content: center;
-    margin-top: 50px;
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
 }
 
 .main-buttons button {
-    margin: 10px;
-    padding: 20px;
-    font-size: 16px;
+  margin: 10px;
+  padding: 20px;
+  font-size: 16px;
 }
 
-.conversation, .vocabulary-detail, .vocabulary {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin: 10px 0;
+.conversation,
+.vocabulary-detail,
+.vocabulary {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px 0;
 }
 
 .character {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .character img {
-    border-radius: 50%;
-    margin-right: 10px;
+  border-radius: 50%;
+  margin-right: 10px;
 }
 
 .recording {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .topics {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .topic {
-    margin: 10px;
-    text-align: center;
+  margin: 10px;
+  text-align: center;
 }
 
 .levels button {
-    display: block;
-    margin: 5px 0;
+  display: block;
+  margin: 5px 0;
 }
 
 .vocabularies {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .vocabulary {
-    margin: 10px;
+  margin: 10px;
+}
+.google-btn {
+  display: inline-flex;
+  align-items: center;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.google-btn img {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
 }
