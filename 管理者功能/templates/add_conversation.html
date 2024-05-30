@@ -1,89 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
     <title>Add Conversation</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
-  </head>
-  <body>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
     <h1>Add Conversation</h1>
-    <form
-      action="{{ url_for('add_conversation') }}"
-      method="post"
-      enctype="multipart/form-data"
-    >
-      <label for="topic_id">Topic:</label>
-      <select id="topic_id" name="topic_id" required>
-        {% for topic in topics %}
-        <option value="{{ topic[0] }}">{{ topic[1] }}</option>
-        {% endfor %}</select
-      ><br />
-      <label for="character_id">Character:</label>
-      <select id="character_id" name="character_id" required>
-        <!-- Dynamic options loaded via JS --></select
-      ><br />
-      <label for="conversation_en">Conversation (English):</label>
-      <textarea id="conversation_en" name="conversation_en" required></textarea
-      ><br />
-      <label for="conversation_tw">Conversation (Chinese):</label>
-      <textarea id="conversation_tw" name="conversation_tw" required></textarea
-      ><br />
-      <label for="class">Class (Difficulty):</label>
-      <select id="class" name="class" required>
-        <option value="Easy">Easy</option>
-        <option value="Normal">Normal</option>
-        <option value="Hard">Hard</option></select
-      ><br />
-      <label for="conversation_voice">Upload Voice (MP3):</label>
-      <input
-        type="file"
-        id="conversation_voice"
-        name="conversation_voice"
-        accept="audio/mpeg"
-        required
-      /><br />
-      <input type="submit" class="submit-button" value="Add Conversation" />
+    <form method="post" enctype="multipart/form-data">
+        <label for="topic_id">Topic:</label>
+        <select id="topic_id" name="topic_id" required onchange="loadDifficultyClasses(this.value)">
+            <option value="">Select a topic</option>
+            {% for topic in topics %}
+            <option value="{{ topic[0] }}">{{ topic[1] }}</option>
+            {% endfor %}
+        </select><br>
+        
+        <label for="class">Difficulty Class:</label>
+        <select id="class" name="class" required onchange="loadSituations(this.value)">
+            <option value="">Select a difficulty class</option>
+        </select><br>
+        
+        <label for="situation_id">Situation:</label>
+        <select id="situation_id" name="situation_id" required>
+            <option value="">Select a situation</option>
+        </select><br>
+        
+        <label for="character_id">Character:</label>
+        <select id="character_id" name="character_id" required>
+            <option value="">Select a character</option>
+        </select><br>
+        
+        <label for="conversation_en">Conversation (English):</label>
+        <input type="text" id="conversation_en" name="conversation_en" required><br>
+        
+        <label for="conversation_tw">Conversation (Chinese):</label>
+        <input type="text" id="conversation_tw" name="conversation_tw" required><br>
+        
+        <label for="conversation_voice">Upload Voice (MP3):</label>
+        <input type="file" id="conversation_voice" name="conversation_voice" accept=".mp3"><br>
+        
+        <input type="submit" value="Add Conversation">
     </form>
-    <script>
-      document
-        .getElementById("topic_id")
-        .addEventListener("change", function () {
-          const topicId = this.value;
-          const difficultyClass = document.getElementById("class").value;
-          fetch(`/get_characters/${topicId}/${difficultyClass}`)
-            .then((response) => response.json())
-            .then((data) => {
-              const characterSelect = document.getElementById("character_id");
-              characterSelect.innerHTML = "";
-              data.forEach((character) => {
-                const option = document.createElement("option");
-                option.value = character[0];
-                option.text = character[1];
-                characterSelect.appendChild(option);
-              });
+    <a href="{{ url_for('conversations') }}">Back to Conversations</a>
+</body>
+</html>
+
+<script>
+function loadDifficultyClasses(topicId) {
+    fetch(`/get_difficulty_classes/${topicId}`)
+        .then(response => response.json())
+        .then(data => {
+            const difficultySelect = document.getElementById('class');
+            difficultySelect.innerHTML = '<option value="">Select a difficulty class</option>';
+            data.forEach(classItem => {
+                const option = document.createElement('option');
+                option.value = classItem.class;
+                option.text = classItem.class;
+                difficultySelect.appendChild(option);
             });
         });
+}
 
-      document.getElementById("class").addEventListener("change", function () {
-        const topicId = document.getElementById("topic_id").value;
-        const difficultyClass = this.value;
-        fetch(`/get_characters/${topicId}/${difficultyClass}`)
-          .then((response) => response.json())
-          .then((data) => {
-            const characterSelect = document.getElementById("character_id");
-            characterSelect.innerHTML = "";
-            data.forEach((character) => {
-              const option = document.createElement("option");
-              option.value = character[0];
-              option.text = character[1];
-              characterSelect.appendChild(option);
+function loadSituations(difficultyClass) {
+    const topicId = document.getElementById('topic_id').value;
+    fetch(`/get_situations/${topicId}/${difficultyClass}`)
+        .then(response => response.json())
+        .then(data => {
+            const situationSelect = document.getElementById('situation_id');
+            situationSelect.innerHTML = '<option value="">Select a situation</option>';
+            data.forEach(situation => {
+                const option = document.createElement('option');
+                option.value = situation.id;
+                option.text = situation.situation;
+                situationSelect.appendChild(option);
             });
-          });
-      });
-    </script>
-  </body>
-</html>
+        });
+}
+
+document.getElementById('situation_id').addEventListener('change', function() {
+    const situationId = this.value;
+    fetch(`/get_characters_by_situation/${situationId}`)
+        .then(response => response.json())
+        .then(data => {
+            const characterSelect = document.getElementById('character_id');
+            characterSelect.innerHTML = '<option value="">Select a character</option>';
+            data.forEach(character => {
+                const option = document.createElement('option');
+                option.value = character.id;
+                option.text = character.character_name;
+                characterSelect.appendChild(option);
+            });
+        });
+});
+</script>

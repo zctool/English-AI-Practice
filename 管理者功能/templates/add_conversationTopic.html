@@ -2,7 +2,6 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Add Conversation Topic</title>
     <link
       rel="stylesheet"
@@ -11,36 +10,24 @@
   </head>
   <body>
     <h1>Add Conversation Topic</h1>
-    <form
-      action="{{ url_for('add_conversation_topic') }}"
-      method="post"
-      enctype="multipart/form-data"
-    >
-      <label for="name">Name:</label>
+    <form method="post" enctype="multipart/form-data">
+      <label for="name">Topic Name:</label>
       <input type="text" id="name" name="name" required /><br />
-      <label for="class">Class (Difficulty):</label>
-      <select id="class" name="class" required>
-        <option value="Easy">Easy</option>
-        <option value="Normal">Normal</option>
-        <option value="Hard">Hard</option></select
-      ><br />
+
       <label for="icon">Upload Icon (JPG, PNG):</label>
-      <input
-        type="file"
-        id="icon"
-        name="icon"
-        accept=".jpg, .jpeg, .png"
-      /><br />
-      <input type="submit" value="Add Topic" />
+      <input type="file" id="icon" name="icon" accept=".jpg, .jpeg, .png" required /><br /><br />
+
+      <input type="submit" value="Add Topic" class="submit-button"/>
     </form>
 
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if
-    messages %}
-    <ul class="flashes">
-      {% for category, message in messages %}
-      <li class="{{ category }}">{{ message }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %} {% endwith %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
   </body>
 </html>
