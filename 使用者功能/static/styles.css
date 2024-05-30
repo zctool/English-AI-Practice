@@ -78,3 +78,237 @@ body {
   height: 20px;
   margin-right: 10px;
 }
+* {
+  /* 初始化 */
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  height: 100vh;
+  /* 弹性布局 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(200deg, #e3c5eb, #a9c1ed);
+  overflow: hidden;
+}
+
+.login {
+  /* 超出部分隐藏 */
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 300px;
+  height: 450px;
+  background-color: #c7c2db;
+  border-radius: 10px;
+  box-shadow: 10px 10px 20px rgba(33, 44, 55, 0.3);
+}
+
+.login .title {
+  font-size: 26px;
+  margin: 0px auto 80px auto;
+  z-index: 1;
+}
+
+.login input {
+  width: 280px;
+  height: 30px;
+  margin: 12px auto;
+  text-indent: 8px;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  outline: none;
+}
+
+.container button {
+  width: 280px;
+  height: 40px;
+  margin: 80px auto 40px auto;
+  border: none;
+  background: linear-gradient(-200deg, #fac0e7, #aac2ee);
+  color: #fff;
+  font-weight: bold;
+  letter-spacing: 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.5s;
+  justify-content: center;
+}
+
+.container button:hover {
+  background: linear-gradient(-200deg, #aac2ee, #fac0e7);
+  background-position-x: -280px;
+}
+
+.container span {
+  font-size: 14px;
+}
+
+.container a {
+  color: rgba(180, 169, 169, 0.737);
+  text-decoration: none;
+}
+
+ul li {
+  position: absolute;
+  border: 1px solid #fff;
+  background-color: #fff;
+  width: 30px;
+  height: 30px;
+  list-style: none;
+  opacity: 0;
+}
+
+.square li {
+  top: 40vh;
+  left: 60vw;
+  animation: square 10s linear infinite;
+}
+
+.square li:nth-child(2) {
+  top: 80vh;
+  left: 10vw;
+  animation-delay: 2s;
+}
+
+.square li:nth-child(3) {
+  top: 80vh;
+  left: 85vw;
+  animation-delay: 4s;
+}
+
+.square li:nth-child(4) {
+  top: 10vh;
+  left: 70vw;
+  animation-delay: 6s;
+}
+
+.square li:nth-child(5) {
+  top: 10vh;
+  left: 10vw;
+  animation-delay: 8s;
+}
+
+.circle li {
+  bottom: 0;
+  left: 15vw;
+  animation: circle 10s linear infinite;
+}
+
+.circle li:nth-child(2) {
+  left: 35vw;
+  animation-delay: 2s;
+}
+
+.circle li:nth-child(3) {
+  left: 55vw;
+  animation-delay: 4s;
+}
+
+.circle li:nth-child(4) {
+  left: 75vw;
+  animation-delay: 6s;
+}
+
+.circle li:nth-child(5) {
+  left: 90vw;
+  animation-delay: 8s;
+}
+.google-btn {
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  background-color: #ffffff;
+  color: #5f6368;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  padding: 10px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  width: 180px; /* 按鈕寬度 */
+  height: 40px; /* 按鈕高度 */
+  margin: 100px auto 100px auto;
+  z-index: 1;
+}
+.google-btn:hover {
+  border: 1px solid rgb(40, 38, 38);
+  background-color: #deb1bc;
+  transition: 0.5s;
+}
+.google-btn img {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+}
+
+span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  background-color: #8ba1cb;
+  /* 鼠标居中 */
+  transform: translate(-50%, -50%);
+  /* 圆展开 */
+  border-radius: 50%;
+}
+@keyframes in {
+  0% {
+    width: 0;
+    height: 0;
+  }
+
+  100% {
+    width: 1200px;
+    height: 1200px;
+  }
+}
+
+/* 鼠标离开login时候的动画 */
+@keyframes out {
+  0% {
+    width: 1200px;
+    height: 1200px;
+  }
+
+  100% {
+    width: 0;
+    height: 0;
+  }
+}
+/* 定义动画 */
+@keyframes square {
+  0% {
+    transform: scale(0) rotateY(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(5) rotateY(1000deg);
+    opacity: 0;
+  }
+}
+
+@keyframes circle {
+  0% {
+    transform: scale(0) rotateY(0deg);
+    opacity: 1;
+    bottom: 0;
+    border-radius: 0;
+  }
+
+  100% {
+    transform: scale(5) rotateY(1000deg);
+    opacity: 0;
+    bottom: 90vh;
+    border-radius: 50%;
+  }
+}

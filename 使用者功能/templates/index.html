@@ -11,12 +11,36 @@
     />
   </head>
   <body>
-    <h1>歡迎，請登錄</h1>
-    <a href="{{ url_for('login') }}" class="google-btn"
-      ><img
-        src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
-        alt="Google 標誌"
-      />使用 Google 登錄
-    </a>
+    <div class="login">
+        <div class="title">登入</div>
+  
+        <a href="{{ url_for('login') }}" class="google-btn">
+          <img
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            alt="Google 標誌"
+          />
+          使用 Google 帳戶登入
+        </a>
+      </div>
+      <div class="square">
+        <ul>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+      </div>
+      <div class="circle">
+        <ul>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+      </div>
+    </body>
+    <script src="script.js"></script>
   </body>
 </html>
