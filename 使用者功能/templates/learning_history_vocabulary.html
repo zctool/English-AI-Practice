@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學習歷程 - 單字</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            float: left;
+            width: 20%;
+            background: #f0f0f0;
+            padding: 15px;
+            box-sizing: border-box;
+            height: 100vh;
+        }
+        .content {
+            float: left;
+            width: 80%;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .history-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>目錄</h2>
+        <ul>
+            <li><a href="{{ url_for('account_management') }}">帳號管理</a></li>
+            <li>學習進度</li>
+            <li>
+                <a href="javascript:void(0)">學習歷程</a>
+                <ul>
+                    <li><a href="{{ url_for('learning_history_conversation') }}">對話</a></li>
+                    <li><a href="{{ url_for('learning_history_vocabulary') }}">單字</a></li>
+                </ul>
+            </li>
+            <li>學習筆記</li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1>學習歷程 - 單字</h1>
+        <form method="POST">
+            <label for="date_filter">篩選日期:</label>
+            <input type="date" id="date_filter" name="date_filter" value="{{ date_filter }}">
+            <button type="submit">篩選</button>
+        </form>
+        <div>
+            {% for item in learning_history %}
+            <div class="history-item">
+                <p>單字: {{ item.vocabulary_en }}</p>
+                <p>翻譯: {{ item.vocabulary_tw }}</p>
+                <p>詞性: {{ item.part_of_speech }}</p>
+                <p>音標: {{ item.ipa }}</p>
+                <p>例句: {{ item.example }}</p>
+                <p>錄音日期: {{ item.date }}</p>
+                <audio controls>
+                    <source src="data:audio/wav;base64,{{ item.user_voice }}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+                <p>STT: {{ item.STT }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

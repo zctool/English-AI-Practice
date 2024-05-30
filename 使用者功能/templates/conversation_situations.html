@@ -12,5 +12,6 @@
         <li><a href="{{ url_for('conversation_practice', topic_id=topic_id, situation_id=situation.id) }}">{{ situation.situation }}</a></li>
         {% endfor %}
     </ul>
+    <a href="{{ url_for('conversation_topics') }}">返回對話主題</a>
 </body>
 </html>

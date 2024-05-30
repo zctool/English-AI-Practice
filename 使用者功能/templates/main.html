@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>主頁面</title>
+    <title>主頁</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>歡迎, {{ name }} ({{ email }})</h1>
-    <a href="{{ url_for('logout') }}">登出</a>
+    <h1>主頁</h1>
+    <h2>歡迎, <a href="{{ url_for('account_management') }}">{{ name }}</a> ({{ email }})</h2>
     <ul>
         <li><a href="{{ url_for('daily_quotes') }}">每日三句</a></li>
-        <li><a href="{{ url_for('conversation_topics') }}">對話練習</a></li>
-        <li><a href="{{ url_for('vocabulary_topics') }}">單字練習</a></li>
+        <li><a href="{{ url_for('vocabulary_topics') }}">單字主題</a></li>
+        <li><a href="{{ url_for('conversation_topics') }}">對話主題</a></li>
     </ul>
+    <a href="{{ url_for('logout') }}">登出</a>
 </body>
 </html>

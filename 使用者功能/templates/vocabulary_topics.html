@@ -23,6 +23,8 @@
             <p style="text-align:center;">{{ topic.name }}</p>
         </div>
         {% endfor %}
+        </ul>
+        <a href="{{ url_for('main') }}">返回主頁</a>
     </div>
     <script>
         function selectLevel(topicId, level) {

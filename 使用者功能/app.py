@@ -84,6 +84,7 @@ def callback():
         unique_id = userinfo_response.json()['sub']
         users_email = userinfo_response.json()['email']
         users_name = userinfo_response.json()['name']
+        picture = userinfo_response.json()['picture']
 
         session['email'] = users_email
         session['name'] = users_name
@@ -95,9 +96,9 @@ def callback():
 
         if user is None:
             cursor.execute("""
-                INSERT INTO users (userName, GoogleEmail) 
-                VALUES (%s, %s)
-            """, (users_name, users_email))
+                INSERT INTO users (userName, GoogleEmail, icon) 
+                VALUES (%s, %s, %s)
+            """, (users_name, users_email, picture))
             conn.commit()
 
         cursor.close()
@@ -106,10 +107,39 @@ def callback():
         return redirect(url_for('main'))
     else:
         return "用戶身份驗證失敗", 400
-    
+
+@app.route('/main')
+def main():
+    if 'email' not in session:
+        return redirect(url_for('index'))
+    return render_template('main.html', name=session['name'], email=session['email'])
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
+
+# 獲取用戶ID
+def get_user_id(email):
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT id FROM users WHERE GoogleEmail = %s", (email,))
+    user_id = cursor.fetchone()['id']
+    cursor.close()
+    conn.close()
+    return user_id
+
+# 每日三句頁面
+@app.route('/daily_quotes')
+def daily_quotes():
+    user_email = session['email']
+    conversations = get_random_conversations(user_email)
+    if not conversations:
+        return "No data available"
+    return render_template('daily_quotes.html', conversations=conversations)
+
 # 隨機獲取三個對話並檢查收藏狀態
-def get_random_conversations():
-    user_email = '41327joseph@gmail.com'
+def get_random_conversations(user_email):
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
     
@@ -143,9 +173,7 @@ def get_random_conversations():
     
     conversations = cursor.fetchall()
     
-    # 獲取用戶ID
-    cursor.execute("SELECT id FROM users WHERE GoogleEmail = %s", (user_email,))
-    user_id = cursor.fetchone()['id']
+    user_id = get_user_id(user_email)
     
     # 檢查收藏狀態
     for conversation in conversations:
@@ -164,37 +192,16 @@ def get_random_conversations():
     
     return conversations
 
-@app.route('/main')
-def main():
-    if 'email' not in session:
-        return redirect(url_for('index'))
-    return render_template('main.html', name=session['name'], email=session['email'])
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('index'))
-
-# 每日三句頁面
-@app.route('/daily_quotes')
-def daily_quotes():
-    conversations = get_random_conversations()
-    if not conversations:
-        return "No data available"
-    return render_template('daily_quotes.html', conversations=conversations)
-
 # 切換對話收藏狀態
 @app.route('/toggle_conversation_collect', methods=['POST'])
 def toggle_conversation_collect():
-    user_email = '41327joseph@gmail.com'
+    user_email = session['email']
     conversation_id = request.form['conversation_id']
     
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
     
-    # 獲取用戶ID
-    cursor.execute("SELECT id FROM users WHERE GoogleEmail = %s", (user_email,))
-    user_id = cursor.fetchone()['id']
+    user_id = get_user_id(user_email)
     
     # 檢查是否存在收藏記錄
     cursor.execute("""
@@ -264,7 +271,7 @@ def vocabulary_list(topic_id, level):
 # 單字詳細頁面
 @app.route('/vocabulary_detail/<int:vocabulary_id>')
 def vocabulary_detail(vocabulary_id):
-    user_email = '41327joseph@gmail.com'  # 固定 GoogleEmail
+    user_email = session['email']  # 固定 GoogleEmail
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
     
@@ -292,15 +299,13 @@ def vocabulary_detail(vocabulary_id):
 # 切換單字收藏狀態
 @app.route('/toggle_vocabulary_collect', methods=['POST'])
 def toggle_vocabulary_collect():
-    user_email = '41327joseph@gmail.com'
+    user_email = session['email']
     vocabulary_id = request.form['vocabulary_id']
     
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
     
-    # 獲取用戶ID
-    cursor.execute("SELECT id FROM users WHERE GoogleEmail = %s", (user_email,))
-    user_id = cursor.fetchone()['id']
+    user_id = get_user_id(user_email)
     
     # 檢查是否存在收藏記錄
     cursor.execute("""
@@ -367,9 +372,8 @@ def conversation_practice(topic_id, situation_id):
     """, (situation_id,))
     conversations = cursor.fetchall()
     
-    user_email = '41327joseph@gmail.com'
-    cursor.execute("SELECT id FROM users WHERE GoogleEmail = %s", (user_email,))
-    user_id = cursor.fetchone()['id']
+    user_email = session['email']
+    user_id = get_user_id(user_email)
     
     for conversation in conversations:
         conversation_id = conversation['id']
@@ -394,15 +398,14 @@ def save_recording():
     user_voice = data['user_voice']
     stt = data['stt']
     conversation_id = data['conversation_id']
-    user_email = '41327joseph@gmail.com'
+    user_email = session['email']
     date_now = datetime.datetime.now().date()
     
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
     
     # 獲取用戶ID
-    cursor.execute("SELECT id FROM users WHERE GoogleEmail = %s", (user_email,))
-    user_id = cursor.fetchone()['id']
+    user_id = get_user_id(user_email)
     
     # 插入新錄音記錄
     cursor.execute("""
@@ -416,44 +419,121 @@ def save_recording():
     
     return jsonify({"status": "success"})
 
-# 切換對話收藏狀態
-@app.route('/toggle_conversation_collect', methods=['POST'], endpoint='toggle_conversation_collect_new')
-def toggle_conversation_collect_new():
-    user_email = '41327joseph@gmail.com'
-    conversation_id = request.form['conversation_id']
-    
+# 學習歷程 - 單字
+@app.route('/learning_history_vocabulary', methods=['GET', 'POST'])
+def learning_history_vocabulary():
+    user_email = session['email']
+    user_id = get_user_id(user_email)
+    date_filter = request.form.get('date_filter', None)
+
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
     
-    # 獲取用戶ID
-    cursor.execute("SELECT id FROM users WHERE GoogleEmail = %s", (user_email,))
-    user_id = cursor.fetchone()['id']
-    
-    # 檢查是否存在收藏記錄
-    cursor.execute("""
-        SELECT id FROM conversationCollect
-        WHERE user_id = %s AND conversation_id = %s
-    """, (user_id, conversation_id))
-    collect_record = cursor.fetchone()
-    
-    if collect_record:
-        # 刪除現有記錄
+    if date_filter:
         cursor.execute("""
-            DELETE FROM conversationCollect
-            WHERE id = %s
-        """, (collect_record['id'],))
+            SELECT v.vocabulary_en, v.vocabulary_tw, v.part_of_speech, v.ipa, v.example, v.class, vuv.user_voice, vuv.STT, vuv.date
+            FROM vocabularyUserVoice vuv
+            JOIN vocabulary v ON vuv.vocabulary_id = v.id
+            WHERE vuv.user_id = %s AND vuv.date = %s
+            ORDER BY vuv.date ASC
+        """, (user_id, date_filter))
     else:
-        # 插入新記錄
         cursor.execute("""
-            INSERT INTO conversationCollect (user_id, conversation_id)
-            VALUES (%s, %s)
-        """, (user_id, conversation_id))
+            SELECT v.vocabulary_en, v.vocabulary_tw, v.part_of_speech, v.ipa, v.example, v.class, vuv.user_voice, vuv.STT, vuv.date
+            FROM vocabularyUserVoice vuv
+            JOIN vocabulary v ON vuv.vocabulary_id = v.id
+            WHERE vuv.user_id = %s
+            ORDER BY vuv.date ASC
+        """, (user_id,))
     
-    conn.commit()
+    learning_history = cursor.fetchall()
     cursor.close()
     conn.close()
     
-    return jsonify({"status": "success"})
+    for record in learning_history:
+        record['user_voice'] = base64.b64encode(record['user_voice']).decode('utf-8')
+    
+    return render_template('learning_history_vocabulary.html', learning_history=learning_history, date_filter=date_filter)
+
+# 學習歷程 - 對話
+@app.route('/learning_history_conversation', methods=['GET', 'POST'])
+def learning_history_conversation():
+    user_email = session['email']
+    user_id = get_user_id(user_email)
+    date_filter = request.form.get('date_filter', None)
+
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    if date_filter:
+        cursor.execute("""
+            SELECT c.conversation_en, c.conversation_tw, cuv.user_voice, cuv.STT, cuv.date
+            FROM conversationUserVoice cuv
+            JOIN conversation c ON cuv.conversation_id = c.id
+            WHERE cuv.user_id = %s AND cuv.date = %s
+            ORDER BY cuv.date ASC
+        """, (user_id, date_filter))
+    else:
+        cursor.execute("""
+            SELECT c.conversation_en, c.conversation_tw, cuv.user_voice, cuv.STT, cuv.date
+            FROM conversationUserVoice cuv
+            JOIN conversation c ON cuv.conversation_id = c.id
+            WHERE cuv.user_id = %s
+            ORDER BY cuv.date ASC
+        """, (user_id,))
+    
+    learning_history = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    for record in learning_history:
+        record['user_voice'] = base64.b64encode(record['user_voice']).decode('utf-8')
+    
+    return render_template('learning_history_conversation.html', learning_history=learning_history, date_filter=date_filter)
+
+# 帳號管理頁面
+@app.route('/account_management', methods=['GET', 'POST'])
+def account_management():
+    user_email = session['email']  # 固定 GoogleEmail
+
+    if request.method == 'POST':
+        # 獲取提交的資料
+        user_name = request.form['userName']
+        icon_file = request.files['icon']
+        icon_data = icon_file.read() if icon_file else None
+
+        conn = cnxpool.get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # 更新用戶資料
+        update_query = "UPDATE users SET userName = %s"
+        update_data = [user_name]
+
+        if icon_data:
+            update_query += ", icon = %s"
+            update_data.append(icon_data)
+
+        update_query += " WHERE GoogleEmail = %s"
+        update_data.append(user_email)
+
+        cursor.execute(update_query, update_data)
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    # 獲取當前用戶資料
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT userName, GoogleEmail, icon FROM users WHERE GoogleEmail = %s", (user_email,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    # 將圖片轉為 base64 格式
+    if user['icon']:
+        user['icon'] = base64.b64encode(user['icon']).decode('utf-8')
+
+    return render_template('account_management.html', user=user)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
