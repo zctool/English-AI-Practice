@@ -1,3 +1,8 @@
+* {
+  /* 初始化 */
+  margin: 0;
+  padding: 0;
+}
 body {
   font-family: Arial, sans-serif;
 }
@@ -59,29 +64,6 @@ body {
 
 .vocabulary {
   margin: 10px;
-}
-.google-btn {
-  display: inline-flex;
-  align-items: center;
-  background-color: #4285f4;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.google-btn img {
-  width: 20px;
-  height: 20px;
-  margin-right: 10px;
-}
-* {
-  /* 初始化 */
-  margin: 0;
-  padding: 0;
 }
 
 body {

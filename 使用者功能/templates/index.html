@@ -2,6 +2,7 @@
 <html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>登录</title>
@@ -12,35 +13,99 @@
   </head>
   <body>
     <div class="login">
-        <div class="title">登入</div>
-  
-        <a href="{{ url_for('login') }}" class="google-btn">
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google 標誌"
-          />
-          使用 Google 帳戶登入
-        </a>
-      </div>
-      <div class="square">
-        <ul>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
-      </div>
-      <div class="circle">
-        <ul>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
-      </div>
-    </body>
-    <script src="script.js"></script>
+      <div class="title">登入</div>
+      <a href="{{ url_for('login') }}" class="google-btn">
+        <img
+          src="https://www.svgrepo.com/show/475656/google-color.svg"
+          alt="Google 標誌"
+        />
+        使用 Google 帳戶登入
+      </a>
+    </div>
+    <div class="square">
+      <ul>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+      </ul>
+    </div>
+    <div class="circle">
+      <ul>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+      </ul>
+    </div>
   </body>
+  <script>
+    window.onload = function () {
+      //获取login
+      let login = document.querySelector(".login");
+
+      let span;
+      let inTime, outTime;
+      let isIn = true; //默认打开
+      let isOut;
+
+      //鼠标进入事件
+      login.addEventListener("mouseenter", function (e) {
+        isOut = false; //预先关闭，若不进入if，则不能进入鼠标离开事件的if
+        if (isIn) {
+          inTime = new Date().getTime();
+
+          //生成span元素添加进login的末尾
+          span = document.createElement("span");
+          login.appendChild(span);
+
+          //span去使用in动画
+          span.style.animation = "in .5s ease-out forwards";
+
+          //计算 top 和 left 值，跟踪鼠标位置
+          let top = e.clientY - e.target.offsetTop;
+          let left = e.clientX - e.target.offsetLeft;
+
+          span.style.top = top + "px";
+          span.style.left = left + "px";
+
+          isIn = false;
+          isOut = true;
+        }
+      });
+
+      //鼠标离开事件
+      login.addEventListener("mouseleave", function (e) {
+        if (isOut) {
+          outTime = new Date().getTime();
+          let passTime = outTime - inTime;
+
+          if (passTime < 500) {
+            setTimeout(mouseleave, 500 - passTime); //已经经过的时间就不要了
+          } else {
+            mouseleave();
+          }
+        }
+
+        function mouseleave() {
+          span.style.animation = "out .5s ease-out forwards";
+
+          //计算 top 和 left 值，跟踪鼠标位置
+          let top = e.clientY - e.target.offsetTop;
+          let left = e.clientX - e.target.offsetLeft;
+
+          span.style.top = top + "px";
+          span.style.left = left + "px";
+
+          //注意：因为要等到动画结束，所以要给个定时器
+          setTimeout(function () {
+            login.removeChild(span);
+            isIn = true; //当我们执行完鼠标离开事件里的程序，才再次打开
+          }, 500);
+        }
+      });
+    };
+  </script>
 </html>
