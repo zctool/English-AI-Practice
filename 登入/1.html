@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    color: #eee;
+    /* 5A69A1 */
+}
+ 
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #5A69A1;
+}
+ 
+.login {
+    /* 超出部分隐藏 */
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+    height: 450px;
+    background-color: #c7c2db;
+    border-radius: 10px;
+    box-shadow: 10px 10px 20px rgba(33, 44, 55, .3);
+}
+ 
+h1 {
+    font-size: 45px;
+    font-weight: 400;
+    z-index: 1;
+}
+ 
+form {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    height: 230px;
+    z-index: 1;
+}
+ 
+input {
+    width: 200px;
+    height: 40px;
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid #eee;
+    font-size: 16px;
+    outline: none;
+}
+ 
+input::placeholder {
+    font-size: 12px;
+    color: #eee;
+}
+ 
+button {
+    width: 180px;
+    height: 40px;
+    border: 1px solid #eee;
+    background-color: transparent;
+    border-radius: 20px;
+    font-size: 15px;
+    cursor: pointer;
+}
+ 
+span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    background-color: #deb1bc;
+    /* 鼠标居中 */
+    transform: translate(-50%, -50%);
+    /* 圆展开 */
+    border-radius: 50%;
+}
+ 
+/* 鼠标进入login时候的动画 */
+@keyframes in {
+    0% {
+        width: 0;
+        height: 0;
+    }
+ 
+    100% {
+        width: 1200px;
+        height: 1200px;
+    }
+}
+ 
+/* 鼠标离开login时候的动画 */
+@keyframes out {
+    0% {
+        width: 1200px;
+        height: 1200px;
+    }
+ 
+    100% {
+        width: 0;
+        height: 0;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="login">
+        <h1>Login</h1>
+        <form action="">
+            <input type="text" placeholder="账号">
+            <input type="password" placeholder="密码">
+            <button>登入</button>
+        </form>
+    </div>
+
+    <script>
+        window.onload = function () {
+    //获取login
+    let login = document.querySelector('.login')
+ 
+    let span
+    let inTime, outTime
+    let isIn = true//默认打开
+    let isOut
+ 
+    //鼠标进入事件
+    login.addEventListener('mouseenter', function (e) {
+        isOut = false//预先关闭，若不进入if，则不能进入鼠标离开事件的if
+        if (isIn) {
+            inTime = new Date().getTime()
+ 
+            //生成span元素添加进login的末尾
+            span = document.createElement('span')
+            login.appendChild(span)
+ 
+            //span去使用in动画
+            span.style.animation = 'in .5s ease-out forwards'
+ 
+            //计算 top 和 left 值，跟踪鼠标位置
+            let top = e.clientY - e.target.offsetTop
+            let left = e.clientX - e.target.offsetLeft
+ 
+            span.style.top = top + 'px'
+            span.style.left = left + 'px'
+ 
+            isIn = false
+            isOut = true
+ 
+        }
+    })
+ 
+    //鼠标离开事件
+    login.addEventListener('mouseleave', function (e) {
+        if (isOut) {
+            outTime = new Date().getTime()
+            let passTime = outTime - inTime
+ 
+            if (passTime < 500) {
+                setTimeout(mouseleave, 500 - passTime) //已经经过的时间就不要了
+            }
+            else {
+                mouseleave()
+            }
+        }
+ 
+        function mouseleave() {
+            span.style.animation = 'out .5s ease-out forwards'
+ 
+            //计算 top 和 left 值，跟踪鼠标位置
+            let top = e.clientY - e.target.offsetTop
+            let left = e.clientX - e.target.offsetLeft
+ 
+            span.style.top = top + 'px'
+            span.style.left = left + 'px'
+ 
+            //注意：因为要等到动画结束，所以要给个定时器
+            setTimeout(function () {
+                login.removeChild(span)
+                isIn = true //当我们执行完鼠标离开事件里的程序，才再次打开
+            }, 500)
+        }
+    })
+}
+    </script>
+</body>
+</html>
