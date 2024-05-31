@@ -390,6 +390,7 @@ def add_conversation_situation():
         return render_template('add_conversation_situation.html', topics=topics)
 
 # 新增对话内容
+# 新增對話內容
 @app.route('/add_conversation', methods=['GET', 'POST'])
 def add_conversation():
     if request.method == 'POST':
@@ -404,22 +405,14 @@ def add_conversation():
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
 
-            # 檢查是否存在相同 situation_id 和 class 的對話內容
-            check_query = "SELECT COUNT(*) FROM conversation WHERE situation_id = %s AND class = %s"
-            cursor.execute(check_query, (situation_id, difficulty_class))
-            result = cursor.fetchone()
-
-            if result[0] > 0:
-                flash('Conversation with the same situation and class already exists!', 'danger')
-            else:
-                voice_data = conversation_voice.read()
-                query = """
-                    INSERT INTO conversation (situation_id, character_id, conversation_en, conversation_tw, class, conversation_voice)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                """
-                cursor.execute(query, (situation_id, character_id, conversation_en, conversation_tw, difficulty_class, voice_data))
-                connection.commit()
-                flash('Conversation added successfully!', 'success')
+            voice_data = conversation_voice.read() if conversation_voice else None
+            query = """
+                INSERT INTO conversation (situation_id, character_id, conversation_en, conversation_tw, class, conversation_voice)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(query, (situation_id, character_id, conversation_en, conversation_tw, difficulty_class, voice_data))
+            connection.commit()
+            flash('Conversation added successfully!', 'success')
         except mysql.connector.Error as err:
             flash(f"Error: {err}", 'danger')
             if connection:
@@ -434,17 +427,68 @@ def add_conversation():
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
-            cursor.execute("SELECT id, situation FROM conversationSituation")
-            situations = cursor.fetchall()
+            cursor.execute("SELECT id, name FROM conversationTopic")
+            topics = cursor.fetchall()
         except mysql.connector.Error as err:
             flash(f"Error: {err}", 'danger')
-            situations = []
+            topics = []
         finally:
             if cursor:
                 cursor.close()
             if connection:
                 connection.close()
-        return render_template('add_conversation.html', situations=situations)
+        return render_template('add_conversation.html', topics=topics)
+
+@app.route('/get_difficulty_classes/<int:topic_id>', methods=['GET'])
+def get_difficulty_classes(topic_id):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        query = "SELECT DISTINCT class FROM conversationSituation WHERE topic_id = %s"
+        cursor.execute(query, (topic_id,))
+        difficulty_classes = cursor.fetchall()
+        return jsonify([{'class': class_item[0]} for class_item in difficulty_classes])
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)})
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+@app.route('/get_situations/<int:topic_id>/<string:difficulty_class>', methods=['GET'])
+def get_situations(topic_id, difficulty_class):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        query = "SELECT id, situation FROM conversationSituation WHERE topic_id = %s AND class = %s"
+        cursor.execute(query, (topic_id, difficulty_class))
+        situations = cursor.fetchall()
+        return jsonify([{'id': situation[0], 'situation': situation[1]} for situation in situations])
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)})
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+@app.route('/get_characters_by_situation/<int:situation_id>', methods=['GET'])
+def get_characters_by_situation(situation_id):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        query = "SELECT id, character_name FROM characters WHERE situation_id = %s"
+        cursor.execute(query, (situation_id,))
+        characters = cursor.fetchall()
+        return jsonify([{'id': character[0], 'character_name': character[1]} for character in characters])
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)})
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
 
 # 查看和编辑对话主題
 @app.route('/conversation_topics')
