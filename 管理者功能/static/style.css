@@ -56,7 +56,7 @@ input[type="file"] {
 }
 
 input[type="submit"] {
-  background-color: #4caf50;
+  background-color: #8ebfb7;
   color: white;
   padding: 10px 20px;
   border: none;
@@ -67,7 +67,7 @@ input[type="submit"] {
 }
 
 input[type="submit"]:hover {
-  background-color: #45a049;
+  background-color: #77a29b;
 }
 
 .flashes {
@@ -144,7 +144,7 @@ h1 {
 }
 
 button {
-  background-color: #566cdd;
+  background-color: #9dbfd2;
   width: 200px;
   color: white;
   padding: 10px 20px;
@@ -157,7 +157,7 @@ button {
 }
 
 button:hover {
-  background-color: #4c9bd3;
+  background-color: #89a6b7;
 }
 
 input[type="text"] {
@@ -175,7 +175,7 @@ audio {
 }
 header {
   width: 100%;
-  background-color: #17a2b8;
+  background-color:#b9d3e7;
   padding: 10px;
   text-align: center;
   position: fixed;
