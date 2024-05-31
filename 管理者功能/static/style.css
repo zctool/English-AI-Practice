@@ -291,9 +291,16 @@ tr:nth-child(even) {
   align-items: center;
 }
 
-.submit-button:hover {
-  background-color: #45a049; /* 鼠标悬停时的背景颜色 */
+.submit-button{
+  width: auto;
+  background-color: #8ebfb7;
 }
+
+.submit-button:hover {
+  background-color: #77a29b; /* 鼠标悬停时的背景颜色 */
+  display: inline-block;
+}
+
 .btn20 {
   background-color: #29ed1b;
   width: 150px;
