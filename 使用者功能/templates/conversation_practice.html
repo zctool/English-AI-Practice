@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>對話練習</title>
+    <title>Conversation Practice</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         .star-button {
@@ -23,52 +23,66 @@
             content: '☆';
             color: #ffd700;
         }
+        .conversation {
+            border-bottom: 1px solid #ccc;
+            padding: 10px;
+        }
+        .character {
+            display: flex;
+            align-items: center;
+        }
+        .character img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
-    <h1>對話練習</h1>
-    {% for conv in conversations %}
-    <div class="conversation">
-        <div class="character">
-            <img src="data:image/png;base64,{{ conv.icon }}" alt="{{ conv.character_name }}" width="50" height="50">
-            <strong>{{ conv.character_name }}</strong>
-        </div>
-        <p>英文: {{ conv.conversation_en }}</p>
-        <p>中文: {{ conv.conversation_tw }}</p>
-        <div class="recording">
-            <button onclick="startRecording('{{ conv.id }}', this)">開始錄音</button>
-            <button onclick="stopRecording('{{ conv.id }}', this)" disabled>停止錄音</button>
-            <audio id="playback-{{ conv.id }}" controls style="display: none; margin-left: 10px;"></audio>
-        </div>
-        <audio controls>
-            <source src="data:audio/wav;base64,{{ conv.conversation_voice }}" type="audio/wav">
-            您的瀏覽器不支持音頻元素。
-        </audio>
-        <button class="star-button {{ 'filled' if conv.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ conv.id }}', this)">
-        </button>
+    <h1>Conversation Practice</h1>
+    <div class="conversations">
+        {% for conversation in conversations %}
+            <div class="conversation">
+                <div class="character">
+                    <img src="data:image/png;base64,{{ conversation.icon }}" alt="Character Icon">
+                    <span>{{ conversation.character_name }}</span>
+                </div>
+                <p>{{ conversation.conversation_en }}</p>
+                <p>{{ conversation.conversation_tw }}</p>
+                <audio controls>
+                    <source src="data:audio/wav;base64,{{ conversation.conversation_voice }}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+                <div class="recording">
+                    <button onclick="startRecording('{{ conversation.id }}', this)">Start Recording</button>
+                    <button onclick="stopRecording('{{ conversation.id }}', this)" disabled>Stop Recording</button>
+                    <audio id="playback-{{ conversation.id }}" controls style="display: none; margin-left: 10px;"></audio>
+                </div>
+                <button class="star-button {{ 'filled' if conversation.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ conversation.id }}', this)">
+                </button>
+            </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-    </ul>
-    <a href="{{ url_for('conversation_situations') }}">返回對話情境</a>
+    <a href="{{ url_for('conversation_situations', topic_id=topic_id, difficulty=difficulty) }}">Back to Situations</a>
     <script>
         let recognition;
         let mediaRecorder;
         let recordedChunks = [];
-        let currentConvId;
+        let currentConversationId;
         let speechToText = '';
 
-        // 開始錄音
-        function startRecording(convId, startButton) {
+        function startRecording(conversationId, startButton) {
             const stopButton = startButton.nextElementSibling;
 
             startButton.disabled = true;
             stopButton.disabled = false;
 
-            recordedChunks = []; // 重置錄音片段
-            currentConvId = convId; // 設置當前對話ID
+            recordedChunks = []; // Reset recorded chunks
+            currentConversationId = conversationId; // Set the current conversation ID
 
             if (!('webkitSpeechRecognition' in window)) {
-                alert('您的瀏覽器不支持語音識別。');
+                alert('Your browser does not support speech recognition.');
                 return;
             }
 
@@ -88,15 +102,13 @@
                 .catch(error => console.error('getUserMedia error:', error));
         }
 
-        // 處理錄音數據
         function handleDataAvailable(event) {
             if (event.data.size > 0) {
                 recordedChunks.push(event.data);
             }
         }
 
-        // 停止錄音
-        function stopRecording(convId, stopButton) {
+        function stopRecording(conversationId, stopButton) {
             const startButton = stopButton.previousElementSibling;
 
             stopButton.disabled = true;
@@ -109,34 +121,32 @@
                 const blob = new Blob(recordedChunks, { type: 'audio/webm' });
                 const audioURL = URL.createObjectURL(blob);
 
-                const playback = document.getElementById(`playback-${convId}`);
+                const playback = document.getElementById(`playback-${conversationId}`);
                 playback.src = audioURL;
                 playback.style.display = 'block';
 
                 const reader = new FileReader();
                 reader.onloadend = function() {
                     const base64data = reader.result.split(',')[1];
-                    saveRecording(encodeURIComponent(base64data), currentConvId);
+                    saveRecording(encodeURIComponent(base64data), currentConversationId);
                 };
                 reader.readAsDataURL(blob);
             };
         }
 
-        // 保存錄音
-        function saveRecording(base64data, convId) {
+        function saveRecording(base64data, conversationId) {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/save_recording', true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
-                    console.log('錄音已保存');
+                    console.log('Recording saved');
                 }
             };
-            xhr.send(`user_voice=${base64data}&stt=${speechToText}&conversation_id=${convId}`);
+            xhr.send(`user_voice=${base64data}&stt=${speechToText}&conversation_id=${conversationId}`);
         }
 
-        // 切換收藏狀態
-        function toggleCollect(convId, starButton) {
+        function toggleCollect(conversationId, starButton) {
             const isCollected = starButton.classList.contains('filled');
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/toggle_conversation_collect', true);
@@ -152,7 +162,7 @@
                     }
                 }
             };
-            xhr.send(`conversation_id=${convId}`);
+            xhr.send(`conversation_id=${conversationId}&collect=${!isCollected}`);
         }
     </script>
 </body>

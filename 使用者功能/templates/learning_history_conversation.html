@@ -34,7 +34,7 @@
         <h2>目錄</h2>
         <ul>
             <li><a href="{{ url_for('account_management') }}">帳號管理</a></li>
-            <li>學習進度</li>
+            <li><a href="{{ url_for('calendar') }}">學習月曆</a></li>
             <li>
                 <a href="javascript:void(0)">學習歷程</a>
                 <ul>
@@ -42,7 +42,13 @@
                     <li><a href="{{ url_for('learning_history_vocabulary') }}">單字</a></li>
                 </ul>
             </li>
-            <li>學習筆記</li>
+            <li>
+                <a href="javascript:void(0)">學習筆記</a>
+                <ul>
+                    <li><a href="{{ url_for('learning_notes_conversation') }}">對話</a></li>
+                    <li><a href="{{ url_for('learning_notes_vocabulary') }}">單字</a></li>
+                </ul>
+            </li>
         </ul>
     </div>
     <div class="content">

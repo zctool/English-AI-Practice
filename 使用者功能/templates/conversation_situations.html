@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>對話情境</title>
+    <title>Conversation Situations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>選擇對話情境</h1>
-    <ul>
+    <h1>Conversation Situations</h1>
+    <div class="situations">
         {% for situation in situations %}
-        <li><a href="{{ url_for('conversation_practice', topic_id=topic_id, situation_id=situation.id) }}">{{ situation.situation }}</a></li>
+            <form action="{{ url_for('conversation_practice', topic_id=topic_id, difficulty=difficulty, situation_id=situation.id) }}" method="GET">
+                <button type="submit">{{ situation.situation }}</button>
+            </form>
         {% endfor %}
-    </ul>
-    <a href="{{ url_for('conversation_topics') }}">返回對話主題</a>
+    </div>
+    <a href="{{ url_for('conversation_topics') }}">Back to Topics</a>
 </body>
 </html>

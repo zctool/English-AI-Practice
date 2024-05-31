@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>學習筆記 - 單字收藏</title>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>目錄</h2>
+        <ul>
+            <li><a href="{{ url_for('account_management') }}">帳號管理</a></li>
+            <li><a href="{{ url_for('calendar') }}">學習月曆</a></li>
+            <li>
+                <a href="javascript:void(0)">學習歷程</a>
+                <ul>
+                    <li><a href="{{ url_for('learning_history_conversation') }}">對話</a></li>
+                    <li><a href="{{ url_for('learning_history_vocabulary') }}">單字</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="javascript:void(0)">學習筆記</a>
+                <ul>
+                    <li><a href="{{ url_for('learning_notes_conversation') }}">對話</a></li>
+                    <li><a href="{{ url_for('learning_notes_vocabulary') }}">單字</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <h1>學習筆記 - 單字收藏</h1>
+    <ul>
+        {% for vocabulary in vocabularies %}
+        <li>
+            <p>單字(英文): {{ vocabulary.vocabulary_en }}</p>
+            <p>單字(繁體中文): {{ vocabulary.vocabulary_tw }}</p>
+            <p>詞性: {{ vocabulary.part_of_speech }}</p>
+            <p>音標: {{ vocabulary.ipa }}</p>
+            <p>例句: {{ vocabulary.example }}</p>
+            <p>主題: {{ vocabulary.topic_name }}</p>
+            <audio controls>
+                <source src="data:audio/wav;base64,{{ vocabulary.vocabulary_voice }}" type="audio/wav">
+                您的瀏覽器不支持音頻元素。
+            </audio>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,17 +1,47 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>對話主題</title>
+    <title>Conversation Topics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .topic {
+            margin-bottom: 20px;
+        }
+        .difficulty-buttons {
+            display: none;
+            margin-top: 10px;
+        }
+        .topic-name {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>選擇對話主題</h1>
-    <ul>
+    <h1>Conversation Topics</h1>
+    <div class="topics">
         {% for topic in topics %}
-        <li><a href="{{ url_for('conversation_situations', topic_id=topic.id) }}">{{ topic.name }}</a></li>
+            <div class="topic">
+                <img src="data:image/png;base64,{{ topic.icon }}" alt="{{ topic.name }} icon">
+                <span class="topic-name" onclick="toggleDifficulties('{{ topic.id }}')">{{ topic.name }}</span>
+                <div class="difficulty-buttons" id="difficulties-{{ topic.id }}">
+                    {% for difficulty in topic.difficulties %}
+                        <form action="{{ url_for('conversation_situations', topic_id=topic.id, difficulty=difficulty) }}" method="GET">
+                            <button type="submit">{{ difficulty }}</button>
+                        </form>
+                    {% endfor %}
+                </div>
+            </div>
         {% endfor %}
-    </ul>
-    <a href="{{ url_for('main') }}">返回主頁</a>
+    </div>
+    <script>
+        function toggleDifficulties(topicId) {
+            const difficultyButtons = document.getElementById(`difficulties-${topicId}`);
+            difficultyButtons.style.display = difficultyButtons.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
 </body>
 </html>

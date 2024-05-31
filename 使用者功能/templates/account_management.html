@@ -17,34 +17,82 @@
             flex-grow: 1;
             padding: 20px;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="sidebar">
+            <h2>目錄</h2>
             <ul>
                 <li><a href="{{ url_for('account_management') }}">帳號管理</a></li>
+                <li><a href="{{ url_for('calendar') }}">學習月曆</a></li>
                 <li>
-                    學習歷程
+                    <a href="javascript:void(0)">學習歷程</a>
                     <ul>
                         <li><a href="{{ url_for('learning_history_conversation') }}">對話</a></li>
                         <li><a href="{{ url_for('learning_history_vocabulary') }}">單字</a></li>
                     </ul>
                 </li>
+                <li>
+                    <a href="javascript:void(0)">學習筆記</a>
+                    <ul>
+                        <li><a href="{{ url_for('learning_notes_conversation') }}">對話</a></li>
+                        <li><a href="{{ url_for('learning_notes_vocabulary') }}">單字</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
         <div class="content">
-            <h1>帳號管理</h1>
-            <form action="{{ url_for('account_management') }}" method="POST" enctype="multipart/form-data">
-                <label for="userName">暱稱：</label>
-                <input type="text" id="userName" name="userName" value="{{ user.userName }}"><br><br>
-                <label for="icon">頭像：</label>
-                <input type="file" id="icon" name="icon"><br><br>
-                <button type="submit">保存</button>
+            <h2>帳號管理</h2>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <img id="iconPreview" src="data:image/png;base64,{{ user.icon }}" alt="User Icon" width="100">
+                </div>
+                <div class="form-group">
+                    <label for="userName">使用者暱稱</label>
+                    <input type="text" id="userName" name="userName" value="{{ user.userName }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="GoogleEmail">Google 帳號</label>
+                    <input type="text" id="GoogleEmail" name="GoogleEmail" value="{{ user.GoogleEmail }}" readonly>
+                </div>
+                <div class="form-group hidden" id="iconGroup">
+                    <label for="icon">更改頭像</label>
+                    <input type="file" id="icon" name="icon" accept="image/*">
+                </div>
+                <div class="buttons">
+                    <button type="button" id="editButton">編輯</button>
+                    <button type="submit" class="hidden" id="saveButton">儲存</button>
+                    <button type="button" class="hidden" id="cancelButton">取消</button>
+                </div>
             </form>
-            <img src="data:image/png;base64,{{ user.icon }}" alt="User Icon">
-            <p>Google 帳號：{{ user.GoogleEmail }}</p>
         </div>
     </div>
+    <script>
+        const editButton = document.getElementById('editButton');
+        const saveButton = document.getElementById('saveButton');
+        const cancelButton = document.getElementById('cancelButton');
+        const userNameInput = document.getElementById('userName');
+        const iconGroup = document.getElementById('iconGroup');
+
+        editButton.addEventListener('click', () => {
+            userNameInput.removeAttribute('readonly');
+            iconGroup.classList.remove('hidden');
+            editButton.classList.add('hidden');
+            saveButton.classList.remove('hidden');
+            cancelButton.classList.remove('hidden');
+        });
+
+        cancelButton.addEventListener('click', () => {
+            userNameInput.setAttribute('readonly', 'readonly');
+            iconGroup.classList.add('hidden');
+            editButton.classList.remove('hidden');
+            saveButton.classList.add('hidden');
+            cancelButton.classList.add('hidden');
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>學習筆記</title>
+</head>
+<body>
+    <h1>學習筆記</h1>
+    <div class="sidebar">
+        <h2>目錄</h2>
+        <ul>
+            <li><a href="{{ url_for('account_management') }}">帳號管理</a></li>
+            <li><a href="{{ url_for('calendar') }}">學習月曆</a></li>
+            <li>
+                <a href="javascript:void(0)">學習歷程</a>
+                <ul>
+                    <li><a href="{{ url_for('learning_history_conversation') }}">對話</a></li>
+                    <li><a href="{{ url_for('learning_history_vocabulary') }}">單字</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="javascript:void(0)">學習筆記</a>
+                <ul>
+                    <li><a href="{{ url_for('learning_notes_conversation') }}">對話</a></li>
+                    <li><a href="{{ url_for('learning_notes_vocabulary') }}">單字</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <ul>
+        {% for conversation in conversations %}
+        <li>
+            <img src="data:image/png;base64,{{ conversation.icon }}" alt="{{ conversation.character_name }}的圖標">
+            <p>人物名稱: {{ conversation.character_name }}</p>
+            <p>對話(英文): {{ conversation.conversation_en }}</p>
+            <p>對話(繁體中文): {{ conversation.conversation_tw }}</p>
+            <audio controls>
+                <source src="data:audio/wav;base64,{{ conversation.conversation_voice }}" type="audio/wav">
+                您的瀏覽器不支持音頻元素。
+            </audio>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
