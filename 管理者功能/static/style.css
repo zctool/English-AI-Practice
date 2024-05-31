@@ -302,7 +302,7 @@ tr:nth-child(even) {
 }
 
 .btn20 {
-  background-color: #29ed1b;
+  background-color: #e1d19c;
   width: 150px;
   color: white;
   padding: 10px 20px;
@@ -314,10 +314,10 @@ tr:nth-child(even) {
   transition: background-color 0.3s;
 }
 .btn20:hover {
-  background-color: #2ba923;
+  background-color: #d7c793;
 }
 .btn21 {
-  background-color: #ff0000;
+  background-color: #e1abab;
   width: 150px;
   color: white;
   padding: 10px 20px;
@@ -329,7 +329,7 @@ tr:nth-child(even) {
   transition: background-color 0.3s;
 }
 .btn21:hover {
-  background-color: #ad2108;
+  background-color: #cd9e9e;
 }
 .edit-btn,
 .delete-btn {
