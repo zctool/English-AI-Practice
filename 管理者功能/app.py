@@ -452,7 +452,7 @@ def conversation_topics():
     try:
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor()
-        cursor.execute("SELECT id, name, class FROM conversationTopic")
+        cursor.execute("SELECT id, name FROM conversationTopic")
         topics = cursor.fetchall()
     except mysql.connector.Error as err:
         flash(f"Error: {err}", 'danger')
