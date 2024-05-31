@@ -658,7 +658,7 @@ def conversation_situations():
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor()
         cursor.execute("""
-            SELECT cs.id, cs.situation, ct.name AS topic_name
+            SELECT cs.id, cs.situation, cs.class, ct.name AS topic_name
             FROM conversationSituation cs
             JOIN conversationTopic ct ON cs.topic_id = ct.id
         """)
@@ -679,13 +679,14 @@ def edit_conversation_situation(situation_id):
     if request.method == 'POST':
         situation = request.form['situation']
         topic_id = request.form['topic_id']
+        difficulty_class = request.form['class']
 
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
             
-            query = "UPDATE conversationSituation SET situation = %s, topic_id = %s WHERE id = %s"
-            cursor.execute(query, (situation, topic_id, situation_id))
+            query = "UPDATE conversationSituation SET situation = %s, topic_id = %s, class = %s WHERE id = %s"
+            cursor.execute(query, (situation, topic_id, difficulty_class, situation_id))
             
             connection.commit()
             flash('Conversation Situation updated successfully!', 'success')
@@ -703,7 +704,7 @@ def edit_conversation_situation(situation_id):
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
-            cursor.execute("SELECT situation, topic_id FROM conversationSituation WHERE id = %s", (situation_id,))
+            cursor.execute("SELECT situation, topic_id, class FROM conversationSituation WHERE id = %s", (situation_id,))
             situation = cursor.fetchone()
             
             cursor.execute("SELECT id, name FROM conversationTopic")
@@ -741,12 +742,12 @@ def delete_conversation_situation(situation_id):
     return redirect(url_for('conversation_situations'))
 
 # 查看和编辑人物
-@app.route('/characters/<int:topic_id>')
-def characters(topic_id):
+@app.route('/characters/<int:situation_id>')
+def characters(situation_id):
     try:
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor()
-        cursor.execute("SELECT id, character_name FROM characters WHERE topic_id = %s", (topic_id,))
+        cursor.execute("SELECT id, character_name FROM characters WHERE situation_id = %s", (situation_id,))
         characters = cursor.fetchall()
     except mysql.connector.Error as err:
         flash(f"Error: {err}", 'danger')
@@ -756,14 +757,16 @@ def characters(topic_id):
             cursor.close()
         if connection:
             connection.close()
-    return render_template('characters.html', characters=characters, topic_id=topic_id)
+    return render_template('characters.html', characters=characters, situation_id=situation_id)
 
+# 编辑人物
 # 编辑人物
 @app.route('/edit_character/<int:character_id>', methods=['GET', 'POST'])
 def edit_character(character_id):
     if request.method == 'POST':
         character_name = request.form['character_name']
         icon_file = request.files.get('icon')
+        situation_id = request.form['situation_id']  # 從表單中獲取 situation_id
 
         try:
             connection = mysql.connector.connect(**config)
@@ -788,12 +791,12 @@ def edit_character(character_id):
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('characters', topic_id=request.form['topic_id']))
+        return redirect(url_for('characters', situation_id=situation_id))
     else:
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
-            cursor.execute("SELECT id, character_name FROM characters WHERE id = %s", (character_id,))
+            cursor.execute("SELECT id, character_name, situation_id FROM characters WHERE id = %s", (character_id,))
             character = cursor.fetchone()
         except mysql.connector.Error as err:
             flash(f"Error: {err}", 'danger')
@@ -803,11 +806,11 @@ def edit_character(character_id):
                 cursor.close()
             if connection:
                 connection.close()
-        return render_template('edit_character.html', character=character, topic_id=request.args.get('topic_id'))
+        return render_template('edit_character.html', character=character, situation_id=character[2])
 
 # 删除人物
-@app.route('/delete_character/<int:character_id>/<int:topic_id>')
-def delete_character(character_id, topic_id):
+@app.route('/delete_character/<int:character_id>/<int:situation_id>')
+def delete_character(character_id, situation_id):
     try:
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor()
@@ -823,10 +826,10 @@ def delete_character(character_id, topic_id):
             cursor.close()
         if connection:
             connection.close()
-    return redirect(url_for('characters', topic_id=topic_id))
+    return redirect(url_for('characters', situation_id=situation_id))
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'jpeg', 'png'}
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)
