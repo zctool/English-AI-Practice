@@ -6,4 +6,5 @@ cursor
 pip install oauthlib requests-oauthlib
 pip install oauthlib requests-oauthlib flask
 pip install flask mysql-connector-python oauthlib requests
-pip install -U sentence-transformers
+pip install spacy
+python -m spacy download en_core_web_sm
