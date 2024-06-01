@@ -242,6 +242,7 @@ th {
   text-align: left; /* 文字左对齐 */
   font-weight: bold; /* 字体加粗 */
   border-bottom: 2px solid #e0e0e0; /* 表头下方的边框 */
+  width:auto;
 }
 
 /* 表格数据单元格样式 */
@@ -249,6 +250,7 @@ td {
   padding: 10px 15px; /* 单元格内边距 */
   text-align: left; /* 文字左对齐 */
   border-bottom: 1px solid #e0e0e0; /* 单元格之间的边框 */
+  width:auto;
 }
 
 /* 鼠标悬浮行的样式 */
@@ -343,33 +345,33 @@ tr:nth-child(even) {
 
 .edit-btn {
   transition: 0.5s;
-  background-color: green;
+  background-color: #699f69;
 }
 
 .delete-btn {
   transition: 0.5s;
-  background-color: red;
+  background-color: #E36060;
 }
 .edit-btn:hover {
   transition: 0.5s;
-  background-color: darkgreen; /* 鼠标悬停时颜色变深 */
+  background-color: #4f804f; /* 鼠标悬停时颜色变深 */
 }
 
 .delete-btn:hover {
   transition: 0.5s;
-  background-color: darkred; /* 鼠标悬停时颜色变深 */
+  background-color: #c65353; /* 鼠标悬停时颜色变深 */
 }
 .view-btn {
   display: inline-block;
   padding: 5px 10px;
   text-decoration: none;
   color: white;
-  background-color: blue;
+  background-color: #3083d5;
   border-radius: 4px;
   text-align: center;
   transition: background-color 0.3s;
 }
 
 .view-btn:hover {
-  background-color: darkblue;
+  background-color: #2b75be;
 }
