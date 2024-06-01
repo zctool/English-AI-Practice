@@ -40,12 +40,15 @@
             <button onclick="stopRecording('{{ conv.id }}', this)" disabled>停止錄音</button>
             <audio id="playback-{{ conv.id }}" controls style="display: none; margin-left: 10px;"></audio>
         </div>
-        <audio controls>
+        <div style="display: flex">
+            <audio controls>
             <source src="data:audio/wav;base64,{{ conv.conversation_voice }}" type="audio/wav">
             您的瀏覽器不支持音頻元素。
         </audio>
         <button class="star-button {{ 'filled' if conv.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ conv.id }}', this)">
         </button>
+        </div>
+        
     </div>
     {% endfor %}
     </ul>
