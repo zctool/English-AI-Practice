@@ -1,52 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>单词主题</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+    <style>
+      .image-container {
+        position: relative;
+        display: inline-block;
+      }
+
+      .image-container img {
+        width: auto;
+
+        display: block;
+        height: 500px; /* 確保圖片比例正確 */
+      }
+
+      .hidden-buttons {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%; /* 覆蓋整個圖片的寬度 */
+        height: 100%; /* 覆蓋整個圖片的高度 */
+        background-color: rgba(255, 255, 255, 0.5); /* 較深的半透明背景，提高可讀性 */
+        color: white;
+        display: none; /* 預設不顯示 */
+        justify-content: center; /* 垂直居中顯示按鈕 */
+        align-items: center; /* 水平居中顯示按鈕 */
+        display: none;
+        flex-direction: column; /* 列方向布局，使按鈕垂直堆疊 */
+        gap: 10px; /* 按鈕間隔 */
+      }
+
+      .hidden-buttons button {
+        padding: 10px 20px;
+        background-color: #007bff; /* 藍色背景 */
+        border: none;
+        border-radius: 5px; /* 圓角邊框 */
+        font-size: 16px;
+        cursor: pointer; /* 鼠標懸停時的手指形狀 */
+      }
+
+      .hidden-buttons button:hover {
+        background-color: #0056b3; /* 按鈕懸停時的背景顏色變深 */
+      }
+
+      .image-container:hover .hidden-buttons {
+        display: flex; /* 懸停時以flex布局顯示，保持居中對齊 */
+      }
+
+      .image-caption {
+        position: absolute;
+        bottom: 10px; /* 距離底部一定距離 */
+        left: 50%; /* 水平居中 */
+        transform: translateX(-50%); /* 精確居中 */
+        background-color: rgba(255, 255, 255, 0.5); /* 輕微透明的白色背景 */
+        padding: 5px 10px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
     <h1>选择单词主题</h1>
     <div class="topics">
-        {% for topic in topics %}
-        <div class="topic" data-topic-id="{{ topic.id }}">
-            <img src="data:image/png;base64,{{ topic.icon }}" alt="{{ topic.name }}">
-            <div class="levels">
-                <button onclick="selectLevel('{{ topic.id }}', 'A1')">A1</button>
-                <button onclick="selectLevel('{{ topic.id }}', 'A2')">A2</button>
-                <button onclick="selectLevel('{{ topic.id }}', 'B1')">B1</button>
-                <button onclick="selectLevel('{{ topic.id }}', 'B2')">B2</button>
-                <button onclick="selectLevel('{{ topic.id }}', 'C1')">C1</button>
-                <button onclick="selectLevel('{{ topic.id }}', 'C2')">C2</button>
-            </div>
-            <p style="text-align:center;">{{ topic.name }}</p>
+      {% for topic in topics %}
+      <div class="image-container" data-topic-id="{{ topic.id }}">
+        <img
+          src="data:image/png;base64,{{ topic.icon }}"
+          alt="{{ topic.name }}"
+        />
+        <div class="hidden-buttons">
+          <button onclick="selectLevel('{{ topic.id }}', 'A1')">A1</button>
+          <button onclick="selectLevel('{{ topic.id }}', 'A2')">A2</button>
+          <button onclick="selectLevel('{{ topic.id }}', 'B1')">B1</button>
+          <button onclick="selectLevel('{{ topic.id }}', 'B2')">B2</button>
+          <button onclick="selectLevel('{{ topic.id }}', 'C1')">C1</button>
+          <button onclick="selectLevel('{{ topic.id }}', 'C2')">C2</button>
         </div>
-        {% endfor %}
-        </ul>
-        <a href="{{ url_for('main') }}">返回主頁</a>
+        
+          <p class="image-caption">{{ topic.name }}</p>
+        </div>
+      </div>
+
+      {% endfor %}
     </div>
     <script>
-        function selectLevel(topicId, level) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/select_vocabulary';
+      function selectLevel(topicId, level) {
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/select_vocabulary";
 
-            const topicIdInput = document.createElement('input');
-            topicIdInput.type = 'hidden';
-            topicIdInput.name = 'topic_id';
-            topicIdInput.value = topicId;
+        const topicIdInput = document.createElement("input");
+        topicIdInput.type = "hidden";
+        topicIdInput.name = "topic_id";
+        topicIdInput.value = topicId;
 
-            const levelInput = document.createElement('input');
-            levelInput.type = 'hidden';
-            levelInput.name = 'level';
-            levelInput.value = level;
+        const levelInput = document.createElement("input");
+        levelInput.type = "hidden";
+        levelInput.name = "level";
+        levelInput.value = level;
 
-            form.appendChild(topicIdInput);
-            form.appendChild(levelInput);
-            document.body.appendChild(form);
-            form.submit();
-        }
+        form.appendChild(topicIdInput);
+        form.appendChild(levelInput);
+        document.body.appendChild(form);
+        form.submit();
+      }
+      document
+        .querySelector(".image-container")
+        .addEventListener("mouseover", function () {
+          document.querySelector(".hidden-buttons").style.display = "flex"; // 修改這裡以匹配CSS的更改
+        });
+
+      document
+        .querySelector(".image-container")
+        .addEventListener("mouseout", function () {
+          document.querySelector(".hidden-buttons").style.display = "none";
+        });
     </script>
-</body>
+  </body>
 </html>

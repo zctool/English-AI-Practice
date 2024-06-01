@@ -1,47 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Conversation Topics</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <style>
-        .topic {
-            margin-bottom: 20px;
-        }
-        .difficulty-buttons {
-            display: none;
-            margin-top: 10px;
-        }
-        .topic-name {
-            cursor: pointer;
-            color: blue;
-            text-decoration: underline;
-        }
+      .topic {
+        margin-bottom: 20px;
+      }
+      .difficulty-buttons {
+        display: none;
+        margin-top: 10px;
+      }
+      .topic-name {
+        cursor: pointer;
+        color: blue;
+        text-decoration: underline;
+      }
+      .image-container {
+        position: relative;
+        display: inline-block;
+      }
+
+      .image-container img {
+        width: auto;
+
+        display: block;
+        height: 500px; /* 確保圖片比例正確 */
+      }
+
+      .hidden-buttons {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%; /* 覆蓋整個圖片的寬度 */
+        height: 100%; /* 覆蓋整個圖片的高度 */
+        background-color: rgba(
+          255,
+          255,
+          255,
+          0.5
+        ); /* 較深的半透明背景，提高可讀性 */
+        color: white;
+        display: none; /* 預設不顯示 */
+        justify-content: center; /* 垂直居中顯示按鈕 */
+        align-items: center; /* 水平居中顯示按鈕 */
+        display: none;
+        flex-direction: column; /* 列方向布局，使按鈕垂直堆疊 */
+        gap: 10px; /* 按鈕間隔 */
+      }
+
+      .hidden-buttons button {
+        padding: 10px 20px;
+        background-color: #007bff; /* 藍色背景 */
+        border: none;
+        border-radius: 5px; /* 圓角邊框 */
+        font-size: 16px;
+        cursor: pointer; /* 鼠標懸停時的手指形狀 */
+      }
+
+      .hidden-buttons button:hover {
+        background-color: #0056b3; /* 按鈕懸停時的背景顏色變深 */
+      }
+
+      .image-container:hover .hidden-buttons {
+        display: flex; /* 懸停時以flex布局顯示，保持居中對齊 */
+      }
+
+      .image-caption {
+        position: absolute;
+        bottom: 10px; /* 距離底部一定距離 */
+        left: 50%; /* 水平居中 */
+        transform: translateX(-50%); /* 精確居中 */
+        background-color: rgba(255, 255, 255, 0.5); /* 輕微透明的白色背景 */
+        padding: 5px 10px;
+        border-radius: 5px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Conversation Topics</h1>
     <div class="topics">
-        {% for topic in topics %}
-            <div class="topic">
-                <img src="data:image/png;base64,{{ topic.icon }}" alt="{{ topic.name }} icon">
-                <span class="topic-name" onclick="toggleDifficulties('{{ topic.id }}')">{{ topic.name }}</span>
-                <div class="difficulty-buttons" id="difficulties-{{ topic.id }}">
-                    {% for difficulty in topic.difficulties %}
-                        <form action="{{ url_for('conversation_situations', topic_id=topic.id, difficulty=difficulty) }}" method="GET">
-                            <button type="submit">{{ difficulty }}</button>
-                        </form>
-                    {% endfor %}
-                </div>
+      {% for topic in topics %}
+      <div class="image-container">
+        <img
+          src="data:image/png;base64,{{ topic.icon }}"
+          alt="{{ topic.name }} icon"
+        />
+        <span class="topic-name" onclick="toggleDifficulties('{{ topic.id }}')"
+          >{{ topic.name }}</span
+        >
+        <div class="difficulty-buttons" id="difficulties-{{ topic.id }}">
+          {% for difficulty in topic.difficulties %}
+          <form
+            action="{{ url_for('conversation_situations' ,topic_id=topic.id, difficulty=difficulty) }}"
+            method="GET"
+          >
+            <div class="hidden-buttons">
+              <button type="submit">{{ difficulty }}</button>
             </div>
-        {% endfor %}
+          </form>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
     </div>
     <script>
-        function toggleDifficulties(topicId) {
-            const difficultyButtons = document.getElementById(`difficulties-${topicId}`);
-            difficultyButtons.style.display = difficultyButtons.style.display === 'none' ? 'block' : 'none';
-        }
+      function toggleDifficulties(topicId) {
+        const difficultyButtons = document.getElementById(
+          `difficulties-${topicId}`
+        );
+        difficultyButtons.style.display =
+          difficultyButtons.style.display === "none" ? "block" : "none";
+      }
+      document
+        .querySelector(".image-container")
+        .addEventListener("mouseover", function () {
+          document.querySelector(".hidden-buttons").style.display = "flex"; // 修改這裡以匹配CSS的更改
+        });
+
+      document
+        .querySelector(".image-container")
+        .addEventListener("mouseout", function () {
+          document.querySelector(".hidden-buttons").style.display = "none";
+        });
     </script>
-</body>
+  </body>
 </html>

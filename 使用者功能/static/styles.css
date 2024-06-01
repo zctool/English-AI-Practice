@@ -1,77 +1,62 @@
 body {
-    display: flex;
-    font-family: Arial, sans-serif;
+  font-family: Arial, sans-serif;
 }
 
-.sidebar {
-    width: 200px;
-    background-color: #f4f4f4;
-    padding: 15px;
+.main-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
 }
 
-.sidebar ul {
-    list-style-type: none;
-    padding: 0;
+.main-buttons button {
+  margin: 10px;
+  padding: 20px;
+  font-size: 16px;
 }
 
-.sidebar ul li {
-    margin-bottom: 10px;
+.conversation,
+.vocabulary-detail,
+.vocabulary {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px 0;
 }
 
-.sidebar ul li a {
-    text-decoration: none;
-    color: #333;
+.character {
+  display: flex;
+  align-items: center;
 }
 
-.sidebar ul ul {
-    margin-top: 5px;
-    padding-left: 15px;
+.character img {
+  border-radius: 50%;
+  margin-right: 10px;
 }
 
-.content {
-    flex: 1;
-    padding: 15px;
+.recording {
+  display: flex;
+  align-items: center;
 }
 
-h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
+.topics {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-form {
-    margin-bottom: 20px;
+.topic {
+  margin: 10px;
+  text-align: center;
 }
 
-form label {
-    margin-right: 10px;
+.levels button {
+  display: block;
+  margin: 5px 0;
 }
 
-form input {
-    margin-right: 10px;
+.vocabularies {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-form button {
-    padding: 5px 10px;
-    background-color: #007bff;
-    border: none;
-    color: #fff;
-    cursor: pointer;
-}
-
-form button:hover {
-    background-color: #0056b3;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-ul li {
-    border-bottom: 1px solid #ddd;
-    padding: 10px 0;
-}
-
-audio {
-    margin-top: 10px;
+.vocabulary {
+  margin: 10px;
 }
