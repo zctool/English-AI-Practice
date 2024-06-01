@@ -297,22 +297,21 @@ def delete_vocabulary(vocabulary_id):
 def add_conversation_topic():
     if request.method == 'POST':
         name = request.form['name']
-        difficulty_class = request.form['class']
         icon_file = request.files.get('icon')
 
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
 
-            check_query = "SELECT COUNT(*) FROM conversationTopic WHERE name = %s AND class = %s"
-            cursor.execute(check_query, (name, difficulty_class))
+            check_query = "SELECT COUNT(*) FROM conversationTopic WHERE name = %s"
+            cursor.execute(check_query, (name,))
             result = cursor.fetchone()
 
             if result[0] > 0:
                 flash('Topic with the same name and class already exists!', 'danger')
             else:
-                query = "INSERT INTO conversationTopic (name, class) VALUES (%s, %s)"
-                cursor.execute(query, (name, difficulty_class))
+                query = "INSERT INTO conversationTopic (name) VALUES (%s)"
+                cursor.execute(query, (name,))
                 topic_id = cursor.lastrowid
 
                 if icon_file and allowed_file(icon_file.filename):
