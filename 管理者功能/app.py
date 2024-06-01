@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, render_template, request, redirect, url_for, flash
+import io
+from flask import Flask, jsonify, render_template, request, redirect, send_file, url_for, flash
 import mysql.connector
 
 app = Flask(__name__)
@@ -99,7 +100,7 @@ def add_vocabulary():
                 connection.close()
         return render_template('add_vocabulary.html', topics=topics)
 
-# 查看和编辑单字主題
+# 查看和编辑單字主題
 @app.route('/vocabulary_topics')
 def vocabulary_topics():
     try:
@@ -292,7 +293,8 @@ def delete_vocabulary(vocabulary_id):
             connection.close()
     return redirect(url_for('vocabularies'))
 
-# 新增对话主題
+
+# 新增對話主題
 @app.route('/add_conversation_topic', methods=['GET', 'POST'])
 def add_conversation_topic():
     if request.method == 'POST':
@@ -308,7 +310,7 @@ def add_conversation_topic():
             result = cursor.fetchone()
 
             if result[0] > 0:
-                flash('Topic with the same name and class already exists!', 'danger')
+                flash('Topic with the same name already exists!', 'danger')
             else:
                 query = "INSERT INTO conversationTopic (name) VALUES (%s)"
                 cursor.execute(query, (name,))
@@ -332,19 +334,20 @@ def add_conversation_topic():
         return redirect(url_for('add_conversation_topic'))
     return render_template('add_conversationTopic.html')
 
-# 新增对话情境
+# 新增對話情境
 @app.route('/add_conversation_situation', methods=['GET', 'POST'])
 def add_conversation_situation():
     if request.method == 'POST':
         situation = request.form['situation']
         topic_id = request.form['topic_id']
+        difficulty_class = request.form['class']
 
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
 
-            query = "INSERT INTO conversationSituation (situation, topic_id) VALUES (%s, %s)"
-            cursor.execute(query, (situation, topic_id))
+            query = "INSERT INTO conversationSituation (situation, topic_id, class) VALUES (%s, %s, %s)"
+            cursor.execute(query, (situation, topic_id, difficulty_class))
             situation_id = cursor.lastrowid
 
             character_names = request.form.getlist('character_name')
@@ -358,7 +361,7 @@ def add_conversation_situation():
                     character_icon_data = character_icon_file.read()
                     cursor.execute("INSERT INTO icon (icon) VALUES (%s)", (character_icon_data,))
                     icon_id = cursor.lastrowid
-                    cursor.execute("INSERT INTO characters (character_name, icon_id, topic_id) VALUES (%s, %s, %s)", (character_name, icon_id, topic_id))
+                    cursor.execute("INSERT INTO characters (character_name, icon_id, situation_id) VALUES (%s, %s, %s)", (character_name, icon_id, situation_id))
 
             connection.commit()
             flash('Conversation Situation added successfully!', 'success')
@@ -388,7 +391,6 @@ def add_conversation_situation():
                 connection.close()
         return render_template('add_conversation_situation.html', topics=topics)
 
-# 新增对话内容
 # 新增對話內容
 @app.route('/add_conversation', methods=['GET', 'POST'])
 def add_conversation():
@@ -489,7 +491,7 @@ def get_characters_by_situation(situation_id):
         if connection:
             connection.close()
 
-# 查看和编辑对话主題
+# 查看和編輯對話主題
 @app.route('/conversation_topics')
 def conversation_topics():
     try:
@@ -507,20 +509,19 @@ def conversation_topics():
             connection.close()
     return render_template('conversation_topics.html', topics=topics)
 
-# 编辑对话主題
+#編輯對話主題
 @app.route('/edit_conversation_topic/<int:topic_id>', methods=['GET', 'POST'])
 def edit_conversation_topic(topic_id):
     if request.method == 'POST':
         name = request.form['name']
-        difficulty_class = request.form['class']
         icon_file = request.files.get('icon')
 
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
             
-            query = "UPDATE conversationTopic SET name = %s, class = %s WHERE id = %s"
-            cursor.execute(query, (name, difficulty_class, topic_id))
+            query = "UPDATE conversationTopic SET name = %s WHERE id = %s"
+            cursor.execute(query, (name, topic_id))
             
             if icon_file and allowed_file(icon_file.filename):
                 icon_data = icon_file.read()
@@ -542,7 +543,7 @@ def edit_conversation_topic(topic_id):
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
-            cursor.execute("SELECT name, class FROM conversationTopic WHERE id = %s", (topic_id,))
+            cursor.execute("SELECT name FROM conversationTopic WHERE id = %s", (topic_id,))
             topic = cursor.fetchone()
             
             cursor.execute("SELECT icon FROM conversationTopicIcon WHERE topic_id = %s", (topic_id,))
@@ -559,17 +560,18 @@ def edit_conversation_topic(topic_id):
                 connection.close()
         return render_template('edit_conversation_topic.html', topic=topic, icon=icon, topic_id=topic_id)
 
-# 删除对话主題
+# 刪除對話主題
 @app.route('/delete_conversation_topic/<int:topic_id>')
 def delete_conversation_topic(topic_id):
     try:
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor()
 
+        # 刪除引用這些主題的外鍵
+        cursor.execute("DELETE FROM conversationSituation WHERE topic_id = %s", (topic_id,))
+        
         # 刪除相關的圖標
         cursor.execute("DELETE FROM conversationTopicIcon WHERE topic_id = %s", (topic_id,))
-        cursor.execute("DELETE FROM characters WHERE topic_id = %s", (topic_id,))
-        cursor.execute("DELETE FROM icon WHERE id IN (SELECT icon_id FROM characters WHERE topic_id = %s)", (topic_id,))
         
         # 刪除主題
         cursor.execute("DELETE FROM conversationTopic WHERE id = %s", (topic_id,))
@@ -587,14 +589,14 @@ def delete_conversation_topic(topic_id):
             connection.close()
     return redirect(url_for('conversation_topics'))
 
-# 查看和编辑对话
+# 查看和編輯對話
 @app.route('/conversations')
 def conversations():
     try:
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor()
         query = """
-            SELECT c.id, c.conversation_en, c.conversation_tw, cs.situation, ct.name AS topic_name
+            SELECT c.id, c.conversation_en, c.conversation_tw, cs.situation, cs.class, ct.name AS topic_name
             FROM conversation c
             JOIN conversationSituation cs ON c.situation_id = cs.id
             JOIN conversationTopic ct ON cs.topic_id = ct.id
@@ -611,7 +613,7 @@ def conversations():
             connection.close()
     return render_template('conversations.html', conversations=conversations)
 
-# 编辑对话
+# 編輯對話
 @app.route('/edit_conversation/<int:conversation_id>', methods=['GET', 'POST'])
 def edit_conversation(conversation_id):
     if request.method == 'POST':
@@ -654,7 +656,7 @@ def edit_conversation(conversation_id):
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
             cursor.execute("""
-                SELECT c.id, c.conversation_en, c.conversation_tw, c.character_id, cs.id AS situation_id, cs.situation, ct.id AS topic_id, ct.name AS topic_name
+                SELECT c.id, c.conversation_en, c.conversation_tw, c.character_id, cs.id AS situation_id, cs.situation, ct.id AS topic_id, ct.name AS topic_name, cs.class
                 FROM conversation c
                 JOIN conversationSituation cs ON c.situation_id = cs.id
                 JOIN conversationTopic ct ON cs.topic_id = ct.id
@@ -663,18 +665,21 @@ def edit_conversation(conversation_id):
             conversation = cursor.fetchone()
             cursor.execute("SELECT id, situation FROM conversationSituation")
             situations = cursor.fetchall()
+            cursor.execute("SELECT id, character_name FROM characters WHERE situation_id = %s", (conversation[4],))
+            characters = cursor.fetchall()
         except mysql.connector.Error as err:
             flash(f"Error: {err}", 'danger')
             conversation = None
             situations = []
+            characters = []
         finally:
             if cursor:
                 cursor.close()
             if connection:
                 connection.close()
-        return render_template('edit_conversation.html', conversation=conversation, situations=situations)
+        return render_template('edit_conversation.html', conversation=conversation, situations=situations, characters=characters)
 
-# 删除对话
+# 刪除對話
 @app.route('/delete_conversation/<int:conversation_id>')
 def delete_conversation(conversation_id):
     try:
@@ -694,7 +699,8 @@ def delete_conversation(conversation_id):
             connection.close()
     return redirect(url_for('conversations'))
 
-# 查看和编辑对话情境
+
+# 查看和編輯對話情境
 @app.route('/conversation_situations')
 def conversation_situations():
     try:
@@ -716,20 +722,19 @@ def conversation_situations():
             connection.close()
     return render_template('conversation_situations.html', situations=situations)
 
-# 编辑对话情境
+# 編輯對話情境
 @app.route('/edit_conversation_situation/<int:situation_id>', methods=['GET', 'POST'])
 def edit_conversation_situation(situation_id):
     if request.method == 'POST':
         situation = request.form['situation']
         topic_id = request.form['topic_id']
-        difficulty_class = request.form['class']
 
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
             
-            query = "UPDATE conversationSituation SET situation = %s, topic_id = %s, class = %s WHERE id = %s"
-            cursor.execute(query, (situation, topic_id, difficulty_class, situation_id))
+            query = "UPDATE conversationSituation SET situation = %s, topic_id = %s WHERE id = %s"
+            cursor.execute(query, (situation, topic_id, situation_id))
             
             connection.commit()
             flash('Conversation Situation updated successfully!', 'success')
@@ -747,7 +752,7 @@ def edit_conversation_situation(situation_id):
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
-            cursor.execute("SELECT situation, topic_id, class FROM conversationSituation WHERE id = %s", (situation_id,))
+            cursor.execute("SELECT situation, topic_id FROM conversationSituation WHERE id = %s", (situation_id,))
             situation = cursor.fetchone()
             
             cursor.execute("SELECT id, name FROM conversationTopic")
@@ -764,12 +769,15 @@ def edit_conversation_situation(situation_id):
                 connection.close()
         return render_template('edit_conversation_situation.html', situation=situation, topics=topics, situation_id=situation_id)
 
-# 删除对话情境
+# 刪除對話情境
 @app.route('/delete_conversation_situation/<int:situation_id>')
 def delete_conversation_situation(situation_id):
     try:
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor()
+        # 刪除相關的角色
+        cursor.execute("DELETE FROM characters WHERE situation_id = %s", (situation_id,))
+        # 刪除情境
         cursor.execute("DELETE FROM conversationSituation WHERE id = %s", (situation_id,))
         connection.commit()
         flash('Conversation Situation deleted successfully!', 'success')
@@ -803,13 +811,11 @@ def characters(situation_id):
     return render_template('characters.html', characters=characters, situation_id=situation_id)
 
 # 编辑人物
-# 编辑人物
 @app.route('/edit_character/<int:character_id>', methods=['GET', 'POST'])
 def edit_character(character_id):
     if request.method == 'POST':
         character_name = request.form['character_name']
         icon_file = request.files.get('icon')
-        situation_id = request.form['situation_id']  # 從表單中獲取 situation_id
 
         try:
             connection = mysql.connector.connect(**config)
@@ -834,12 +840,12 @@ def edit_character(character_id):
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('characters', situation_id=situation_id))
+        return redirect(url_for('characters', situation_id=request.form['situation_id']))
     else:
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
-            cursor.execute("SELECT id, character_name, situation_id FROM characters WHERE id = %s", (character_id,))
+            cursor.execute("SELECT id, character_name FROM characters WHERE id = %s", (character_id,))
             character = cursor.fetchone()
         except mysql.connector.Error as err:
             flash(f"Error: {err}", 'danger')
@@ -849,7 +855,7 @@ def edit_character(character_id):
                 cursor.close()
             if connection:
                 connection.close()
-        return render_template('edit_character.html', character=character, situation_id=character[2])
+        return render_template('edit_character.html', character=character, situation_id=request.args.get('situation_id'))
 
 # 删除人物
 @app.route('/delete_character/<int:character_id>/<int:situation_id>')
@@ -871,8 +877,30 @@ def delete_character(character_id, situation_id):
             connection.close()
     return redirect(url_for('characters', situation_id=situation_id))
 
+@app.route('/icon/<int:situation_id>')
+def icon(situation_id):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        cursor.execute("SELECT icon FROM conversationTopicIcon WHERE topic_id = %s", (situation_id,))
+        icon = cursor.fetchone()
+        if icon and icon[0]:
+            return send_file(io.BytesIO(icon[0]), mimetype='image/png')
+        else:
+            flash('Icon not found', 'danger')
+            return '', 404
+    except mysql.connector.Error as err:
+        flash(f"Error: {err}", 'danger')
+        return '', 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+# 檢查文件類型
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'jpeg', 'png'}
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    app.run(debug=True, host='0.0.0.0', port=5002)
