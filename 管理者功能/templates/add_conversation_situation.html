@@ -18,30 +18,37 @@
       <select id="topic_id" name="topic_id" required>
         {% for topic in topics %}
         <option value="{{ topic[0] }}">{{ topic[1] }}</option>
-        {% endfor %}
-      </select><br /><br />
+        {% endfor %}</select
+      ><br /><br />
 
       <label for="class">Difficulty Class:</label>
       <select id="class" name="class" required>
         <option value="Easy">Easy</option>
         <option value="Normal">Normal</option>
-        <option value="Hard">Hard</option>
-      </select><br /><br />
+        <option value="Hard">Hard</option></select
+      ><br /><br />
 
-      <div id="characterContainer">
-        <div id="character_0"></div>
-      </div>
+      <div id="characterContainer"></div>
       <div class="button-container">
         <div class="left-buttons">
-          <button type="button" onclick="addCharacterField()" class="btn20">Add Character</button>
+          <button type="button" onclick="addCharacterField()" class="btn20">
+            Add Character
+          </button>
         </div>
         <div class="right-button">
-          <button type="submit" value="" class="submit-button">Add Situation</button>
+          <button
+            type="submit"
+            class="submit-button"
+            onclick="return form_stop()"
+          >
+            Add Situation
+          </button>
         </div>
       </div>
     </form>
 
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
     <ul class="flashes">
       {% for category, message in messages %}
       <li class="{{ category }}">{{ message }}</li>
@@ -51,6 +58,17 @@
   </body>
 </html>
 <script>
+  const characterContainer = document.getElementById("characterContainer");
+  const characterCount = characterContainer.childElementCount;
+  function form_stop() {
+    // 如果沒有角色字段，阻止表單提交並顯示警告
+    if (characterCount == 0) {
+      alert("至少需要添加一個角色才能提交表單。");
+      return false;
+    }
+    return true;
+  }
+
   function addCharacterField() {
     const characterContainer = document.getElementById("characterContainer");
     const characterCount = characterContainer.childElementCount;
