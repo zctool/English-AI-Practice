@@ -10448,7 +10448,7 @@ a.text-dark:focus {
           id="navbarCollapse"
         >
           <div class="navbar-nav font-weight-bold mx-auto py-0">
-            <a href="index.html" class="nav-item nav-link active">首頁</a>
+            <a href="{{ url_for('main') }}" class="nav-item nav-link active">首頁</a>
             <a href="about.html" class="nav-item nav-link">AI對話</a>
 
             <div class="nav-item dropdown">
@@ -10471,7 +10471,7 @@ a.text-dark:focus {
                 >會員</a
               >
               <div class="dropdown-menu rounded-0 m-0">
-                <a href="{{ url_for('account_management') }}" class="dropdown-item">個人檔案</a>
+                <a href="{{ url_for('account_management') }}" class="dropdown-item">{{ name }}</a>
                
               </div>
             </div>
