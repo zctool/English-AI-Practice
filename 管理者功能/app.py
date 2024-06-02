@@ -399,6 +399,7 @@ def add_conversation():
         character_id = request.form['character_id']
         conversation_en = request.form['conversation_en']
         conversation_tw = request.form['conversation_tw']
+        difficulty_class = request.form['class']
         conversation_voice = request.files['conversation_voice']
 
         try:
@@ -407,10 +408,10 @@ def add_conversation():
 
             voice_data = conversation_voice.read() if conversation_voice else None
             query = """
-                INSERT INTO conversation (situation_id, character_id, conversation_en, conversation_tw, conversation_voice)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO conversation (situation_id, character_id, conversation_en, conversation_tw, class, conversation_voice)
+                VALUES (%s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(query, (situation_id, character_id, conversation_en, conversation_tw, voice_data))
+            cursor.execute(query, (situation_id, character_id, conversation_en, conversation_tw, difficulty_class, voice_data))
             connection.commit()
             flash('Conversation added successfully!', 'success')
         except mysql.connector.Error as err:
