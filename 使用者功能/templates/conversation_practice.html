@@ -1,186 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Conversation Practice</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <style>
-        .star-button {
-            font-size: 24px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            outline: none;
-            color: transparent;
-            text-shadow: 0 0 0 #ffd700;
-        }
-        .star-button.filled::before {
-            content: "★";
-            color: #ffd700;
-        }
-        .star-button.unfilled::before {
-            content: "☆";
-            color: #ffd700;
-        }
-        .conversation {
-            border-bottom: 1px solid #ccc;
-            padding: 10px;
-        }
-        .character {
-            display: flex;
-            align-items: center;
-        }
-        .character img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-        .highlighted-text span {
-            font-weight: bold;
-        }
-        .highlighted-text .added {
-            color: red;
-        }
-        .highlighted-text .removed {
-            color: green;
-        }
+      .star-button {
+        font-size: 24px;
+        cursor: pointer;
+        border: none;
+        background: none;
+        outline: none;
+        color: transparent;
+        text-shadow: 0 0 0 #ffd700;
+      }
+      .star-button.filled::before {
+        content: "★";
+        color: #ffd700;
+      }
+      .star-button.unfilled::before {
+        content: "☆";
+        color: #ffd700;
+      }
+      .conversation {
+        border-bottom: 1px solid #ccc;
+        padding: 10px;
+      }
+      .character {
+        display: flex;
+        align-items: center;
+      }
+      .character img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Conversation Practice</h1>
     <div class="conversations">
-        {% for conversation in conversations %}
-        <div class="conversation" data-id="{{ conversation.id }}">
-            <div class="character">
-                <img src="data:image/png;base64,{{ conversation.icon }}" alt="Character Icon">
-                <span>{{ conversation.character_name }}</span>
-            </div>
-            <p>{{ conversation.conversation_en }}</p>
-            <p>{{ conversation.conversation_tw }}</p>
-            <audio controls>
-                <source src="data:audio/wav;base64,{{ conversation.conversation_voice }}" type="audio/wav">
-                Your browser does not support the audio element.
-            </audio>
-            <div class="recording">
-                <button onclick="startRecording('{{ conversation.id }}', this)">Start Recording</button>
-                <button onclick="stopRecording('{{ conversation.id }}', this)" disabled>Stop Recording</button>
-                <audio id="playback-{{ conversation.id }}" controls style="display: none; margin-left: 10px"></audio>
-            </div>
-            <button class="star-button {{ 'filled' if conversation.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ conversation.id }}', this)"></button>
-            <div class="stt-result">
-                <h3>STT Result</h3>
-                <p><strong>STT Text:</strong> <span class="stt-text"></span></p>
-                <p><strong>Accuracy:</strong> <span class="accuracy"></span>%</p>
-                <p><strong>Differences:</strong></p>
-                <div class="highlighted-text"></div>
-            </div>
+      {% for conversation in conversations %}
+      <div class="conversation">
+        <div class="character">
+          <img
+            src="data:image/png;base64,{{ conversation.icon }}"
+            alt="Character Icon"
+          />
+          <span>{{ conversation.character_name }}</span>
         </div>
-        {% endfor %}
+        <p>{{ conversation.conversation_en }}</p>
+        <p>{{ conversation.conversation_tw }}</p>
+        <audio controls>
+          <source
+            src="data:audio/wav;base64,{{ conversation.conversation_voice }}"
+            type="audio/wav"
+          />
+          Your browser does not support the audio element.
+        </audio>
+        <div class="recording">
+          <button onclick="startRecording('{{ conversation.id }}', this)">
+            Start Recording
+          </button>
+          <button
+            onclick="stopRecording('{{ conversation.id }}', this)"
+            disabled
+          >
+            Stop Recording
+          </button>
+          <audio
+            id="playback-{{ conversation.id }}"
+            controls
+            style="display: none; margin-left: 10px"
+          ></audio>
+        </div>
+        <button
+          class="star-button {{ 'filled' if conversation.is_collected else 'unfilled' }}"
+          onclick="toggleCollect('{{ conversation.id }}', this)"
+        ></button>
+      </div>
+      {% endfor %}
     </div>
-    <a href="{{ url_for('conversation_situations', topic_id=topic_id, difficulty=difficulty) }}">Back to Situations</a>
+    <a
+      href="{{ url_for('conversation_situations', topic_id=topic_id, difficulty=difficulty) }}"
+      >Back to Situations</a
+    >
     <script>
-        let recognition;
-        let mediaRecorder;
-        let recordedChunks = [];
-        let currentConversationId;
-        let speechToText = "";
+      let recognition;
+      let mediaRecorder;
+      let recordedChunks = [];
+      let currentConversationId;
+      let speechToText = "";
 
-        function startRecording(conversationId, startButton) {
-            const stopButton = startButton.nextElementSibling;
+      function startRecording(conversationId, startButton) {
+        const stopButton = startButton.nextElementSibling;
 
-            startButton.disabled = true;
-            stopButton.disabled = false;
+        startButton.disabled = true;
+        stopButton.disabled = false;
 
-            recordedChunks = []; // Reset recorded chunks
-            currentConversationId = conversationId; // Set the current conversation ID
+        recordedChunks = []; // Reset recorded chunks
+        currentConversationId = conversationId; // Set the current conversation ID
 
-            if (!("webkitSpeechRecognition" in window)) {
-                alert("Your browser does not support speech recognition.");
-                return;
+        if (!("webkitSpeechRecognition" in window)) {
+          alert("Your browser does not support speech recognition.");
+          return;
+        }
+
+        recognition = new webkitSpeechRecognition();
+        recognition.lang = "en-US";
+        recognition.onresult = function (event) {
+          speechToText = event.results[0][0].transcript;
+        };
+        recognition.start();
+
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then((stream) => {
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = handleDataAvailable;
+            mediaRecorder.start();
+          })
+          .catch((error) => console.error("getUserMedia error:", error));
+      }
+
+      function handleDataAvailable(event) {
+        if (event.data.size > 0) {
+          recordedChunks.push(event.data);
+        }
+      }
+
+      function stopRecording(conversationId, stopButton) {
+        const startButton = stopButton.previousElementSibling;
+
+        stopButton.disabled = true;
+        startButton.disabled = false;
+
+        recognition.stop();
+        mediaRecorder.stop();
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: "audio/webm" });
+          const audioURL = URL.createObjectURL(blob);
+
+          const playback = document.getElementById(
+            `playback-${conversationId}`
+          );
+          playback.src = audioURL;
+          playback.style.display = "block";
+
+          const reader = new FileReader();
+          reader.onloadend = function () {
+            const base64data = reader.result.split(",")[1];
+            saveRecording(
+              encodeURIComponent(base64data),
+              currentConversationId
+            );
+          };
+          reader.readAsDataURL(blob);
+        };
+      }
+
+      function saveRecording(base64data, conversationId) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/save_recording", true);
+        xhr.setRequestHeader(
+          "Content-Type",
+          "application/x-www-form-urlencoded"
+        );
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            console.log("Recording saved");
+          }
+        };
+        xhr.send(
+          `user_voice=${base64data}&stt=${speechToText}&conversation_id=${conversationId}`
+        );
+      }
+
+      function toggleCollect(conversationId, starButton) {
+        const isCollected = starButton.classList.contains("filled");
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/toggle_conversation_collect", true);
+        xhr.setRequestHeader(
+          "Content-Type",
+          "application/x-www-form-urlencoded"
+        );
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            if (isCollected) {
+              starButton.classList.remove("filled");
+              starButton.classList.add("unfilled");
+            } else {
+              starButton.classList.remove("unfilled");
+              starButton.classList.add("filled");
             }
-
-            recognition = new webkitSpeechRecognition();
-            recognition.lang = "en-US";
-            recognition.onresult = function (event) {
-                speechToText = event.results[0][0].transcript;
-            };
-            recognition.start();
-
-            navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.ondataavailable = handleDataAvailable;
-                mediaRecorder.start();
-            }).catch((error) => console.error("getUserMedia error:", error));
-        }
-
-        function handleDataAvailable(event) {
-            if (event.data.size > 0) {
-                recordedChunks.push(event.data);
-            }
-        }
-
-        function stopRecording(conversationId, stopButton) {
-            const startButton = stopButton.previousElementSibling;
-
-            stopButton.disabled = true;
-            startButton.disabled = false;
-
-            recognition.stop();
-            mediaRecorder.stop();
-
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(recordedChunks, { type: "audio/webm" });
-                const audioURL = URL.createObjectURL(blob);
-
-                const playback = document.getElementById(`playback-${conversationId}`);
-                playback.src = audioURL;
-                playback.style.display = "block";
-
-                const reader = new FileReader();
-                reader.onloadend = function () {
-                    const base64data = reader.result.split(",")[1];
-                    saveRecording(encodeURIComponent(base64data), currentConversationId);
-                };
-                reader.readAsDataURL(blob);
-            };
-        }
-
-        function saveRecording(base64data, conversationId) {
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", "/save_recording", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    const conversationDiv = document.querySelector(`.conversation[data-id='${conversationId}']`);
-                    conversationDiv.querySelector('.stt-text').textContent = response.stt;
-                    conversationDiv.querySelector('.accuracy').textContent = response.accuracy;
-                    conversationDiv.querySelector('.highlighted-text').innerHTML = response.highlighted_text;
-                }
-            };
-            xhr.send(`user_voice=${base64data}&stt=${speechToText}&conversation_id=${conversationId}`);
-        }
-
-        function toggleCollect(conversationId, starButton) {
-            const isCollected = starButton.classList.contains("filled");
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", "/toggle_conversation_collect", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    if (isCollected) {
-                        starButton.classList.remove("filled");
-                        starButton.classList.add("unfilled");
-                    } else {
-                        starButton.classList.remove("unfilled");
-                        starButton.classList.add("filled");
-                    }
-                }
-            };
-            xhr.send(`conversation_id=${conversationId}&collect=${!isCollected}`);
-        }
+          }
+        };
+        xhr.send(`conversation_id=${conversationId}&collect=${!isCollected}`);
+      }
     </script>
-</body>
+  </body>
 </html>

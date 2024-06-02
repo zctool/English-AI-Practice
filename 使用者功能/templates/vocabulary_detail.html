@@ -1,168 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>单词详情</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <style>
-        .star-button {
-            font-size: 24px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            outline: none;
-            color: transparent;
-            text-shadow: 0 0 0 #ffd700;
-        }
-        .star-button.filled::before {
-            content: "★";
-            color: #ffd700;
-        }
-        .star-button.unfilled::before {
-            content: "☆";
-            color: #ffd700;
-        }
-        .highlighted-text span {
-            font-weight: bold;
-        }
-        .highlighted-text .added {
-            color: red;
-        }
-        .highlighted-text .removed {
-            color: green;
-        }
+      .star-button {
+        font-size: 24px;
+        cursor: pointer;
+        border: none;
+        background: none;
+        outline: none;
+        color: transparent;
+        text-shadow: 0 0 0 #ffd700;
+      }
+      .star-button.filled::before {
+        content: "★";
+        color: #ffd700;
+      }
+      .star-button.unfilled::before {
+        content: "☆";
+        color: #ffd700;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>单词详情</h1>
-    <div class="vocabulary" data-id="{{ vocabulary.id }}">
-        <p>英文: {{ vocabulary.vocabulary_en }}</p>
-        <p>中文: {{ vocabulary.vocabulary_tw }}</p>
-        <p>词性: {{ vocabulary.part_of_speech }}</p>
-        <p>音标: {{ vocabulary.ipa }}</p>
-        <p>例句: {{ vocabulary.example }}</p>
-        <p>难度: {{ vocabulary.class }}</p>
-        <div class="recording">
-            <button onclick="startRecording('{{ vocabulary.id }}', this)">开始录音</button>
-            <button onclick="stopRecording('{{ vocabulary.id }}', this)" disabled>停止录音</button>
-            <audio id="playback-{{ vocabulary.id }}" controls style="display: none; margin-left: 10px"></audio>
-        </div>
-        <audio controls>
-            <source src="data:audio/wav;base64,{{ vocabulary.vocabulary_voice }}" type="audio/wav">
-            您的瀏覽器不支持音頻元素。
-        </audio>
-        <button class="star-button {{ 'filled' if is_collected else 'unfilled' }}" onclick="toggleCollect('{{ vocabulary.id }}', this)"></button>
-        <div class="stt-result">
-            <h3>STT Result</h3>
-            <p><strong>STT Text:</strong> <span class="stt-text"></span></p>
-            <p><strong>Accuracy:</strong> <span class="accuracy"></span>%</p>
-            <p><strong>Differences:</strong></p>
-            <div class="highlighted-text"></div>
-        </div>
+    <div class="vocabulary">
+      <p>英文: {{ vocabulary.vocabulary_en }}</p>
+      <p>中文: {{ vocabulary.vocabulary_tw }}</p>
+      <p>词性: {{ vocabulary.part_of_speech }}</p>
+      <p>音标: {{ vocabulary.ipa }}</p>
+      <p>例句: {{ vocabulary.example }}</p>
+      <p>难度: {{ vocabulary.class }}</p>
+      <div class="recording">
+        <button onclick="startRecording('{{ vocabulary.id }}', this)">
+          开始录音
+        </button>
+        <button onclick="stopRecording('{{ vocabulary.id }}', this)" disabled>
+          停止录音
+        </button>
+        <audio
+          id="playback-{{ vocabulary.id }}"
+          controls
+          style="display: none; margin-left: 10px"
+        ></audio>
+      </div>
+      <audio controls>
+        <source
+          src="data:audio/wav;base64,{{ vocabulary.vocabulary_voice }}"
+          type="audio/wav"
+        />
+        Your browser does not support the audio element.
+      </audio>
+      <button
+        class="star-button {{ 'filled' if is_collected else 'unfilled' }}"
+        onclick="toggleCollect('{{ vocabulary.id }}', this)"
+      ></button>
     </div>
     <a href="{{ url_for('vocabulary_topics') }}">返回單字主題</a>
     <script>
-        let recognition;
-        let mediaRecorder;
-        let recordedChunks = [];
-        let currentVocabId;
-        let speechToText = "";
+      let recognition;
+      let mediaRecorder;
+      let recordedChunks = [];
+      let currentVocabId;
+      let speechToText = "";
 
-        function startRecording(vocabId, startButton) {
-            const stopButton = startButton.nextElementSibling;
+      function startRecording(vocabId, startButton) {
+        const stopButton = startButton.nextElementSibling;
 
-            startButton.disabled = true;
-            stopButton.disabled = false;
+        startButton.disabled = true;
+        stopButton.disabled = false;
 
-            recordedChunks = []; // Reset recorded chunks
-            currentVocabId = vocabId; // Set the current vocabulary ID
+        recordedChunks = []; // Reset recorded chunks
+        currentVocabId = vocabId; // Set the current vocabulary ID
 
-            if (!("webkitSpeechRecognition" in window)) {
-                alert("Your browser does not support speech recognition.");
-                return;
+        if (!("webkitSpeechRecognition" in window)) {
+          alert("Your browser does not support speech recognition.");
+          return;
+        }
+
+        recognition = new webkitSpeechRecognition();
+        recognition.lang = "en-US";
+        recognition.onresult = function (event) {
+          speechToText = event.results[0][0].transcript;
+        };
+        recognition.start();
+
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then((stream) => {
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = handleDataAvailable;
+            mediaRecorder.start();
+          })
+          .catch((error) => console.error("getUserMedia error:", error));
+      }
+
+      function handleDataAvailable(event) {
+        if (event.data.size > 0) {
+          recordedChunks.push(event.data);
+        }
+      }
+
+      function stopRecording(vocabId, stopButton) {
+        const startButton = stopButton.previousElementSibling;
+
+        stopButton.disabled = true;
+        startButton.disabled = false;
+
+        recognition.stop();
+        mediaRecorder.stop();
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: "audio/webm" });
+          const audioURL = URL.createObjectURL(blob);
+
+          const playback = document.getElementById(`playback-${vocabId}`);
+          playback.src = audioURL;
+          playback.style.display = "block";
+
+          const reader = new FileReader();
+          reader.onloadend = function () {
+            const base64data = reader.result.split(",")[1];
+            saveRecording(encodeURIComponent(base64data), currentVocabId);
+          };
+          reader.readAsDataURL(blob);
+        };
+      }
+
+      function saveRecording(base64data, vocabId) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/save_vocabulary_recording", true);
+        xhr.setRequestHeader(
+          "Content-Type",
+          "application/x-www-form-urlencoded"
+        );
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            console.log("Recording saved");
+          }
+        };
+        xhr.send(
+          `user_voice=${base64data}&stt=${speechToText}&vocabulary_id=${vocabId}`
+        );
+      }
+
+      function toggleCollect(vocabId, starButton) {
+        const isCollected = starButton.classList.contains("filled");
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/toggle_vocabulary_collect", true);
+        xhr.setRequestHeader(
+          "Content-Type",
+          "application/x-www-form-urlencoded"
+        );
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            if (isCollected) {
+              starButton.classList.remove("filled");
+              starButton.classList.add("unfilled");
+            } else {
+              starButton.classList.remove("unfilled");
+              starButton.classList.add("filled");
             }
-
-            recognition = new webkitSpeechRecognition();
-            recognition.lang = "en-US";
-            recognition.onresult = function (event) {
-                speechToText = event.results[0][0].transcript;
-            };
-            recognition.start();
-
-            navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.ondataavailable = handleDataAvailable;
-                mediaRecorder.start();
-            }).catch((error) => console.error("getUserMedia error:", error));
-        }
-
-        function handleDataAvailable(event) {
-            if (event.data.size > 0) {
-                recordedChunks.push(event.data);
-            }
-        }
-
-        function stopRecording(vocabId, stopButton) {
-            const startButton = stopButton.previousElementSibling;
-
-            stopButton.disabled = true;
-            startButton.disabled = false;
-
-            recognition.stop();
-            mediaRecorder.stop();
-
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(recordedChunks, { type: "audio/webm" });
-                const audioURL = URL.createObjectURL(blob);
-
-                const playback = document.getElementById(`playback-${vocabId}`);
-                playback.src = audioURL;
-                playback.style.display = "block";
-
-                const reader = new FileReader();
-                reader.onloadend = function () {
-                    const base64data = reader.result.split(",")[1];
-                    saveRecording(encodeURIComponent(base64data), currentVocabId);
-                };
-                reader.readAsDataURL(blob);
-            };
-        }
-
-        function saveRecording(base64data, vocabId) {
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", "/save_vocabulary_recording", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    const vocabularyDiv = document.querySelector(`.vocabulary[data-id='${vocabId}']`);
-                    vocabularyDiv.querySelector('.stt-text').textContent = response.stt;
-                    vocabularyDiv.querySelector('.accuracy').textContent = response.accuracy;
-                    vocabularyDiv.querySelector('.highlighted-text').innerHTML = response.highlighted_text;
-                }
-            };
-            xhr.send(`user_voice=${base64data}&stt=${speechToText}&vocabulary_id=${vocabId}`);
-        }
-
-        function toggleCollect(vocabId, starButton) {
-            const isCollected = starButton.classList.contains("filled");
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", "/toggle_vocabulary_collect", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    if (isCollected) {
-                        starButton.classList.remove("filled");
-                        starButton.classList.add("unfilled");
-                    } else {
-                        starButton.classList.remove("unfilled");
-                        starButton.classList.add("filled");
-                    }
-                }
-            };
-            xhr.send(`vocabulary_id=${vocabId}`);
-        }
+          }
+        };
+        xhr.send(`vocabulary_id=${vocabId}`);
+      }
     </script>
-</body>
+  </body>
 </html>

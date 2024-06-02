@@ -23,48 +23,35 @@
             content: '☆';
             color: #ffd700;
         }
-        .highlighted-text span {
-            font-weight: bold;
-        }
-        .highlighted-text .added {
-            color: blue;
-        }
-        .highlighted-text .removed {
-            color: red;
-        }
     </style>
 </head>
 <body>
     <h1>每日三句</h1>
-    <div class="quotes">
-        {% for conversation in conversations %}
-        <div class="quote" data-id="{{ conversation.id }}">
-            <div class="character">
-                <img src="data:image/png;base64,{{ conversation.icon }}" alt="Character Icon" width="50" height="50">
-                <span>{{ conversation.character_name }}</span>
-            </div>
-            <p><strong>English:</strong> {{ conversation.conversation_en }}</p>
-            <p><strong>Chinese:</strong> {{ conversation.conversation_tw }}</p>
-            <audio controls>
-                <source src="data:audio/webm;base64,{{ conversation.conversation_voice }}" type="audio/webm">
-                Your browser does not support the audio element.
-            </audio>
-            <div class="recording">
-                <button onclick="startRecording('{{ conversation.id }}', this)">開始錄音</button>
-                <button onclick="stopRecording('{{ conversation.id }}', this)" disabled>停止錄音</button>
-                <audio id="playback-{{ conversation.id }}" controls style="display: none; margin-left: 10px;"></audio>
-            </div>
-            <button class="star-button {{ 'filled' if conversation.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ conversation.id }}', this)"></button>
-            <div class="stt-result">
-                <h3>STT Result</h3>
-                <p><strong>STT Text:</strong> <span class="stt-text"></span></p>
-                <p><strong>Accuracy:</strong> <span class="accuracy"></span>%</p>
-                <p><strong>Differences:</strong></p>
-                <div class="highlighted-text"></div>
-            </div>
+    {% for conv in conversations %}
+    <div class="conversation">
+        <div class="character">
+            <img src="data:image/png;base64,{{ conv.icon }}" alt="{{ conv.character_name }}" width="50" height="50">
+            <strong>{{ conv.character_name }}</strong>
         </div>
-        {% endfor %}
+        <p>英文: {{ conv.conversation_en }}</p>
+        <p>中文: {{ conv.conversation_tw }}</p>
+        <div class="recording">
+            <button onclick="startRecording('{{ conv.id }}', this)">開始錄音</button>
+            <button onclick="stopRecording('{{ conv.id }}', this)" disabled>停止錄音</button>
+            <audio id="playback-{{ conv.id }}" controls style="display: none; margin-left: 10px;"></audio>
+        </div>
+        <div style="display: flex">
+            <audio controls>
+            <source src="data:audio/wav;base64,{{ conv.conversation_voice }}" type="audio/wav">
+            您的瀏覽器不支持音頻元素。
+        </audio>
+        <button class="star-button {{ 'filled' if conv.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ conv.id }}', this)">
+        </button>
+        </div>
+        
     </div>
+    {% endfor %}
+    </ul>
     <a href="{{ url_for('main') }}">返回主頁</a>
     <script>
         let recognition;
@@ -73,14 +60,15 @@
         let currentConvId;
         let speechToText = '';
 
-        function startRecording(conversationId, startButton) {
+        // 開始錄音
+        function startRecording(convId, startButton) {
             const stopButton = startButton.nextElementSibling;
 
             startButton.disabled = true;
             stopButton.disabled = false;
 
             recordedChunks = []; // 重置錄音片段
-            currentConvId = conversationId; // 設置當前對話ID
+            currentConvId = convId; // 設置當前對話ID
 
             if (!('webkitSpeechRecognition' in window)) {
                 alert('您的瀏覽器不支持語音識別。');
@@ -103,13 +91,15 @@
                 .catch(error => console.error('getUserMedia error:', error));
         }
 
+        // 處理錄音數據
         function handleDataAvailable(event) {
             if (event.data.size > 0) {
                 recordedChunks.push(event.data);
             }
         }
 
-        function stopRecording(conversationId, stopButton) {
+        // 停止錄音
+        function stopRecording(convId, stopButton) {
             const startButton = stopButton.previousElementSibling;
 
             stopButton.disabled = true;
@@ -122,7 +112,7 @@
                 const blob = new Blob(recordedChunks, { type: 'audio/webm' });
                 const audioURL = URL.createObjectURL(blob);
 
-                const playback = document.getElementById(`playback-${conversationId}`);
+                const playback = document.getElementById(`playback-${convId}`);
                 playback.src = audioURL;
                 playback.style.display = 'block';
 
@@ -135,23 +125,21 @@
             };
         }
 
-        function saveRecording(base64data, conversationId) {
+        // 保存錄音
+        function saveRecording(base64data, convId) {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/save_recording', true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    const conversationDiv = document.querySelector(`.quote[data-id='${conversationId}']`);
-                    conversationDiv.querySelector('.stt-text').textContent = response.stt;
-                    conversationDiv.querySelector('.accuracy').textContent = response.accuracy;
-                    conversationDiv.querySelector('.highlighted-text').innerHTML = response.highlighted_text;
+                    console.log('錄音已保存');
                 }
             };
-            xhr.send(`user_voice=${base64data}&stt=${speechToText}&conversation_id=${conversationId}`);
+            xhr.send(`user_voice=${base64data}&stt=${speechToText}&conversation_id=${convId}`);
         }
 
-        function toggleCollect(conversationId, starButton) {
+        // 切換收藏狀態
+        function toggleCollect(convId, starButton) {
             const isCollected = starButton.classList.contains('filled');
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/toggle_conversation_collect', true);
@@ -167,7 +155,7 @@
                     }
                 }
             };
-            xhr.send(`conversation_id=${conversationId}&collect=${!isCollected}`);
+            xhr.send(`conversation_id=${convId}&collect=${!isCollected}`);
         }
     </script>
 </body>
