@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conversation Situations</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+  </head>
+  <body>
+    <h1>Conversation Situations</h1>
+    <div class="situations">
+      {% for situation in situations %}
+      <form
+        action="{{ url_for('conversation_practice', topic_id=topic_id, difficulty=difficulty, situation_id=situation.id) }}"
+        method="GET"
+      >
+        <button type="submit">{{ situation.situation }}</button>
+      </form>
+      {% endfor %}
+    </div>
+    <a href="{{ url_for('conversation_topics') }}">Back to Topics</a>
+  </body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        function changeContent(url) {
+            document.getElementById("mainFrame").src = url;
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Main Page</h1>
+        <a href="{{ url_for('logout') }}">登出</a>
+    </header>
+    <div class="sidebar">
+        <button onclick="changeContent('{{ url_for('admin.add_conversation') }}')">Add Conversation</button>
+        <button onclick="changeContent('{{ url_for('admin.add_conversation_topic') }}')">Add Conversation Topic</button>
+        <button onclick="changeContent('{{ url_for('admin.add_conversation_situation') }}')">Add Conversation Situation</button>
+        <button onclick="changeContent('{{ url_for('admin.conversations') }}')">View/Edit/Delete Conversations</button>
+        <button onclick="changeContent('{{ url_for('admin.admin_conversation_topics') }}')">View/Edit/Delete Conversation Topics</button>
+        <button onclick="changeContent('{{ url_for('admin.admin_conversation_situations') }}')">View/Edit/Delete Conversation Situations</button>
+        <button onclick="changeContent('{{ url_for('admin.add_vocabulary') }}')">Add Vocabulary</button>
+        <button onclick="changeContent('{{ url_for('admin.add_vocabulary_topic') }}')">Add Vocabulary Topic</button>
+        <button onclick="changeContent('{{ url_for('admin.vocabularies') }}')">View/Edit/Delete Vocabularies</button>
+        <button onclick="changeContent('{{ url_for('admin.admin_vocabulary_topics') }}')">View/Edit/Delete Vocabulary Topics</button>
+    </div>
+    <div class="content">
+        <iframe id="mainFrame" src="" style="width: 100%; height: 100vh; border: none"></iframe>
+    </div>
+</body>
+</html>

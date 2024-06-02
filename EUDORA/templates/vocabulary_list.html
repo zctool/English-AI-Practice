@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>单词列表</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+  </head>
+  <body>
+    <h1>单词列表</h1>
+    <ul>
+      {% for vocab in vocabularies %}
+      <li>
+        <a href="{{ url_for('vocabulary_detail', vocabulary_id=vocab.id) }}">
+          {{ vocab.vocabulary_en }} - {{ vocab.vocabulary_tw }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    <a href="{{ url_for('vocabulary_topics') }}">返回單字主題</a>
+  </body>
+</html>

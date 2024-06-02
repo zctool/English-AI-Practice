@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Conversation Topic</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Edit Conversation Topic</h1>
+    <form method="post" enctype="multipart/form-data">
+        <label for="name">Topic Name:</label>
+        <input type="text" id="name" name="name" value="{{ topic[0] }}" required><br>
+        
+        <label for="icon">Upload Icon (JPG, PNG):</label>
+        <input type="file" id="icon" name="icon"><br><br>
+        
+        <input type="submit" value="Update Topic">
+    </form>
+
+    {% if icon and icon[0] %}
+    <h3>Current Icon:</h3>
+    <img src="{{ url_for('admin.icon', situation_id=topic_id) }}" alt="Topic Icon">
+    {% endif %}
+    <br><br>
+    <a href="{{ url_for('admin.admin_conversation_topics') }}">Back to Topics</a>
+</body>
+</html>

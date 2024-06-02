@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vocabulary Topics</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Vocabulary Topics</h1>
+      <table>
+        <tr>
+          <th>Vocabulary Topics</th>
+
+          <th>Actions</th>
+        </tr>
+        {% for topic in topics %}
+        <tr>
+          <td>{{ topic[1] }}</td>
+
+          <td>
+            <a
+              href="{{ url_for('admin.edit_vocabulary_topic', topic_id=topic[0]) }}"
+              class="edit-btn"
+              >Edit</a
+            >
+            <a
+              href="{{ url_for('admin.delete_vocabulary_topic', topic_id=topic[0]) }}"
+              onclick="return confirm('Are you sure?')"
+              class="delete-btn"
+              >Delete</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>對話主題</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>對話主題</h1>
+        <div class="topics">
+            {% for topic in topics %}
+            <div class="topic">
+                <img src="data:image/png;base64,{{ topic.icon }}" alt="{{ topic.name }}">
+                <h2>{{ topic.name }}</h2>
+                <div class="difficulties">
+                    {% for difficulty in topic.difficulties %}
+                    <a href="{{ url_for('conversation_situations', topic_id=topic.id, difficulty=difficulty) }}" class="difficulty">{{ difficulty }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
