@@ -11,6 +11,7 @@ from flask import Flask, redirect, url_for, session, request, jsonify, render_te
 from oauthlib.oauth2 import WebApplicationClient
 import requests
 from mysql.connector import pooling
+from ai_comparison import process_texts  # 导入你的文本处理模块
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -138,33 +139,24 @@ def get_user_id(email):
     conn.close()
     return user_id
 
-# 保存錄音
-@app.route('/save_vocabulary_recording', methods=['POST'])
-def save_vocabulary_recording():
-    user_voice = request.form['user_voice']
-    stt = request.form['stt']
-    vocabulary_id = request.form['vocabulary_id']
-    user_email = session['email']
-    date_now = datetime.datetime.now().date()
-
+# 獲取原始文本
+def get_original_text_by_vocabulary_id(vocabulary_id):
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
-
-    # 獲取用戶ID
-    user_id = get_user_id(user_email)
-
-    # 更新或插入錄音記錄到 vocabularyUserVoice 表
-    cursor.execute("""
-        INSERT INTO vocabularyUserVoice (user_voice, STT, date, vocabulary_id, user_id)
-        VALUES (%s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE user_voice = VALUES(user_voice), STT = VALUES(STT)
-    """, (base64.b64decode(user_voice), stt, date_now, vocabulary_id, user_id))
-
-    conn.commit()
+    cursor.execute("SELECT vocabulary_en FROM vocabulary WHERE id = %s", (vocabulary_id,))
+    original_text = cursor.fetchone()['vocabulary_en']
     cursor.close()
     conn.close()
+    return original_text
 
-    return jsonify({"status": "success"})
+def get_original_text_by_conversation_id(conversation_id):
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT conversation_en FROM conversation WHERE id = %s", (conversation_id,))
+    original_text = cursor.fetchone()['conversation_en']
+    cursor.close()
+    conn.close()
+    return original_text
 
 # 每日三句頁面
 @app.route('/daily_quotes')
@@ -329,9 +321,20 @@ def vocabulary_detail(vocabulary_id):
     is_collected = collect_record is not None
     
     vocabulary['vocabulary_voice'] = base64.b64encode(vocabulary['vocabulary_voice']).decode('utf-8')
+    
+    # 獲取用戶錄音相關信息
+    cursor.execute("""
+        SELECT STT, accuracy, highlighted_text
+        FROM vocabularyUserVoice
+        WHERE user_id = %s AND vocabulary_id = %s
+        ORDER BY date DESC
+        LIMIT 1
+    """, (get_user_id(user_email), vocabulary_id))
+    user_voice = cursor.fetchone()
+    
     cursor.close()
     conn.close()
-    return render_template('vocabulary_detail.html', vocabulary=vocabulary, is_collected=is_collected)
+    return render_template('vocabulary_detail.html', vocabulary=vocabulary, is_collected=is_collected, user_voice=user_voice)
 
 # 切換單字收藏狀態
 @app.route('/toggle_vocabulary_collect', methods=['POST'])
@@ -452,13 +455,12 @@ def conversation_practice(topic_id, difficulty, situation_id):
     
     return render_template('conversation_practice.html', conversations=conversations, topic_id=topic_id, difficulty=difficulty, situation_id=situation_id)
 
-# 保存錄音
+# 保存對話錄音
 @app.route('/save_recording', methods=['POST'])
 def save_recording():
     data = request.form
     user_voice = data['user_voice']
     stt = data['stt']
-    vocabulary_id = data.get('vocabulary_id')  # 單字錄音
     conversation_id = data.get('conversation_id')  # 對話錄音
     user_email = session['email']
     date_now = datetime.datetime.now().date()
@@ -469,26 +471,57 @@ def save_recording():
     # 獲取用戶ID
     user_id = get_user_id(user_email)
 
-    if vocabulary_id:
-        # 更新或插入錄音記錄到 vocabularyUserVoice 表
-        cursor.execute("""
-            INSERT INTO vocabularyUserVoice (user_voice, STT, date, vocabulary_id, user_id)
-            VALUES (%s, %s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE user_voice = VALUES(user_voice), STT = VALUES(STT)
-        """, (base64.b64decode(user_voice), stt, date_now, vocabulary_id, user_id))
-    elif conversation_id:
+    if conversation_id:
+        # 獲取原始文本
+        original_text = get_original_text_by_conversation_id(conversation_id)
+        # 處理文本，計算準確率
+        highlighted_text, accuracy = process_texts(original_text, stt)
         # 更新或插入錄音記錄到 conversationUserVoice 表
         cursor.execute("""
-            INSERT INTO conversationUserVoice (user_voice, STT, date, conversation_id, user_id)
-            VALUES (%s, %s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE user_voice = VALUES(user_voice), STT = VALUES(STT)
-        """, (base64.b64decode(user_voice), stt, date_now, conversation_id, user_id))
+            INSERT INTO conversationUserVoice (user_voice, STT, date, conversation_id, user_id, highlighted_text, accuracy)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE user_voice = VALUES(user_voice), STT = VALUES(STT), highlighted_text = VALUES(highlighted_text), accuracy = VALUES(accuracy)
+        """, (base64.b64decode(user_voice), stt, date_now, conversation_id, user_id, highlighted_text, accuracy))
 
     conn.commit()
     cursor.close()
     conn.close()
 
-    return jsonify({"status": "success"})
+    return jsonify({"status": "success", "stt": stt, "accuracy": accuracy, "highlighted_text": highlighted_text})
+
+# 保存單字錄音
+@app.route('/save_vocabulary_recording', methods=['POST'])
+def save_vocabulary_recording():
+    user_voice = request.form['user_voice']
+    stt = request.form['stt']
+    vocabulary_id = request.form['vocabulary_id']
+    user_email = session['email']
+    date_now = datetime.datetime.now().date()
+
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 獲取用戶ID
+    user_id = get_user_id(user_email)
+
+    # 獲取原始文本
+    original_text = get_original_text_by_vocabulary_id(vocabulary_id)
+
+    # 處理文本，計算準確率
+    highlighted_text, accuracy = process_texts(original_text, stt)
+
+    # 更新或插入錄音記錄到 vocabularyUserVoice 表
+    cursor.execute("""
+        INSERT INTO vocabularyUserVoice (user_voice, STT, date, vocabulary_id, user_id, highlighted_text, accuracy)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE user_voice = VALUES(user_voice), STT = VALUES(STT), highlighted_text = VALUES(highlighted_text), accuracy = VALUES(accuracy)
+    """, (base64.b64decode(user_voice), stt, date_now, vocabulary_id, user_id, highlighted_text, accuracy))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"status": "success", "stt": stt, "accuracy": accuracy, "highlighted_text": highlighted_text})
 
 # 學習歷程 - 單字
 @app.route('/learning_history_vocabulary', methods=['GET', 'POST'])
@@ -502,7 +535,7 @@ def learning_history_vocabulary():
     
     if date_filter:
         cursor.execute("""
-            SELECT v.vocabulary_en, v.vocabulary_tw, v.part_of_speech, v.ipa, v.example, v.class, vuv.user_voice, vuv.STT, vuv.date
+            SELECT v.vocabulary_en, v.vocabulary_tw, v.part_of_speech, v.ipa, v.example, v.class, vuv.user_voice, vuv.STT, vuv.date, vuv.highlighted_text, vuv.accuracy
             FROM vocabularyUserVoice vuv
             JOIN vocabulary v ON vuv.vocabulary_id = v.id
             WHERE vuv.user_id = %s AND vuv.date = %s
@@ -510,7 +543,7 @@ def learning_history_vocabulary():
         """, (user_id, date_filter))
     else:
         cursor.execute("""
-            SELECT v.vocabulary_en, v.vocabulary_tw, v.part_of_speech, v.ipa, v.example, v.class, vuv.user_voice, vuv.STT, vuv.date
+            SELECT v.vocabulary_en, v.vocabulary_tw, v.part_of_speech, v.ipa, v.example, v.class, vuv.user_voice, vuv.STT, vuv.date, vuv.highlighted_text, vuv.accuracy
             FROM vocabularyUserVoice vuv
             JOIN vocabulary v ON vuv.vocabulary_id = v.id
             WHERE vuv.user_id = %s
@@ -538,7 +571,7 @@ def learning_history_conversation():
     
     if date_filter:
         cursor.execute("""
-            SELECT c.conversation_en, c.conversation_tw, cuv.user_voice, cuv.STT, cuv.date
+            SELECT c.conversation_en, c.conversation_tw, cuv.user_voice, cuv.STT, cuv.date, cuv.highlighted_text, cuv.accuracy
             FROM conversationUserVoice cuv
             JOIN conversation c ON cuv.conversation_id = c.id
             WHERE cuv.user_id = %s AND cuv.date = %s
@@ -546,7 +579,7 @@ def learning_history_conversation():
         """, (user_id, date_filter))
     else:
         cursor.execute("""
-            SELECT c.conversation_en, c.conversation_tw, cuv.user_voice, cuv.STT, cuv.date
+            SELECT c.conversation_en, c.conversation_tw, cuv.user_voice, cuv.STT, cuv.date, cuv.highlighted_text, cuv.accuracy
             FROM conversationUserVoice cuv
             JOIN conversation c ON cuv.conversation_id = c.id
             WHERE cuv.user_id = %s
@@ -674,11 +707,12 @@ def learning_notes_conversation():
     cursor.execute("""
         SELECT 
             c.id, c.conversation_en, c.conversation_tw, c.conversation_voice,
-            ch.character_name, i.icon
+            ch.character_name, i.icon, cuv.STT, cuv.accuracy, cuv.highlighted_text
         FROM conversationCollect cc
         JOIN conversation c ON cc.conversation_id = c.id
         JOIN characters ch ON c.character_id = ch.id
         JOIN icon i ON ch.icon_id = i.id
+        LEFT JOIN conversationUserVoice cuv ON c.id = cuv.conversation_id AND cc.user_id = cuv.user_id
         WHERE cc.user_id = %s
         ORDER BY c.id ASC
     """, (user_id,))
@@ -707,10 +741,11 @@ def learning_notes_vocabulary():
     cursor.execute("""
         SELECT 
             v.id, v.vocabulary_en, v.vocabulary_tw, v.part_of_speech, v.ipa, 
-            v.example, v.vocabulary_voice, vt.name as topic_name
+            v.example, v.vocabulary_voice, vt.name as topic_name, vuv.STT, vuv.accuracy, vuv.highlighted_text
         FROM vocabularyCollect vc
         JOIN vocabulary v ON vc.vocabulary_id = v.id
         JOIN vocabularyTopic vt ON v.topic_id = vt.id
+        LEFT JOIN vocabularyUserVoice vuv ON v.id = vuv.vocabulary_id AND vc.user_id = vuv.user_id
         WHERE vc.user_id = %s
         ORDER BY v.id ASC
     """, (user_id,))
@@ -724,6 +759,80 @@ def learning_notes_vocabulary():
     conn.close()
     
     return render_template('learning_notes_vocabulary.html', vocabularies=vocabularies)
+
+# 切換收藏狀態 - 對話
+@app.route('/toggle_learning_notes_conversation_collect', methods=['POST'])
+def toggle_learning_notes_conversation_collect():
+    user_email = session['email']
+    conversation_id = request.form['conversation_id']
+
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    user_id = get_user_id(user_email)
+
+    # 檢查是否存在收藏記錄
+    cursor.execute("""
+        SELECT id FROM conversationCollect
+        WHERE user_id = %s AND conversation_id = %s
+    """, (user_id, conversation_id))
+    collect_record = cursor.fetchone()
+
+    if collect_record:
+        # 刪除現有記錄
+        cursor.execute("""
+            DELETE FROM conversationCollect
+            WHERE id = %s
+        """, (collect_record['id'],))
+    else:
+        # 插入新記錄
+        cursor.execute("""
+            INSERT INTO conversationCollect (user_id, conversation_id)
+            VALUES (%s, %s)
+        """, (user_id, conversation_id))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"status": "success"})
+
+# 切換收藏狀態 - 單字
+@app.route('/toggle_learning_notes_vocabulary_collect', methods=['POST'])
+def toggle_learning_notes_vocabulary_collect():
+    user_email = session['email']
+    vocabulary_id = request.form['vocabulary_id']
+
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    user_id = get_user_id(user_email)
+
+    # 檢查是否存在收藏記錄
+    cursor.execute("""
+        SELECT id FROM vocabularyCollect
+        WHERE user_id = %s AND vocabulary_id = %s
+    """, (user_id, vocabulary_id))
+    collect_record = cursor.fetchone()
+
+    if collect_record:
+        # 刪除現有記錄
+        cursor.execute("""
+            DELETE FROM vocabularyCollect
+            WHERE id = %s
+        """, (collect_record['id'],))
+    else:
+        # 插入新記錄
+        cursor.execute("""
+            INSERT INTO vocabularyCollect (user_id, vocabulary_id)
+            VALUES (%s, %s)
+        """, (user_id, vocabulary_id))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"status": "success"})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

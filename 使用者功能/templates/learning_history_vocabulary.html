@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>學習歷程 - 單字</title>
+    <title>Learning History - Vocabulary</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,6 +27,15 @@
             border: 1px solid #ccc;
             padding: 10px;
             margin: 10px 0;
+        }
+        .highlighted-text span {
+            font-weight: bold;
+        }
+        .highlighted-text .added {
+            color: red;
+        }
+        .highlighted-text .removed {
+            color: green;
         }
     </style>
 </head>
@@ -52,29 +62,32 @@
         </ul>
     </div>
     <div class="content">
-        <h1>學習歷程 - 單字</h1>
-        <form method="POST">
-            <label for="date_filter">篩選日期:</label>
+        <h1>Learning History - Vocabulary</h1>
+        <form method="POST" action="{{ url_for('learning_history_vocabulary') }}">
+            <label for="date_filter">Filter by Date:</label>
             <input type="date" id="date_filter" name="date_filter" value="{{ date_filter }}">
-            <button type="submit">篩選</button>
+            <button type="submit">Filter</button>
         </form>
-        <div>
-            {% for item in learning_history %}
-            <div class="history-item">
-                <p>單字: {{ item.vocabulary_en }}</p>
-                <p>翻譯: {{ item.vocabulary_tw }}</p>
-                <p>詞性: {{ item.part_of_speech }}</p>
-                <p>音標: {{ item.ipa }}</p>
-                <p>例句: {{ item.example }}</p>
-                <p>錄音日期: {{ item.date }}</p>
+        <div class="history">
+            {% for record in learning_history %}
+            <div class="record">
+                <p><strong>English:</strong> {{ record.vocabulary_en }}</p>
+                <p><strong>Chinese:</strong> {{ record.vocabulary_tw }}</p>
                 <audio controls>
-                    <source src="data:audio/wav;base64,{{ item.user_voice }}" type="audio/wav">
+                    <source src="data:audio/webm;base64,{{ record.user_voice }}" type="audio/webm">
                     Your browser does not support the audio element.
                 </audio>
-                <p>STT: {{ item.STT }}</p>
+                <div class="stt-result">
+                    <h3>STT Result</h3>
+                    <p><strong>STT Text:</strong> <span class="stt-text">{{ record.STT }}</span></p>
+                    <p><strong>Accuracy:</strong> <span class="accuracy">{{ record.accuracy }}</span>%</p>
+                    <p><strong>Differences:</strong></p>
+                    <div class="highlighted-text">{{ record.highlighted_text|safe }}</div>
+                </div>
             </div>
             {% endfor %}
         </div>
+        <a href="{{ url_for('main') }}">Back to Main</a>
     </div>
 </body>
 </html>
