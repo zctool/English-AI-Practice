@@ -10461,8 +10461,8 @@ a.button:active {
           id="navbarCollapse"
         >
           <div class="navbar-nav font-weight-bold mx-auto py-0">
-            <a href="index.html" class="nav-item nav-link active">首頁</a>
-            <a href="about.html" class="nav-item nav-link">AI對話</a>
+            <a href="{{ url_for('main') }}" class="nav-item nav-link active">首頁</a>
+           
 
             <div class="nav-item dropdown">
               <a
@@ -10472,8 +10472,8 @@ a.button:active {
                 >練習</a
               >
               <div class="dropdown-menu rounded-0 m-0">
-                <a href="blog.html" class="dropdown-item">單字</a>
-                <a href="single.html" class="dropdown-item">句子</a>
+                <a href="{{ url_for('conversation_topics') }}" class="dropdown-item">單字</a>
+                <a href="{{ url_for('vocabulary_topics') }}" class="dropdown-item">句子</a>
               </div>
             </div>
             <div class="nav-item dropdown">
@@ -10484,7 +10484,7 @@ a.button:active {
                 >會員</a
               >
               <div class="dropdown-menu rounded-0 m-0">
-                <a href="{{ url_for('account_management') }}" class="dropdown-item">個人檔案</a>
+                <a href="{{ url_for('account_management') }}" class="dropdown-item">{{ name }}</a>
                
               </div>
             </div>
@@ -10502,13 +10502,7 @@ a.button:active {
         <div class="col-lg-6 text-center text-lg-left">
           <h1 class="display-3 font-weight-bold text-white">
             <div class="container">
-              <div class="box">
-                <div class="content">
-                  <h2>AI對話</h2>
-                  <a href="{{ url_for('daily_quotes') }}" class="button" >GET STARTED!</a>
-                  
-                </div>
-              </div>
+             
               <div class="box">
                 <div class="content">
                   <h2>每日三句</h2>
@@ -10534,25 +10528,32 @@ a.button:active {
             
          
         </div>
-        
-      <div
+      
+      <!-- footer  -->
+      <div class="container-fluid pt-5">
+        <p class="m-0 text-center text-white">組別: 113201 指導老師 : 林俊杰老師</p>
+        <p class="m-0 text-center text-white">專題組員: 11236001 林奕辰 11236012 高穎萱 11236013 蔣杰森 11236022 巫承翰 11236025 葉于甄</p>
+      </div>
+
+
+      <!-- <div
         class="container-fluid pt-5"
         style="border-top: 1px solid rgba(23, 162, 184, 0.2)"
       >
         <p class="m-0 text-center text-white">
           &copy;
           <a class="text-primary font-weight-bold" href="#">Your Site Name</a>.
-          All Rights Reserved.
+          All Rights Reserved. -->
 
           <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-          Designed by
+          <!-- Designed by
           <a class="text-primary font-weight-bold" href="https://htmlcodex.com"
             >HTML Codex</a
           >
           <br />Distributed By:
           <a href="https://themewagon.com" target="_blank">ThemeWagon</a>
         </p>
-      </div>
+      </div> -->
     </div>
     <!-- Footer End -->
 
