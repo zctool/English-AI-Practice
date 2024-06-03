@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learning History - Vocabulary</title>
+    <title>學習歷程 - 單字</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         body {
@@ -37,6 +37,23 @@
         .highlighted-text .removed {
             color: green;
         }
+        .star-button {
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            outline: none;
+            color: transparent;
+            text-shadow: 0 0 0 #ffd700;
+        }
+        .star-button.filled::before {
+            content: "★";
+            color: #ffd700;
+        }
+        .star-button.unfilled::before {
+            content: "☆";
+            color: #ffd700;
+        }
     </style>
 </head>
 <body>
@@ -62,32 +79,58 @@
         </ul>
     </div>
     <div class="content">
-        <h1>Learning History - Vocabulary</h1>
+        <h1>學習歷程 - 單字</h1>
         <form method="POST" action="{{ url_for('learning_history_vocabulary') }}">
-            <label for="date_filter">Filter by Date:</label>
+            <label for="date_filter">篩選日期:</label>
             <input type="date" id="date_filter" name="date_filter" value="{{ date_filter }}">
-            <button type="submit">Filter</button>
+            <button type="submit">篩選</button>
         </form>
         <div class="history">
             {% for record in learning_history %}
-            <div class="record">
-                <p><strong>English:</strong> {{ record.vocabulary_en }}</p>
-                <p><strong>Chinese:</strong> {{ record.vocabulary_tw }}</p>
+            <div class="history-item">
+                <p><strong>英文:</strong> {{ record.vocabulary_en }}</p>
+                <p><strong>中文:</strong> {{ record.vocabulary_tw }}</p>
+                <p><strong>原句音檔:</strong></p>
+                <audio controls>
+                    <source src="data:audio/webm;base64,{{ record.vocabulary_voice }}" type="audio/webm">
+                    您的瀏覽器不支持音頻元素。
+                </audio>
+                <p><strong>使用者錄音:</strong></p>
                 <audio controls>
                     <source src="data:audio/webm;base64,{{ record.user_voice }}" type="audio/webm">
-                    Your browser does not support the audio element.
+                    您的瀏覽器不支持音頻元素。
                 </audio>
                 <div class="stt-result">
-                    <h3>STT Result</h3>
+                    <h3>STT 結果</h3>
                     <p><strong>STT Text:</strong> <span class="stt-text">{{ record.STT }}</span></p>
-                    <p><strong>Accuracy:</strong> <span class="accuracy">{{ record.accuracy }}</span></p>
+                    <p><strong>Accuracy:</strong> <span class="accuracy">{{ record.accuracy == 100.0 and "completely" or record.accuracy|round(2) }}%</span></p>
                     <p><strong>Differences:</strong></p>
                     <div class="highlighted-text">{{ record.highlighted_text|safe }}</div>
                 </div>
+                <button class="star-button {{ 'filled' if record.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ record.id }}', this)"></button>
             </div>
             {% endfor %}
         </div>
-        <a href="{{ url_for('main') }}">Back to Main</a>
     </div>
+    <script>
+        function toggleCollect(vocabularyId, starButton) {
+            const isCollected = starButton.classList.contains("filled");
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/toggle_learning_notes_vocabulary_collect", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    if (isCollected) {
+                        starButton.classList.remove("filled");
+                        starButton.classList.add("unfilled");
+                    } else {
+                        starButton.classList.remove("unfilled");
+                        starButton.classList.add("filled");
+                    }
+                }
+            };
+            xhr.send(`vocabulary_id=${vocabularyId}`);
+        }
+    </script>
 </body>
 </html>

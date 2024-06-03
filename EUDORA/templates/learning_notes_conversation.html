@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <title>學習筆記 - 對話收藏</title>
@@ -59,21 +59,22 @@
         <ul>
             {% for conversation in conversations %}
             <li class="conversation">
-                <div class="character">
-                    <img src="data:image/png;base64,{{ conversation.icon }}" alt="{{ conversation.character_name }}的圖標">
-                    <strong>{{ conversation.character_name }}</strong>
-                </div>
                 <p>對話(英文): {{ conversation.conversation_en }}</p>
                 <p>對話(繁體中文): {{ conversation.conversation_tw }}</p>
+                <p>人物: {{ conversation.character_name }}</p>
                 <audio controls>
                     <source src="data:audio/wav;base64,{{ conversation.conversation_voice }}" type="audio/wav">
+                    您的瀏覽器不支持音頻元素。
+                </audio>
+                <audio controls>
+                    <source src="data:audio/webm;base64,{{ conversation.user_voice }}" type="audio/webm">
                     您的瀏覽器不支持音頻元素。
                 </audio>
                 <button class="star-button {{ 'filled' if conversation.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ conversation.id }}', this)"></button>
                 <div class="stt-result">
                     <h3>STT Result</h3>
                     <p><strong>STT Text:</strong> <span class="stt-text">{{ conversation.STT }}</span></p>
-                    <p><strong>Accuracy:</strong> <span class="accuracy">{{ conversation.accuracy }}</span></p>
+                    <p><strong>Accuracy:</strong> <span class="accuracy">{{ conversation.accuracy == 100.0 and "completely" or conversation.accuracy|round(2) }}%</span></p>
                     <p><strong>Differences:</strong></p>
                     <div class="highlighted-text">{{ conversation.highlighted_text|safe }}</div>
                 </div>
@@ -85,7 +86,7 @@
         function toggleCollect(conversationId, starButton) {
             const isCollected = starButton.classList.contains("filled");
             const xhr = new XMLHttpRequest();
-            xhr.open("POST", "/toggle_conversation_collect", true);
+            xhr.open("POST", "/toggle_learning_notes_conversation_collect", true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4 && xhr.status === 200) {
@@ -98,7 +99,7 @@
                     }
                 }
             };
-            xhr.send(`conversation_id=${conversationId}&collect=${!isCollected}`);
+            xhr.send(`conversation_id=${conversationId}`);
         }
     </script>
 </body>

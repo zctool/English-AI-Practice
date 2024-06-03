@@ -47,50 +47,50 @@
 </html>
 
 <script>
-    function loadDifficultyClasses(topicId) {
-        fetch(`/admin/get_vocabulary_difficulty_classes/${topicId}`)
-            .then(response => response.json())
-            .then(data => {
-                const difficultySelect = document.getElementById('class');
-                difficultySelect.innerHTML = '<option value="">Select a difficulty class</option>';
-                data.forEach(classItem => {
-                    const option = document.createElement('option');
-                    option.value = classItem.class;
-                    option.text = classItem.class;
-                    difficultySelect.appendChild(option);
-                });
+function loadDifficultyClasses(topicId) {
+    fetch(`/get_difficulty_classes/${topicId}`)
+        .then(response => response.json())
+        .then(data => {
+            const difficultySelect = document.getElementById('class');
+            difficultySelect.innerHTML = '<option value="">Select a difficulty class</option>';
+            data.forEach(classItem => {
+                const option = document.createElement('option');
+                option.value = classItem.class;
+                option.text = classItem.class;
+                difficultySelect.appendChild(option);
             });
-    }
-    
-    function loadSituations(difficultyClass) {
-        const topicId = document.getElementById('topic_id').value;
-        fetch(`/admin/get_vocabulary_situations/${topicId}/${difficultyClass}`)
-            .then(response => response.json())
-            .then(data => {
-                const situationSelect = document.getElementById('situation_id');
-                situationSelect.innerHTML = '<option value="">Select a situation</option>';
-                data.forEach(situation => {
-                    const option = document.createElement('option');
-                    option.value = situation.id;
-                    option.text = situation.situation;
-                    situationSelect.appendChild(option);
-                });
+        });
+}
+
+function loadSituations(difficultyClass) {
+    const topicId = document.getElementById('topic_id').value;
+    fetch(`/get_situations/${topicId}/${difficultyClass}`)
+        .then(response => response.json())
+        .then(data => {
+            const situationSelect = document.getElementById('situation_id');
+            situationSelect.innerHTML = '<option value="">Select a situation</option>';
+            data.forEach(situation => {
+                const option = document.createElement('option');
+                option.value = situation.id;
+                option.text = situation.situation;
+                situationSelect.appendChild(option);
             });
-    }
-    
-    document.getElementById('situation_id').addEventListener('change', function() {
-        const situationId = this.value;
-        fetch(`/admin/get_vocabulary_characters_by_situation/${situationId}`)
-            .then(response => response.json())
-            .then(data => {
-                const characterSelect = document.getElementById('character_id');
-                characterSelect.innerHTML = '<option value="">Select a character</option>';
-                data.forEach(character => {
-                    const option = document.createElement('option');
-                    option.value = character.id;
-                    option.text = character.character_name;
-                    characterSelect.appendChild(option);
-                });
+        });
+}
+
+document.getElementById('situation_id').addEventListener('change', function() {
+    const situationId = this.value;
+    fetch(`/get_characters_by_situation/${situationId}`)
+        .then(response => response.json())
+        .then(data => {
+            const characterSelect = document.getElementById('character_id');
+            characterSelect.innerHTML = '<option value="">Select a character</option>';
+            data.forEach(character => {
+                const option = document.createElement('option');
+                option.value = character.id;
+                option.text = character.character_name;
+                characterSelect.appendChild(option);
             });
-    });
-    </script>    
+        });
+});
+</script>

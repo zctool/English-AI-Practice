@@ -544,17 +544,21 @@ def learning_history_vocabulary():
     
     if date_filter:
         cursor.execute("""
-            SELECT v.vocabulary_en, v.vocabulary_tw, v.part_of_speech, v.ipa, v.example, v.class, vuv.user_voice, vuv.STT, vuv.date, vuv.highlighted_text, vuv.accuracy
+            SELECT v.id, v.vocabulary_en, v.vocabulary_tw, v.vocabulary_voice, vuv.user_voice, vuv.STT, vuv.date, vuv.highlighted_text, vuv.accuracy,
+                   IF(vc.id IS NOT NULL, TRUE, FALSE) AS is_collected
             FROM vocabularyUserVoice vuv
             JOIN vocabulary v ON vuv.vocabulary_id = v.id
+            LEFT JOIN vocabularyCollect vc ON vuv.vocabulary_id = vc.vocabulary_id AND vuv.user_id = vc.user_id
             WHERE vuv.user_id = %s AND vuv.date = %s
             ORDER BY vuv.date ASC
         """, (user_id, date_filter))
     else:
         cursor.execute("""
-            SELECT v.vocabulary_en, v.vocabulary_tw, v.part_of_speech, v.ipa, v.example, v.class, vuv.user_voice, vuv.STT, vuv.date, vuv.highlighted_text, vuv.accuracy
+            SELECT v.id, v.vocabulary_en, v.vocabulary_tw, v.vocabulary_voice, vuv.user_voice, vuv.STT, vuv.date, vuv.highlighted_text, vuv.accuracy,
+                   IF(vc.id IS NOT NULL, TRUE, FALSE) AS is_collected
             FROM vocabularyUserVoice vuv
             JOIN vocabulary v ON vuv.vocabulary_id = v.id
+            LEFT JOIN vocabularyCollect vc ON vuv.vocabulary_id = vc.vocabulary_id AND vuv.user_id = vc.user_id
             WHERE vuv.user_id = %s
             ORDER BY vuv.date ASC
         """, (user_id,))
@@ -564,6 +568,7 @@ def learning_history_vocabulary():
     conn.close()
     
     for record in learning_history:
+        record['vocabulary_voice'] = base64.b64encode(record['vocabulary_voice']).decode('utf-8')
         record['user_voice'] = base64.b64encode(record['user_voice']).decode('utf-8')
     
     return render_template('learning_history_vocabulary.html', learning_history=learning_history, date_filter=date_filter)
@@ -580,17 +585,21 @@ def learning_history_conversation():
     
     if date_filter:
         cursor.execute("""
-            SELECT c.conversation_en, c.conversation_tw, cuv.user_voice, cuv.STT, cuv.date, cuv.highlighted_text, cuv.accuracy
+            SELECT c.id, c.conversation_en, c.conversation_tw, c.conversation_voice, cuv.user_voice, cuv.STT, cuv.date, cuv.highlighted_text, cuv.accuracy,
+                   IF(cc.id IS NOT NULL, TRUE, FALSE) AS is_collected
             FROM conversationUserVoice cuv
             JOIN conversation c ON cuv.conversation_id = c.id
+            LEFT JOIN conversationCollect cc ON cuv.conversation_id = cc.conversation_id AND cuv.user_id = cc.user_id
             WHERE cuv.user_id = %s AND cuv.date = %s
             ORDER BY cuv.date ASC
         """, (user_id, date_filter))
     else:
         cursor.execute("""
-            SELECT c.conversation_en, c.conversation_tw, cuv.user_voice, cuv.STT, cuv.date, cuv.highlighted_text, cuv.accuracy
+            SELECT c.id, c.conversation_en, c.conversation_tw, c.conversation_voice, cuv.user_voice, cuv.STT, cuv.date, cuv.highlighted_text, cuv.accuracy,
+                   IF(cc.id IS NOT NULL, TRUE, FALSE) AS is_collected
             FROM conversationUserVoice cuv
             JOIN conversation c ON cuv.conversation_id = c.id
+            LEFT JOIN conversationCollect cc ON cuv.conversation_id = cc.conversation_id AND cuv.user_id = cc.user_id
             WHERE cuv.user_id = %s
             ORDER BY cuv.date ASC
         """, (user_id,))
@@ -600,6 +609,7 @@ def learning_history_conversation():
     conn.close()
     
     for record in learning_history:
+        record['conversation_voice'] = base64.b64encode(record['conversation_voice']).decode('utf-8')
         record['user_voice'] = base64.b64encode(record['user_voice']).decode('utf-8')
     
     return render_template('learning_history_conversation.html', learning_history=learning_history, date_filter=date_filter)
@@ -716,7 +726,8 @@ def learning_notes_conversation():
     cursor.execute("""
         SELECT 
             c.id, c.conversation_en, c.conversation_tw, c.conversation_voice,
-            ch.character_name, i.icon, cuv.STT, cuv.accuracy, cuv.highlighted_text
+            ch.character_name, i.icon, cuv.user_voice, cuv.STT, cuv.accuracy, cuv.highlighted_text,
+            IF(cc.id IS NOT NULL, TRUE, FALSE) AS is_collected
         FROM conversationCollect cc
         JOIN conversation c ON cc.conversation_id = c.id
         JOIN characters ch ON c.character_id = ch.id
@@ -731,6 +742,8 @@ def learning_notes_conversation():
     for conversation in conversations:
         conversation['icon'] = base64.b64encode(conversation['icon']).decode('utf-8')
         conversation['conversation_voice'] = base64.b64encode(conversation['conversation_voice']).decode('utf-8')
+        if conversation['user_voice']:
+            conversation['user_voice'] = base64.b64encode(conversation['user_voice']).decode('utf-8')
     
     cursor.close()
     conn.close()
@@ -750,7 +763,8 @@ def learning_notes_vocabulary():
     cursor.execute("""
         SELECT 
             v.id, v.vocabulary_en, v.vocabulary_tw, v.part_of_speech, v.ipa, 
-            v.example, v.vocabulary_voice, vt.name as topic_name, vuv.STT, vuv.accuracy, vuv.highlighted_text
+            v.example, v.vocabulary_voice, vt.name as topic_name, vuv.user_voice, vuv.STT, vuv.accuracy, vuv.highlighted_text,
+            IF(vc.id IS NOT NULL, TRUE, FALSE) AS is_collected
         FROM vocabularyCollect vc
         JOIN vocabulary v ON vc.vocabulary_id = v.id
         JOIN vocabularyTopic vt ON v.topic_id = vt.id
@@ -763,6 +777,8 @@ def learning_notes_vocabulary():
     
     for vocabulary in vocabularies:
         vocabulary['vocabulary_voice'] = base64.b64encode(vocabulary['vocabulary_voice']).decode('utf-8')
+        if vocabulary['user_voice']:
+            vocabulary['user_voice'] = base64.b64encode(vocabulary['user_voice']).decode('utf-8')
     
     cursor.close()
     conn.close()
