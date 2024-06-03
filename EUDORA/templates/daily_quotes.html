@@ -27,10 +27,10 @@
             font-weight: bold;
         }
         .highlighted-text .added {
-            color: blue;
+            color: red;
         }
         .highlighted-text .removed {
-            color: red;
+            color: green;
         }
     </style>
 </head>
@@ -144,7 +144,7 @@
                     const response = JSON.parse(xhr.responseText);
                     const conversationDiv = document.querySelector(`.quote[data-id='${conversationId}']`);
                     conversationDiv.querySelector('.stt-text').textContent = response.stt;
-                    conversationDiv.querySelector('.accuracy').textContent = response.accuracy;
+                    conversationDiv.querySelector('.accuracy').textContent = response.accuracy == 100 ? "completely" : response.accuracy + "%";
                     conversationDiv.querySelector('.highlighted-text').innerHTML = response.highlighted_text;
                 }
             };
