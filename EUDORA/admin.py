@@ -102,7 +102,7 @@ def add_vocabulary():
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('add_vocabulary'))
+        return redirect(url_for('admin.add_vocabulary'))
     else:
         try:
             connection = mysql.connector.connect(**config)
@@ -118,6 +118,62 @@ def add_vocabulary():
             if connection:
                 connection.close()
         return render_template('add_vocabulary.html', topics=topics)
+    
+# 獲取指定主題的難易度
+@admin_bp.route('/get_vocabulary_difficulty_classes/<int:topic_id>', methods=['GET'])
+@admin_required
+def get_vocabulary_difficulty_classes(topic_id):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        cursor.execute("SELECT DISTINCT class FROM conversationSituation WHERE topic_id = %s", (topic_id,))
+        difficulty_classes = cursor.fetchall()
+        return jsonify([{'class': class_item[0]} for class_item in difficulty_classes])
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)})
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+# 獲取指定難易度和主題的情境
+@admin_bp.route('/get_vocabulary_situations/<int:topic_id>/<string:difficulty_class>', methods=['GET'])
+@admin_required
+def get_vocabulary_situations(topic_id, difficulty_class):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        query = "SELECT id, situation FROM conversationSituation WHERE topic_id = %s AND class = %s"
+        cursor.execute(query, (topic_id, difficulty_class))
+        situations = cursor.fetchall()
+        return jsonify([{'id': situation[0], 'situation': situation[1]} for situation in situations])
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)})
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+# 獲取指定情境的人物
+@admin_bp.route('/get_vocabulary_characters_by_situation/<int:situation_id>', methods=['GET'])
+@admin_required
+def get_vocabulary_characters_by_situation(situation_id):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        query = "SELECT id, character_name FROM characters WHERE situation_id = %s"
+        cursor.execute(query, (situation_id,))
+        characters = cursor.fetchall()
+        return jsonify([{'id': character[0], 'character_name': character[1]} for character in characters])
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)})
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
 
 # 查看和编辑單字主題
 @admin_bp.route('/admin_vocabulary_topics')
