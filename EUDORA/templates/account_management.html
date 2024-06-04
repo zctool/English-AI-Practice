@@ -143,9 +143,10 @@ hr {
 
 
 .main-content {
+  flex-grow: 1;
+  margin-left: 0px;
   padding: 20px;
-  background-color: #fff; /* 白色背景 */
-  border-left: 1px solid #ccc; /* 添加左边界线 */
+  padding-top: 60px; /* 留出头部空间 */
 }
 h1,
 h2,
@@ -10449,7 +10450,7 @@ a.text-dark:focus {
         >
           <div class="navbar-nav font-weight-bold mx-auto py-0">
             <a href="{{ url_for('main') }}" class="nav-item nav-link active">首頁</a>
-            <a href="about.html" class="nav-item nav-link">AI對話</a>
+            
 
             <div class="nav-item dropdown">
               <a
@@ -10471,7 +10472,7 @@ a.text-dark:focus {
                 >會員</a
               >
               <div class="dropdown-menu rounded-0 m-0">
-                <a href="{{ url_for('account_management') }}" class="dropdown-item">{{ name }}</a>
+                <a href="{{ url_for('account_management') }}" class="dropdown-item">個人檔案</a>
                
               </div>
             </div>
@@ -10492,19 +10493,18 @@ a.text-dark:focus {
             <!-- Left Side Content -->
             <div class="sidebar">
                 <ul class="ul-list">
-                  <li><a href="{{ url_for('account_management') }}">帳號管理</a></li>
-                  <li><a href="{{ url_for('calendar') }}">學習月曆</a></li>
+                  <li><a href="#" onclick="changeIframe('{{ url_for('account_manage') }}')">帳號管理</a></li>
+                  <li><a href="#" onclick="changeIframe('{{ url_for('calendar') }}')">學習月曆</a></li>
                   <li>
                     <div class="menu-toggle">學習歷程</div>
                     <ul class="dropdown-ul rounded-0 m-0">
-                     
                       <li>
-                        <a href="{{ url_for('learning_history_conversation') }}"
+                        <a href="#" onclick="changeIframe('{{ url_for('learning_history_conversation') }}')"
                           >對話</a
                         >
                       </li>
                       <li>
-                        <a href="{{ url_for('learning_history_vocabulary') }}">單字</a>
+                        <a href="#" onclick="changeIframe('{{ url_for('learning_history_vocabulary') }}')">單字</a>
                       </li>
                     </ul>
                   </li>
@@ -10512,10 +10512,10 @@ a.text-dark:focus {
                    <div class="menu-toggle2">學習筆記</div>
                     <ul class="dropdown-ul2 rounded-0 m-0">
                       <li>
-                        <a href="{{ url_for('learning_notes_conversation') }}">對話</a>
+                        <a href="#" onclick="changeIframe('{{ url_for('learning_notes_conversation') }}')">對話</a>
                       </li>
                       <li>
-                        <a href="{{ url_for('learning_notes_vocabulary') }}">單字</a>
+                        <a href="#" onclick="changeIframe('{{ url_for('learning_notes_vocabulary') }}')">單字</a>
                       </li>
                     </ul>
                   </li>
@@ -10524,59 +10524,12 @@ a.text-dark:focus {
         </div>
           
             <div class="main-content">
-              <h1>User Account Information</h1>
-              <form method="POST" enctype="multipart/form-data">
-                
-                <div class="form-group">
-                 <div class="profile-picture">
-                   <img
-                    id="iconPreview"
-                    src="data:image/png;base64,{{ user.icon }}"
-                    alt="User Icon"
-                    width="100"
-                  />
-                </div>
-              </div>
-                <div class="form-group">
-                  <label for="userName">使用者暱稱:</label>
-                  <input
-                    type="text"
-                    id="userName"
-                    name="userName"
-                    value="{{ user.userName }}"
-                    readonly
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="GoogleEmail">Google 帳號:</label>
-                  <input
-                    type="text"
-                    id="GoogleEmail"
-                    name="GoogleEmail"
-                    value="{{ user.GoogleEmail }}"
-                    readonly
-                  />
-                </div>
-                <div class="form-group hidden" id="iconGroup">
-                  <label for="icon">更改頭像:</label>
-                  <input type="file" id="icon" name="icon" accept="image/*" />
-                </div>
-                <div class="buttons">
-                  <button type="button" id="editButton">編輯</button>
-                  <button type="submit" class="hidden" id="saveButton">儲存</button>
-                  <button type="button" class="hidden" id="cancelButton">取消</button>
-                </div>
-              </form>
-             
-              
+              <iframe  frameborder="0" id="contentFrame" src="{{ url_for('account_manage') }}" width="100%" height="500px"></iframe>
                 </div>
               </div>
             </div>
-          </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          
+    
     <!-- Blog End -->
 
     <!-- Footer Start -->
@@ -10584,27 +10537,19 @@ a.text-dark:focus {
       class="container-fluid bg-secondary text-white mt-5 py-5 px-sm-3 px-md-5"
     >
       <div class="row pt-5">
-       
-        
-      <div
-        class="container-fluid pt-5"
-        style="border-top: 1px solid rgba(23, 162, 184, 0.2)"
-      >
-        <p class="m-0 text-center text-white">
-          &copy;
-          <a class="text-primary font-weight-bold" href="#">Your Site Name</a>.
-          All Rights Reserved.
-
-          <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-          Designed by
-          <a class="text-primary font-weight-bold" href="https://htmlcodex.com"
-            >HTML Codex</a
-          >
-          <br />Distributed By:
-          <a href="https://themewagon.com" target="_blank">ThemeWagon</a>
-        </p>
+        <div class="col-lg-3 col-md-6 mb-5">
+         
+           
+            
+         
+        </div>
+      
+      <!-- footer  -->
+      <div class="container-fluid pt-5">
+        <p class="m-0 text-center text-white">組別: 113201 指導老師 : 林俊杰老師</p>
+        <p class="m-0 text-center text-white">專題組員: 11236001 林奕辰 11236012 高穎萱 11236013 蔣杰森 11236022 巫承翰 11236025 葉于甄</p>
       </div>
-    </div>
+
     <!-- Footer End -->
 
     <!-- Back to Top -->
@@ -10629,27 +10574,7 @@ a.text-dark:focus {
     <script src="js/main.js"></script>
     <!-- Template Javascript -->
     <script>
-       const editButton = document.getElementById("editButton");
-      const saveButton = document.getElementById("saveButton");
-      const cancelButton = document.getElementById("cancelButton");
-      const userNameInput = document.getElementById("userName");
-      const iconGroup = document.getElementById("iconGroup");
-
-      editButton.addEventListener("click", () => {
-        userNameInput.removeAttribute("readonly");
-        iconGroup.classList.remove("hidden");
-        editButton.classList.add("hidden");
-        saveButton.classList.remove("hidden");
-        cancelButton.classList.remove("hidden");
-      });
-
-      cancelButton.addEventListener("click", () => {
-        userNameInput.setAttribute("readonly", "readonly");
-        iconGroup.classList.add("hidden");
-        editButton.classList.remove("hidden");
-        saveButton.classList.add("hidden");
-        cancelButton.classList.add("hidden");
-      });
+     
 document.querySelector('.menu-toggle').addEventListener('click', function() {
     var menu = document.querySelector('.dropdown-ul');
     if (menu.classList.contains('active')) {
@@ -10682,7 +10607,9 @@ document.querySelector('.menu-toggle2').addEventListener('click', function() {
         });
     }
 });
-
+function changeIframe(url) {
+            document.getElementById('contentFrame').src = url;
+        }
     </script>
   </body>
 </html>

@@ -148,11 +148,11 @@ button {
   width: 200px;
   color: white;
   padding: 10px 20px;
-  margin: 10px 0;
+  margin: 7px 0;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 15px;
   transition: background-color 0.3s;
 }
 
@@ -175,8 +175,8 @@ audio {
 }
 header {
   width: 100%;
-  background-color:#b9d3e7;
-  padding: 10px;
+  background-color: #b9d3e7;
+  padding: 10px 20px;
   text-align: center;
   position: fixed;
   top: 0;
@@ -187,6 +187,7 @@ header {
   align-items: center;
   display: flex;
   text-align: center;
+  justify-content: space-between;
 }
 header img {
   margin-right: 10px; /* 为logo和标题之间提供一些间隔 */
@@ -198,7 +199,7 @@ header img {
   box-shadow: 3px 0px 5px rgba(0, 0, 0, 0.1);
   height: 100vh;
   position: fixed;
-  top: 80px; /* 考虑到header的高度 */
+  top: 70px; /* 考虑到header的高度 */
   bottom: 0;
   overflow-y: auto; /* 添加滚动条 */
 }
@@ -242,7 +243,7 @@ th {
   text-align: left; /* 文字左对齐 */
   font-weight: bold; /* 字体加粗 */
   border-bottom: 2px solid #e0e0e0; /* 表头下方的边框 */
-  width:auto;
+  width: auto;
 }
 
 /* 表格数据单元格样式 */
@@ -250,7 +251,7 @@ td {
   padding: 10px 15px; /* 单元格内边距 */
   text-align: left; /* 文字左对齐 */
   border-bottom: 1px solid #e0e0e0; /* 单元格之间的边框 */
-  width:auto;
+  width: auto;
 }
 
 /* 鼠标悬浮行的样式 */
@@ -293,7 +294,7 @@ tr:nth-child(even) {
   align-items: center;
 }
 
-.submit-button{
+.submit-button {
   width: auto;
   background-color: #8ebfb7;
 }
@@ -350,7 +351,7 @@ tr:nth-child(even) {
 
 .delete-btn {
   transition: 0.5s;
-  background-color: #E36060;
+  background-color: #e36060;
 }
 .edit-btn:hover {
   transition: 0.5s;
@@ -374,4 +375,15 @@ tr:nth-child(even) {
 
 .view-btn:hover {
   background-color: #2b75be;
+}
+a {
+  display: inline-block; /* 確保可以設定寬度和高度 */
+  padding: 10px 20px; /* 增加內邊距來擴大按鈕的大小 */
+  margin-right: 60px; /* 維持原有的外邊距 */
+  text-decoration: none; /* 移除下劃線 */
+  color: white; /* 設定文字顏色 */
+  background-color: #007bff; /* 設定背景顏色 */
+  border-radius: 20px; /* 設定一個高的圓角值來創造橢圓形效果 */
+  border: none; /* 移除邊框 */
+  cursor: pointer; /* 讓鼠標懸停時顯示指針樣式 */
 }

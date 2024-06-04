@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>學習筆記 - 單字收藏</title>
@@ -69,15 +69,11 @@
                     <source src="data:audio/wav;base64,{{ vocabulary.vocabulary_voice }}" type="audio/wav">
                     您的瀏覽器不支持音頻元素。
                 </audio>
-                <audio controls>
-                    <source src="data:audio/webm;base64,{{ vocabulary.user_voice }}" type="audio/webm">
-                    您的瀏覽器不支持音頻元素。
-                </audio>
                 <button class="star-button {{ 'filled' if vocabulary.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ vocabulary.id }}', this)"></button>
                 <div class="stt-result">
                     <h3>STT Result</h3>
                     <p><strong>STT Text:</strong> <span class="stt-text">{{ vocabulary.STT }}</span></p>
-                    <p><strong>Accuracy:</strong> <span class="accuracy">{{ vocabulary.accuracy == 100.0 and "completely" or vocabulary.accuracy|round(2) }}%</span></p>
+                    <p><strong>Accuracy:</strong> <span class="accuracy">{{ vocabulary.accuracy }}</span></p>
                     <p><strong>Differences:</strong></p>
                     <div class="highlighted-text">{{ vocabulary.highlighted_text|safe }}</div>
                 </div>
@@ -89,7 +85,7 @@
         function toggleCollect(vocabularyId, starButton) {
             const isCollected = starButton.classList.contains("filled");
             const xhr = new XMLHttpRequest();
-            xhr.open("POST", "/toggle_learning_notes_vocabulary_collect", true);
+            xhr.open("POST", "/toggle_vocabulary_collect", true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4 && xhr.status === 200) {
@@ -102,7 +98,7 @@
                     }
                 }
             };
-            xhr.send(`vocabulary_id=${vocabularyId}`);
+            xhr.send(`vocabulary_id=${vocabularyId}&collect=${!isCollected}`);
         }
     </script>
 </body>
