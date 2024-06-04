@@ -380,7 +380,7 @@ def toggle_vocabulary_collect():
 
     return jsonify({"status": "success"})
 
-##對話主題
+#對話主題
 @app.route('/conversation_topics')
 def conversation_topics():
     conn = cnxpool.get_connection()
@@ -662,6 +662,53 @@ def account_management():
 
     return render_template('account_management.html', user=user)
 
+    # 帳號管理頁面
+@app.route('/account_manage', methods=['GET', 'POST'])
+def account_manage():
+    user_email = session.get('email')
+
+    if request.method == 'POST':
+        # 獲取提交的資料
+        user_name = request.form['userName']
+        icon_file = request.files['icon']
+        icon_data = icon_file.read() if icon_file else None
+
+        conn = cnxpool.get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # 更新用戶資料
+        update_query = "UPDATE users SET userName = %s"
+        update_data = [user_name]
+
+        if icon_data:
+            update_query += ", icon = %s"
+            update_data.append(icon_data)
+
+        update_query += " WHERE GoogleEmail = %s"
+        update_data.append(user_email)
+
+        cursor.execute(update_query, update_data)
+        conn.commit()
+        
+        # 更新 session 中的名稱
+        session['name'] = user_name
+
+        cursor.close()
+        conn.close()
+
+    # 獲取當前用戶資料
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT userName, GoogleEmail, icon FROM users WHERE GoogleEmail = %s", (user_email,))  # 替换成 GoogleEmail
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    # 將圖片轉為 base64 格式
+    if user['icon']:
+        user['icon'] = base64.b64encode(user['icon']).decode('utf-8')
+
+    return render_template('account_manage.html', user=user)
 #學習月曆
 @app.route('/calendar')
 def calendar():

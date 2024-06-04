@@ -34,7 +34,7 @@ def calculate_accuracy(original_text, stt_text):
     original_text = preprocess_text(original_text)
     stt_text = preprocess_text(stt_text)
     
-    # 使用SBERT计算相似度
+    # 使用SBERT計算相似度
     embeddings1 = sbert_model.encode(original_text, convert_to_tensor=True)
     embeddings2 = sbert_model.encode(stt_text, convert_to_tensor=True)
     similarity = util.pytorch_cos_sim(embeddings1, embeddings2).item()
