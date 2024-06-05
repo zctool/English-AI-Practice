@@ -132,6 +132,7 @@ hr {
     flex-direction: column;
     justify-content: space-around; /* 平均分配內部的li元素 */
     text-align: center;
+   
   
 }
 
@@ -217,10 +218,12 @@ small {
   background-color: #f8f9fa; /* 浅灰色背景 */
   padding: 20px;
   border-right: 1px solid #dee2e6; /* 添加分隔线 */
+  height: 100vh;
 }
 
 .main-content {
   padding: 20px;
+  height: 100vh;
 }
 
 .nav-link {
@@ -8340,11 +8343,11 @@ button.bg-dark:focus {
   padding: 3rem !important;
 }
 
-.pt-5,
-.py-5 {
-  padding-top: 3rem !important;
-}
-
+ .pt-5,
+ .py-5 {
+        padding-top: 1rem !important;
+      }
+      
 .pr-5,
 .px-5 {
   padding-right: 3rem !important;
@@ -10379,15 +10382,17 @@ a.text-dark:focus {
     background: #f9f9f9;
     margin: 0;
     display: none; /* 默认不显示 */
-   
+   cursor: pointer;
 }
 .dropdown-ul li {
     display: none; /* 默認情況下不顯示 */
     text-decoration: none;
+    cursor: pointer;
 }
 .dropdown-ul li a:hover {
     display: block; /* 默認情況下不顯示 */
     text-decoration: none;
+    
 }
 /* 當.dropdown-ul具有active類時，顯示li元素 */
 
@@ -10404,13 +10409,19 @@ a.text-dark:focus {
     background: #f9f9f9;
     margin: 0;
     display: block; /* 默认不显示 */
+    cursor: pointer;
    
 }
 .dropdown-ul2 li {
     display: none; 
+    height: 50%;
     /* 默認情況下不顯示 */
+    cursor: pointer;
 }
-
+.dropdown-ul2 li a:hover {
+    display: block; /* 默認情況下不顯示 */
+    text-decoration: none;
+}
 
 
 .ul-list{
@@ -10510,7 +10521,7 @@ a.text-dark:focus {
                   </li>
                   <li>
                    <div class="menu-toggle2">學習筆記</div>
-                    <ul class="dropdown-ul2 rounded-0 m-0">
+                    <ul class="dropdown-ul2 ">
                       <li>
                         <a href="#" onclick="changeIframe('{{ url_for('learning_notes_conversation') }}')">對話</a>
                       </li>
@@ -10524,7 +10535,7 @@ a.text-dark:focus {
         </div>
           
             <div class="main-content">
-              <iframe  frameborder="0" id="contentFrame" src="{{ url_for('account_manage') }}" width="100%" height="500px"></iframe>
+              <iframe  frameborder="0" id="contentFrame" src="{{ url_for('account_manage') }}" width="100%" height="100%"></iframe>
                 </div>
               </div>
             </div>
@@ -10536,26 +10547,19 @@ a.text-dark:focus {
     <div
       class="container-fluid bg-secondary text-white mt-5 py-5 px-sm-3 px-md-5"
     >
-      <div class="row pt-5">
-        <div class="col-lg-3 col-md-6 mb-5">
-         
-           
-            
-         
-        </div>
       
+        
       <!-- footer  -->
       <div class="container-fluid pt-5">
         <p class="m-0 text-center text-white">組別: 113201 指導老師 : 林俊杰老師</p>
         <p class="m-0 text-center text-white">專題組員: 11236001 林奕辰 11236012 高穎萱 11236013 蔣杰森 11236022 巫承翰 11236025 葉于甄</p>
+        <div class="row pt-5"></div>
       </div>
-
+    </div>
     <!-- Footer End -->
 
     <!-- Back to Top -->
-    <a href="#" class="btn btn-primary p-3 back-to-top"
-      ><i class="fa fa-angle-double-up"></i
-    ></a>
+   
 
 
     <!-- Template Javascript -->

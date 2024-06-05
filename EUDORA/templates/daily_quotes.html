@@ -143,9 +143,11 @@ hr {
 
 
 .main-content {
-
+height: 100%;
   margin-left: 0px;
   padding: 20px;
+ 
+ ;
  
 }
 h1,
@@ -219,9 +221,6 @@ small {
   border-right: 1px solid #dee2e6; /* 添加分隔线 */
 }
 
-.main-content {
-  padding: 20px;
-}
 
 .nav-link {
   color: #007bff; /* 蓝色链接 */
@@ -8342,7 +8341,7 @@ button.bg-dark:focus {
 
 .pt-5,
 .py-5 {
-  padding-top: 3rem !important;
+  padding-top: 1.5rem !important;
 }
 
 .pr-5,
@@ -10520,14 +10519,15 @@ a.text-dark:focus {
 
     <!-- Blog Start -->
     <div class="container-fluid pt-5">
-      <div class="row">
+      
         <!-- This is the left column, now using 2 out of 12 grid parts -->
             <!-- Left Side Content -->
            
           
             <div class="main-content">
-               <h1>每日三句</h1>
+               
                 <div class="quotes">
+                  <h1>每日三句</h1>
                     {% for conversation in conversations %}
                     <div class="quote" data-id="{{ conversation.id }}">
                         <div class="character">
@@ -10552,7 +10552,7 @@ a.text-dark:focus {
                             <p><strong>Accuracy:</strong> <span class="accuracy"></span>%</p>
                             <p><strong>Differences:</strong></p>
                             <div class="highlighted-text"></div>
-                            <p>-------------------------------------------------</p>
+                            <p>-------------------------------------------------------------------</p>
                         </div>
                     </div>
                     {% endfor %}
@@ -10568,26 +10568,17 @@ a.text-dark:focus {
     <div
       class="container-fluid bg-secondary text-white mt-5 py-5 px-sm-3 px-md-5"
     >
-      <div class="row pt-5">
-        <div class="col-lg-3 col-md-6 mb-5">
-         
-           
-            
-         
-        </div>
-      
+     
       <!-- footer  -->
       <div class="container-fluid pt-5">
         <p class="m-0 text-center text-white">組別: 113201 指導老師 : 林俊杰老師</p>
         <p class="m-0 text-center text-white">專題組員: 11236001 林奕辰 11236012 高穎萱 11236013 蔣杰森 11236022 巫承翰 11236025 葉于甄</p>
       </div>
-
+    </div>
     <!-- Footer End -->
 
     <!-- Back to Top -->
-    <a href="#" class="btn btn-primary p-3 back-to-top"
-      ><i class="fa fa-angle-double-up"></i
-    ></a>
+    
 
 
     <!-- Template Javascript -->
