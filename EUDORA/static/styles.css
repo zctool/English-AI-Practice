@@ -32,7 +32,8 @@ body {
   margin-right: 10px;
 }
 
-.recording {
+.recording,
+.collect {
   display: flex;
   align-items: center;
 }
