@@ -10,7 +10,11 @@
   </head>
   <body>
     <h1>Add Conversation Situation</h1>
-    <form method="post" enctype="multipart/form-data" onsubmit="return form_stop()">
+    <form
+      method="post"
+      enctype="multipart/form-data"
+      onsubmit="return form_stop()"
+    >
       <label for="situation">Situation:</label>
       <input type="text" id="situation" name="situation" required /><br />
 
@@ -18,20 +22,22 @@
       <select id="topic_id" name="topic_id" required>
         {% for topic in topics %}
         <option value="{{ topic[0] }}">{{ topic[1] }}</option>
-        {% endfor %}
-      </select><br /><br />
+        {% endfor %}</select
+      ><br /><br />
 
       <label for="class">Difficulty Class:</label>
       <select id="class" name="class" required>
         <option value="Easy">Easy</option>
         <option value="Normal">Normal</option>
-        <option value="Hard">Hard</option>
-      </select><br /><br />
+        <option value="Hard">Hard</option></select
+      ><br /><br />
 
       <div id="characterContainer"></div>
       <div class="button-container">
         <div class="left-buttons">
-          <button type="button" onclick="addCharacterField()" class="btn20">Add Character</button>
+          <button type="button" onclick="addCharacterField()" class="btn20">
+            Add Character
+          </button>
         </div>
         <div class="right-button">
           <button type="submit" class="submit-button">Add Situation</button>
@@ -39,15 +45,14 @@
       </div>
     </form>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
     <ul class="flashes">
       {% for category, message in messages %}
       <li class="{{ category }}">{{ message }}</li>
       {% endfor %}
     </ul>
-    {% endif %}
-    {% endwith %}
+    {% endif %} {% endwith %}
   </body>
 </html>
 <script>

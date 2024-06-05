@@ -191,6 +191,8 @@ header {
 }
 header img {
   margin-right: 10px; /* 为logo和标题之间提供一些间隔 */
+  width: 150px;
+  height: 150px;
 }
 .sidebar {
   width: 200px;

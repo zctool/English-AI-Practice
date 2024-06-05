@@ -457,7 +457,7 @@
       .h5,
       .h6 {
         margin-bottom: 0.5rem;
-        font-family: "Handlee",  sans-serif;
+        font-family: "Handlee", sans-serif;
         font-weight: bold;
         line-height: 1.2;
         color: #00394f;
@@ -8332,7 +8332,7 @@
       .py-5 {
         padding-top: 1.5rem !important;
       }
-      
+
       .pr-5,
       .px-5 {
         padding-right: 3rem !important;
@@ -10355,7 +10355,7 @@
         list-style-type: none;
       }
       .container {
-        height:800px;
+        height: 800px;
         display: flex;
         width: 100%;
         justify-content: space-around;
@@ -10410,27 +10410,27 @@
         font-size: large;
       }
       a.button {
-    display: inline-block; /* 將<a>標籤轉換為區塊元素 */
-    padding: 10px 20px; /* 調整內邊距，讓按鈕更大 */
-    font-size: 20px; /* 調整字體大小 */
-    color: white; /* 按鈕文字顏色 */
-    background-color: #007bff; /* 按鈕背景顏色 */
-    text-align: center; /* 文字居中 */
-    text-decoration: none; /* 移除超連結的下劃線 */
-    border-radius: 5px; /* 調整邊角圓滑度 */
-    transition: background-color 0.3s; /* 添加背景色過渡效果 */
-    width: auto;
-}
+        display: inline-block; /* 將<a>標籤轉換為區塊元素 */
+        padding: 10px 20px; /* 調整內邊距，讓按鈕更大 */
+        font-size: 20px; /* 調整字體大小 */
+        color: white; /* 按鈕文字顏色 */
+        background-color: #007bff; /* 按鈕背景顏色 */
+        text-align: center; /* 文字居中 */
+        text-decoration: none; /* 移除超連結的下劃線 */
+        border-radius: 5px; /* 調整邊角圓滑度 */
+        transition: background-color 0.3s; /* 添加背景色過渡效果 */
+        width: auto;
+      }
 
-/* 滑鼠懸停樣式 */
-a.button:hover {
-    background-color: #0056b3; /* 更改滑鼠懸停時的背景色 */
-}
+      /* 滑鼠懸停樣式 */
+      a.button:hover {
+        background-color: #0056b3; /* 更改滑鼠懸停時的背景色 */
+      }
 
-/* 活動樣式 */
-a.button:active {
-    background-color: #003f7f; /* 更改按下按鈕時的背景色 */
-}
+      /* 活動樣式 */
+      a.button:active {
+        background-color: #003f7f; /* 更改按下按鈕時的背景色 */
+      }
     </style>
   </head>
 
@@ -10461,8 +10461,9 @@ a.button:active {
           id="navbarCollapse"
         >
           <div class="navbar-nav font-weight-bold mx-auto py-0">
-            <a href="{{ url_for('main') }}" class="nav-item nav-link active">首頁</a>
-           
+            <a href="{{ url_for('main') }}" class="nav-item nav-link active"
+              >首頁</a
+            >
 
             <div class="nav-item dropdown">
               <a
@@ -10472,8 +10473,16 @@ a.button:active {
                 >練習</a
               >
               <div class="dropdown-menu rounded-0 m-0">
-                <a href="{{ url_for('vocabulary_topics') }}" class="dropdown-item">單字</a>
-                <a href="{{ url_for('conversation_topics') }}" class="dropdown-item">句子</a>
+                <a
+                  href="{{ url_for('vocabulary_topics') }}"
+                  class="dropdown-item"
+                  >單字</a
+                >
+                <a
+                  href="{{ url_for('conversation_topics') }}"
+                  class="dropdown-item"
+                  >對話</a
+                >
               </div>
             </div>
             <div class="nav-item dropdown">
@@ -10484,13 +10493,17 @@ a.button:active {
                 >會員</a
               >
               <div class="dropdown-menu rounded-0 m-0">
-                <a href="{{ url_for('account_management') }}" class="dropdown-item">個人檔案</a>
-               
+                <a
+                  href="{{ url_for('account_management') }}"
+                  class="dropdown-item"
+                  >個人檔案</a
+                >
               </div>
             </div>
-           
           </div>
-          <a href="{{ url_for('logout') }}" class="btn btn-primary px-4">Log Out</a>
+          <a href="{{ url_for('logout') }}" class="btn btn-primary px-4"
+            >Log Out</a
+          >
         </div>
       </nav>
     </div>
@@ -10502,18 +10515,16 @@ a.button:active {
         <div class="col-lg-6 text-center text-lg-left">
           <h1 class="display-3 font-weight-bold text-white">
             <div class="container">
-             
               <div class="box">
                 <div class="content">
                   <h2>每日三句</h2>
-                    
-                 <a href="{{ url_for('daily_quotes') }}" class="button" >Go!</a>
+
+                  <a href="{{ url_for('daily_quotes') }}" class="button">Go!</a>
                 </div>
               </div>
             </div>
           </h1>
         </div>
-        
       </div>
     </div>
     <!-- Header End -->
@@ -10521,20 +10532,20 @@ a.button:active {
     <div
       class="container-fluid bg-secondary text-white mt-5 py-5 px-sm-3 px-md-5"
     >
-     
-       
       <!-- footer  -->
       <div class="container-fluid pt-5">
-        <p class="m-0 text-center text-white">組別: 113201 指導老師 : 林俊杰老師</p>
-        <p class="m-0 text-center text-white">專題組員: 11236001 林奕辰 11236012 高穎萱 11236013 蔣杰森 11236022 巫承翰 11236025 葉于甄</p>
-        
+        <p class="m-0 text-center text-white">
+          組別: 113201 指導老師 : 林俊杰老師
+        </p>
+        <p class="m-0 text-center text-white">
+          專題組員: 11236001 林奕辰 11236012 高穎萱 11236013 蔣杰森 11236022
+          巫承翰 11236025 葉于甄
+        </p>
       </div>
     </div>
-      <!-- footer  -->
-     
+    <!-- footer  -->
 
-
-      <!-- <div
+    <!-- <div
         class="container-fluid pt-5"
         style="border-top: 1px solid rgba(23, 162, 184, 0.2)"
       >
@@ -10543,8 +10554,8 @@ a.button:active {
           <a class="text-primary font-weight-bold" href="#">Your Site Name</a>.
           All Rights Reserved. -->
 
-          <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-          <!-- Designed by
+    <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+    <!-- Designed by
           <a class="text-primary font-weight-bold" href="https://htmlcodex.com"
             >HTML Codex</a
           >
@@ -10552,11 +10563,10 @@ a.button:active {
           <a href="https://themewagon.com" target="_blank">ThemeWagon</a>
         </p>
       </div> -->
-    
+
     <!-- Footer End -->
 
     <!-- Back to Top -->
-    
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -10571,6 +10581,6 @@ a.button:active {
     <script src="mail/contact.js"></script>
 
     <!-- Template Javascript -->
-    <script src="js/main.js"></script>  
+    <script src="js/main.js"></script>
   </body>
 </html>
