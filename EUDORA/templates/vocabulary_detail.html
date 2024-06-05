@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>单词详情</title>
+    <title>單字詳情</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         .star-button {
@@ -15,45 +16,60 @@
             color: transparent;
             text-shadow: 0 0 0 #ffd700;
         }
+
         .star-button.filled::before {
             content: "★";
             color: #ffd700;
         }
+
         .star-button.unfilled::before {
             content: "☆";
             color: #ffd700;
         }
+
         .highlighted-text span {
             font-weight: bold;
         }
+
         .highlighted-text .added {
             color: red;
         }
+
         .highlighted-text .removed {
             color: green;
         }
-        .button-style {
-    display: inline-block;
-    padding: 10px 20px;
-    margin: 10px 0;
-    background-color: #17a2b8; /* 設定按鈕的背景顏色 */
-    color: white; /* 設定文字顏色為白色 */
-    text-align: center;
-    text-decoration: none; /* 移除下劃線 */
-    border-radius: 20px; /* 添加圓角效果 */
-    transition: background-color 0.3s ease; /* 平滑過渡效果 */
-}
 
-.button-style:hover {
-    background-color: #139ba3; /* 懸浮時的背景顏色變深 */
-    cursor: pointer; /* 懸浮時鼠標變為手指形狀 */
-}
-.vocabulary{
-    border: 2px solid #17a2b8;
-    border-radius: 20px;
-}
+        .button-style {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #17a2b8;
+            /* 設定按鈕的背景顏色 */
+            color: white;
+            /* 設定文字顏色為白色 */
+            text-align: center;
+            text-decoration: none;
+            /* 移除下劃線 */
+            border-radius: 20px;
+            /* 添加圓角效果 */
+            transition: background-color 0.3s ease;
+            /* 平滑過渡效果 */
+        }
+
+        .button-style:hover {
+            background-color: #139ba3;
+            /* 懸浮時的背景顏色變深 */
+            cursor: pointer;
+            /* 懸浮時鼠標變為手指形狀 */
+        }
+
+        .vocabulary {
+            border: 2px solid #17a2b8;
+            border-radius: 20px;
+        }
     </style>
 </head>
+
 <body>
     <h1>單字詳情</h1>
     <div class="vocabulary" data-id="{{ vocabulary.id }}">
@@ -64,15 +80,18 @@
         <p>例句: {{ vocabulary.example }}</p>
         <p>難度: {{ vocabulary.class }}</p>
         <div class="recording">
-            <button onclick="startRecording('{{ vocabulary.id }}', this)">開始錄音</button>
+            <button onclick="startRecording('{{ vocabulary.id }}', this)">開始錄音</button>&nbsp;&nbsp;
             <button onclick="stopRecording('{{ vocabulary.id }}', this)" disabled>停止錄音</button>
             <audio id="playback-{{ vocabulary.id }}" controls style="display: none; margin-left: 10px"></audio>
         </div>
-        <audio controls>
-            <source src="data:audio/wav;base64,{{ vocabulary.vocabulary_voice }}" type="audio/wav">
-            您的瀏覽器不支持音頻元素。
-        </audio>
-        <button class="star-button {{ 'filled' if is_collected else 'unfilled' }}" onclick="toggleCollect('{{ vocabulary.id }}', this)"></button>
+        <div class="collect">
+            <audio controls>
+                <source src="data:audio/wav;base64,{{ vocabulary.vocabulary_voice }}" type="audio/wav">
+                您的瀏覽器不支持音頻元素。
+            </audio>
+            <button class="star-button {{ 'filled' if is_collected else 'unfilled' }}"
+                onclick="toggleCollect('{{ vocabulary.id }}', this)"></button>
+        </div>
         <div class="stt-result">
             <h3>STT Result</h3>
             <p><strong>STT Text:</strong> <span class="stt-text"></span></p>
@@ -185,4 +204,5 @@
         }
     </script>
 </body>
+
 </html>
