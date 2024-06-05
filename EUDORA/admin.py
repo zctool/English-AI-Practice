@@ -423,6 +423,13 @@ def add_conversation_situation():
         topic_id = request.form['topic_id']
         difficulty_class = request.form['class']
 
+        character_names = request.form.getlist('character_name')
+        icons = request.files.getlist('character_icon')
+
+        if not character_names or not icons:
+            flash('至少需要添加一個角色才能提交表單。', 'danger')
+            return redirect(url_for('admin.add_conversation_situation'))
+
         try:
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
@@ -430,9 +437,6 @@ def add_conversation_situation():
             query = "INSERT INTO conversationSituation (situation, topic_id, class) VALUES (%s, %s, %s)"
             cursor.execute(query, (situation, topic_id, difficulty_class))
             situation_id = cursor.lastrowid
-
-            character_names = request.form.getlist('character_name')
-            icons = request.files.getlist('character_icon')
 
             for i in range(len(character_names)):
                 character_name = character_names[i]
