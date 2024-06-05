@@ -1,91 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Learning History - Vocabulary</title>
 
     <style>
-      body {
-        font-family: Arial, sans-serif;
-      }
-      .sidebar {
-        float: left;
-        width: 20%;
-        background: #f0f0f0;
-        padding: 15px;
-        box-sizing: border-box;
-        height: 100vh;
-      }
-      .content {
-        float: left;
-        width: 80%;
-        padding: 15px;
-        box-sizing: border-box;
-      }
-      .history-item {
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin: 10px 0;
-      }
-      .highlighted-text span {
-        font-weight: bold;
-      }
-      .highlighted-text .added {
-        color: red;
-      }
-      .highlighted-text .removed {
-        color: green;
-      }
-      .history {
-        border-bottom: 1px solid black;
-      }
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            float: left;
+            width: 20%;
+            background: #f0f0f0;
+            padding: 15px;
+            box-sizing: border-box;
+            height: 100vh;
+        }
+        .content {
+            float: left;
+            width: 80%;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .history-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .highlighted-text span {
+            font-weight: bold;
+        }
+        .highlighted-text .added {
+            color: red;
+        }
+        .highlighted-text .removed {
+            color: green;
+        }
+        .star-button {
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            outline: none;
+            color: transparent;
+            text-shadow: 0 0 0 #ffd700;
+        }
+        .star-button.filled::before {
+            content: "★";
+            color: #ffd700;
+        }
+        .star-button.unfilled::before {
+            content: "☆";
+            color: #ffd700;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="content">
-      <h1>Learning History - Vocabulary</h1>
-      <form method="POST" action="{{ url_for('learning_history_vocabulary') }}">
-        <label for="date_filter">Filter by Date:</label>
-        <input
-          type="date"
-          id="date_filter"
-          name="date_filter"
-          value="{{ date_filter }}"
-        />
-        <button type="submit">Filter</button>
-      </form>
-      <div class="history">
-        {% for record in learning_history %}
-        <div class="record">
-          <p><strong>English:</strong> {{ record.vocabulary_en }}</p>
-          <p><strong>Chinese:</strong> {{ record.vocabulary_tw }}</p>
-          <audio controls>
-            <source
-              src="data:audio/webm;base64,{{ record.user_voice }}"
-              type="audio/webm"
-            />
-            Your browser does not support the audio element.
-          </audio>
-          <div class="stt-result">
-            <h3>STT Result</h3>
-            <p>
-              <strong>STT Text:</strong>
-              <span class="stt-text">{{ record.STT }}</span>
-            </p>
-            <p>
-              <strong>Accuracy:</strong>
-              <span class="accuracy">{{ record.accuracy }}</span>
-            </p>
-            <p><strong>Differences:</strong></p>
-            <div class="highlighted-text">
-              {{ record.highlighted_text|safe }}
+        <h1>Learning History - Vocabulary</h1>
+        <form method="POST" action="{{ url_for('learning_history_vocabulary') }}">
+            <label for="date_filter">Filter by Date:</label>
+            <input type="date" id="date_filter" name="date_filter" value="{{ date_filter }}">
+            <button type="submit">Filter</button>
+        </form>
+        <div class="history">
+            {% for record in learning_history %}
+            <div class="record">
+                <p><strong>English:</strong> {{ record.vocabulary_en }}</p>
+                <p><strong>Chinese:</strong> {{ record.vocabulary_tw }}</p>
+                <p><strong>錄音</strong></p>
+                <audio controls>
+                    <source src="data:audio/webm;base64,{{ record.user_voice }}" type="audio/webm">
+                    Your browser does not support the audio element.
+                </audio>
+                <p><strong>原文</strong></p> 
+                <audio controls>
+                    <source src="data:audio/webm;base64,{{ record.vocabulary_voice }}" type="audio/webm">
+                    Your browser does not support the audio element.
+                </audio>
+                <div class="stt-result">
+                    <h3>STT Result</h3>
+                    <p>
+                        <strong>STT Text:</strong>
+                        <span class="stt-text">{{ record.STT }}</span>
+                    </p>
+                    <p>
+                        <strong>Accuracy:</strong>
+                        <span class="accuracy">{{ record.accuracy is not none and (record.accuracy == 100.0 and "completely" or record.accuracy|round(2)) or "N/A" }}%</span>
+                    </p>
+                    <p><strong>Differences:</strong></p>
+                    <div class="highlighted-text">
+                        {{ record.highlighted_text|safe }}
+                    </div>
+                </div>
+                <button class="star-button {{ 'filled' if record.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ record.id }}', this)"></button>
             </div>
-          </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-      </div>
-      <a href="{{ url_for('main') }}">Back to Main</a>
+        <a href="{{ url_for('main') }}">Back to Main</a>
     </div>
-  </body>
+    <script>
+        function toggleCollect(vocabularyId, starButton) {
+            const isCollected = starButton.classList.contains("filled");
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/toggle_learning_history_vocabulary_collect", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    if (isCollected) {
+                        starButton.classList.remove("filled");
+                        starButton.classList.add("unfilled");
+                    } else {
+                        starButton.classList.remove("unfilled");
+                        starButton.classList.add("filled");
+                    }
+                }
+            };
+            xhr.send(`vocabulary_id=${vocabularyId}`);
+        }
+    </script>
+</body>
 </html>

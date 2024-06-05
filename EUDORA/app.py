@@ -276,10 +276,19 @@ def vocabulary_topics():
         JOIN vocabularyTopicIcon vti ON vt.id = vti.topic_id
     """)
     topics = cursor.fetchall()
+    
+    # 添加调试信息
+    print("Topics fetched from database:", topics)
+    
     for topic in topics:
         topic['icon'] = base64.b64encode(topic['icon']).decode('utf-8')
+        
     cursor.close()
     conn.close()
+    
+    # 再次添加调试信息
+    print("Topics after encoding:", topics)
+    
     return render_template('vocabulary_topics.html', topics=topics)
 
 # 選擇單字主題和難度
@@ -568,10 +577,49 @@ def learning_history_vocabulary():
     conn.close()
     
     for record in learning_history:
-        record['vocabulary_voice'] = base64.b64encode(record['vocabulary_voice']).decode('utf-8')
-        record['user_voice'] = base64.b64encode(record['user_voice']).decode('utf-8')
+        if record['vocabulary_voice'] is not None:
+            record['vocabulary_voice'] = base64.b64encode(record['vocabulary_voice']).decode('utf-8')
+        if record['user_voice'] is not None:
+            record['user_voice'] = base64.b64encode(record['user_voice']).decode('utf-8')
     
     return render_template('learning_history_vocabulary.html', learning_history=learning_history, date_filter=date_filter)
+
+# 切換收藏狀態 - 學習歷程單字
+@app.route('/toggle_learning_history_vocabulary_collect', methods=['POST'])
+def toggle_learning_history_vocabulary_collect():
+    user_email = session['email']
+    vocabulary_id = request.form['vocabulary_id']
+
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    user_id = get_user_id(user_email)
+
+    # 檢查是否存在收藏記錄
+    cursor.execute("""
+        SELECT id FROM vocabularyCollect
+        WHERE user_id = %s AND vocabulary_id = %s
+    """, (user_id, vocabulary_id))
+    collect_record = cursor.fetchone()
+
+    if collect_record:
+        # 刪除現有記錄
+        cursor.execute("""
+            DELETE FROM vocabularyCollect
+            WHERE id = %s
+        """, (collect_record['id'],))
+    else:
+        # 插入新記錄
+        cursor.execute("""
+            INSERT INTO vocabularyCollect (user_id, vocabulary_id)
+            VALUES (%s, %s)
+        """, (user_id, vocabulary_id))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"status": "success"})
 
 # 學習歷程 - 對話
 @app.route('/learning_history_conversation', methods=['GET', 'POST'])
@@ -662,7 +710,7 @@ def account_management():
 
     return render_template('account_management.html', user=user)
 
-    # 帳號管理頁面
+# 帳號管理頁面
 @app.route('/account_manage', methods=['GET', 'POST'])
 def account_manage():
     user_email = session.get('email')
@@ -789,8 +837,11 @@ def learning_notes_conversation():
     for conversation in conversations:
         conversation['icon'] = base64.b64encode(conversation['icon']).decode('utf-8')
         conversation['conversation_voice'] = base64.b64encode(conversation['conversation_voice']).decode('utf-8')
-        if conversation['user_voice']:
+        if conversation['user_voice'] is not None:
             conversation['user_voice'] = base64.b64encode(conversation['user_voice']).decode('utf-8')
+        # 确保 accuracy 不为空
+        if conversation['accuracy'] is None:
+            conversation['accuracy'] = 0.0
     
     cursor.close()
     conn.close()
@@ -824,8 +875,11 @@ def learning_notes_vocabulary():
     
     for vocabulary in vocabularies:
         vocabulary['vocabulary_voice'] = base64.b64encode(vocabulary['vocabulary_voice']).decode('utf-8')
-        if vocabulary['user_voice']:
+        if vocabulary['user_voice'] is not None:
             vocabulary['user_voice'] = base64.b64encode(vocabulary['user_voice']).decode('utf-8')
+        # 确保 accuracy 不为空
+        if vocabulary['accuracy'] is None:
+            vocabulary['accuracy'] = 0.0
     
     cursor.close()
     conn.close()

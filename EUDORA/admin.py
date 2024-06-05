@@ -27,7 +27,7 @@ def admin_required(f):
 @admin_bp.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('admin.index'))
 
 @admin_bp.route('/')
 @admin_required
@@ -118,6 +118,62 @@ def add_vocabulary():
             if connection:
                 connection.close()
         return render_template('add_vocabulary.html', topics=topics)
+        
+# 獲取指定主題的難易度
+@admin_bp.route('/get_vocabulary_difficulty_classes/<int:topic_id>', methods=['GET'])
+@admin_required
+def get_vocabulary_difficulty_classes(topic_id):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        cursor.execute("SELECT DISTINCT class FROM conversationSituation WHERE topic_id = %s", (topic_id,))
+        difficulty_classes = cursor.fetchall()
+        return jsonify([{'class': class_item[0]} for class_item in difficulty_classes])
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)})
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+# 獲取指定難易度和主題的情境
+@admin_bp.route('/get_vocabulary_situations/<int:topic_id>/<string:difficulty_class>', methods=['GET'])
+@admin_required
+def get_vocabulary_situations(topic_id, difficulty_class):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        query = "SELECT id, situation FROM conversationSituation WHERE topic_id = %s AND class = %s"
+        cursor.execute(query, (topic_id, difficulty_class))
+        situations = cursor.fetchall()
+        return jsonify([{'id': situation[0], 'situation': situation[1]} for situation in situations])
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)})
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+# 獲取指定情境的人物
+@admin_bp.route('/get_vocabulary_characters_by_situation/<int:situation_id>', methods=['GET'])
+@admin_required
+def get_vocabulary_characters_by_situation(situation_id):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        query = "SELECT id, character_name FROM characters WHERE situation_id = %s"
+        cursor.execute(query, (situation_id,))
+        characters = cursor.fetchall()
+        return jsonify([{'id': character[0], 'character_name': character[1]} for character in characters])
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)})
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
 
 # 查看和编辑單字主題
 @admin_bp.route('/admin_vocabulary_topics')
@@ -168,7 +224,7 @@ def edit_vocabulary_topic(topic_id):
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('admin_vocabulary_topics'))
+        return redirect(url_for('admin.admin_vocabulary_topics'))
     else:
         try:
             connection = mysql.connector.connect(**config)
@@ -215,7 +271,7 @@ def delete_vocabulary_topic(topic_id):
             cursor.close()
         if connection:
             connection.close()
-    return redirect(url_for('admin_vocabulary_topics'))
+    return redirect(url_for('admin.admin_vocabulary_topics'))
 
 # 查看和编辑單字
 @admin_bp.route('/vocabularies')
@@ -571,7 +627,7 @@ def edit_conversation_topic(topic_id):
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('admin_conversation_topics'))
+        return redirect(url_for('admin.admin_conversation_topics'))
     else:
         try:
             connection = mysql.connector.connect(**config)
@@ -621,7 +677,7 @@ def delete_conversation_topic(topic_id):
             cursor.close()
         if connection:
             connection.close()
-    return redirect(url_for('admin_conversation_topics'))
+    return redirect(url_for('admin.admin_conversation_topics'))
 
 # 查看和編輯對話
 @admin_bp.route('/conversations')
@@ -786,7 +842,7 @@ def edit_conversation_situation(situation_id):
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('admin_conversation_situations'))
+        return redirect(url_for('admin.admin_conversation_situations'))
     else:
         try:
             connection = mysql.connector.connect(**config)
@@ -830,7 +886,7 @@ def delete_conversation_situation(situation_id):
             cursor.close()
         if connection:
             connection.close()
-    return redirect(url_for('admin_conversation_situations'))
+    return redirect(url_for('admin.admin_conversation_situations'))
 
 # 查看和编辑人物
 @admin_bp.route('/characters/<int:situation_id>')

@@ -30,31 +30,22 @@
         .highlighted-text .removed {
             color: green;
         }
+        ul {
+            list-style: none; /* 移除圓點 */
+            border-bottom: 1px solid black;
+        }
+        audio {
+            width: 20%; /* 設定控件的寬度為容器的20% */
+            height: 50px; /* 設定控件的高度 */
+            border: 1px solid #ccc; /* 為控件添加邊框 */
+            border-radius: 10px; /* 圓角邊框 */
+            background-color: #f8f8f8; /* 設定背景顏色 */
+            padding-top: 5px;
+        }
     </style>
 </head>
 <body>
     <h1>學習筆記 - 單字收藏</h1>
-    <div class="sidebar">
-        <h2>目錄</h2>
-        <ul>
-            <li><a href="{{ url_for('account_management') }}">帳號管理</a></li>
-            <li><a href="{{ url_for('calendar') }}">學習月曆</a></li>
-            <li>
-                <a href="javascript:void(0)">學習歷程</a>
-                <ul>
-                    <li><a href="{{ url_for('learning_history_conversation') }}">對話</a></li>
-                    <li><a href="{{ url_for('learning_history_vocabulary') }}">單字</a></li>
-                </ul>
-            </li>
-            <li>
-                <a href="javascript:void(0)">學習筆記</a>
-                <ul>
-                    <li><a href="{{ url_for('learning_notes_conversation') }}">對話</a></li>
-                    <li><a href="{{ url_for('learning_notes_vocabulary') }}">單字</a></li>
-                </ul>
-            </li>
-        </ul>
-    </div>
     <div class="content">
         <ul>
             {% for vocabulary in vocabularies %}
@@ -65,15 +56,23 @@
                 <p>音標: {{ vocabulary.ipa }}</p>
                 <p>例句: {{ vocabulary.example }}</p>
                 <p>主題: {{ vocabulary.topic_name }}</p>
+                <p>原文</p>
                 <audio controls>
                     <source src="data:audio/wav;base64,{{ vocabulary.vocabulary_voice }}" type="audio/wav">
                     您的瀏覽器不支持音頻元素。
                 </audio>
+                {% if vocabulary.user_voice %}
+                <p>錄音</p>
+                <audio controls>
+                    <source src="data:audio/wav;base64,{{ vocabulary.user_voice }}" type="audio/wav">
+                    您的瀏覽器不支持音頻元素。
+                </audio>
+                {% endif %}
                 <button class="star-button {{ 'filled' if vocabulary.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ vocabulary.id }}', this)"></button>
                 <div class="stt-result">
                     <h3>STT Result</h3>
                     <p><strong>STT Text:</strong> <span class="stt-text">{{ vocabulary.STT }}</span></p>
-                    <p><strong>Accuracy:</strong> <span class="accuracy">{{ vocabulary.accuracy }}</span></p>
+                    <p><strong>Accuracy:</strong> <span class="accuracy">{{ vocabulary.accuracy == 100.0 and "completely" or (vocabulary.accuracy|round(2) ~ '%') }}</span></p>
                     <p><strong>Differences:</strong></p>
                     <div class="highlighted-text">{{ vocabulary.highlighted_text|safe }}</div>
                 </div>

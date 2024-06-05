@@ -10543,65 +10543,58 @@ a.text-dark:focus {
       <div class="row">
          <!-- This is the left column, now using 2 out of 12 grid parts -->
       
-      <div class="main-content">
-   <h1>選擇單字主題</h1>
-    <div class="topics">
-      {% for topic in topics %}
-      <div class="image-container" data-topic-id="{{ topic.id }}">
-        <img
-          src="data:image/png;base64,{{ topic.icon }}"
-          alt="{{ topic.name }}"
-        />
-        <div class="hidden-buttons">
-          <button onclick="selectLevel('{{ topic.id }}', 'A1')">A1</button>
-          <button onclick="selectLevel('{{ topic.id }}', 'A2')">A2</button>
-          <button onclick="selectLevel('{{ topic.id }}', 'B1')">B1</button>
-          <button onclick="selectLevel('{{ topic.id }}', 'B2')">B2</button>
-          <button onclick="selectLevel('{{ topic.id }}', 'C1')">C1</button>
-          <button onclick="selectLevel('{{ topic.id }}', 'C2')">C2</button>
-        </div>
-        
-          <p class="image-caption">{{ topic.name }}</p>
-        </div>
-      </div>
-
-      {% endfor %}
-    </div>
-      </div>   <!-- Left Side Content -->
-         
-    <script>
-      function selectLevel(topicId, level) {
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = "/select_vocabulary";
-
-        const topicIdInput = document.createElement("input");
-        topicIdInput.type = "hidden";
-        topicIdInput.name = "topic_id";
-        topicIdInput.value = topicId;
-
-        const levelInput = document.createElement("input");
-        levelInput.type = "hidden";
-        levelInput.name = "level";
-        levelInput.value = level;
-
-        form.appendChild(topicIdInput);
-        form.appendChild(levelInput);
-        document.body.appendChild(form);
-        form.submit();
-      }
-      document
-        .querySelector(".image-container")
-        .addEventListener("mouseover", function () {
-          document.querySelector(".hidden-buttons").style.display = "flex"; // 修改這裡以匹配CSS的更改
-        });
-
-      document
-        .querySelector(".image-container")
-        .addEventListener("mouseout", function () {
-          document.querySelector(".hidden-buttons").style.display = "none";
-        });
-    </script>
+         <body>
+          <div class="main-content">
+              <h1>選擇單字主題</h1>
+              <div class="topics">
+                  {% for topic in topics %}
+                  <div class="image-container" data-topic-id="{{ topic.id }}">
+                      <img src="data:image/png;base64,{{ topic.icon }}" alt="{{ topic.name }}">
+                      <div class="hidden-buttons">
+                          <button onclick="selectLevel('{{ topic.id }}', 'A1')">A1</button>
+                          <button onclick="selectLevel('{{ topic.id }}', 'A2')">A2</button>
+                          <button onclick="selectLevel('{{ topic.id }}', 'B1')">B1</button>
+                          <button onclick="selectLevel('{{ topic.id }}', 'B2')">B2</button>
+                          <button onclick="selectLevel('{{ topic.id }}', 'C1')">C1</button>
+                          <button onclick="selectLevel('{{ topic.id }}', 'C2')">C2</button>
+                      </div>
+                      <p class="image-caption">{{ topic.name }}</p>
+                  </div>
+                  {% endfor %}
+              </div>
+          </div>
+      
+          <script>
+              function selectLevel(topicId, level) {
+                  const form = document.createElement("form");
+                  form.method = "POST";
+                  form.action = "/select_vocabulary";
+      
+                  const topicIdInput = document.createElement("input");
+                  topicIdInput.type = "hidden";
+                  topicIdInput.name = "topic_id";
+                  topicIdInput.value = topicId;
+      
+                  const levelInput = document.createElement("input");
+                  levelInput.type = "hidden";
+                  levelInput.name = "level";
+                  levelInput.value = level;
+      
+                  form.appendChild(topicIdInput);
+                  form.appendChild(levelInput);
+                  document.body.appendChild(form);
+                  form.submit();
+              }
+      
+              document.querySelectorAll(".image-container").forEach(container => {
+                  container.addEventListener("mouseover", function() {
+                      this.querySelector(".hidden-buttons").style.display = "flex";
+                  });
+                  container.addEventListener("mouseout", function() {
+                      this.querySelector(".hidden-buttons").style.display = "none";
+                  });
+              });
+          </script>
     <!-- Blog End -->
 
     <!-- Footer Start -->
