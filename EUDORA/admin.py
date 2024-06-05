@@ -65,7 +65,7 @@ def add_vocabulary_topic():
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('add_vocabulary_topic'))
+        return redirect(url_for('admin.add_vocabulary_topic'))
     return render_template('add_vocabularyTopic.html')
 
 # 新增單字內容
@@ -102,7 +102,7 @@ def add_vocabulary():
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('add_vocabulary'))
+        return redirect(url_for('admin.add_vocabulary'))
     else:
         try:
             connection = mysql.connector.connect(**config)
@@ -292,7 +292,6 @@ def vocabularies():
             connection.close()
     return render_template('vocabularies.html', vocabularies=vocabularies)
 
-# 编辑單字
 @admin_bp.route('/edit_vocabulary/<int:vocabulary_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_vocabulary(vocabulary_id):
@@ -333,7 +332,7 @@ def edit_vocabulary(vocabulary_id):
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('vocabularies'))
+        return redirect(url_for('admin.vocabularies'))
     else:
         try:
             connection = mysql.connector.connect(**config)
@@ -372,8 +371,7 @@ def delete_vocabulary(vocabulary_id):
             cursor.close()
         if connection:
             connection.close()
-    return redirect(url_for('vocabularies'))
-
+    return redirect(url_for('admin.vocabularies'))
 
 # 新增對話主題
 @admin_bp.route('/add_conversation_topic', methods=['GET', 'POST'])
@@ -413,7 +411,7 @@ def add_conversation_topic():
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('add_conversation_topic'))
+        return redirect(url_for('admin.add_conversation_topic'))
     return render_template('add_conversationTopic.html')
 
 # 新增對話情境
@@ -457,7 +455,7 @@ def add_conversation_situation():
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('add_conversation_situation'))
+        return redirect(url_for('admin.add_conversation_situation'))
     else:
         try:
             connection = mysql.connector.connect(**config)
@@ -483,19 +481,24 @@ def add_conversation():
         character_id = request.form['character_id']
         conversation_en = request.form['conversation_en']
         conversation_tw = request.form['conversation_tw']
-        difficulty_class = request.form['class']
         conversation_voice = request.files['conversation_voice']
 
         try:
             connection = mysql.connector.connect(**config)
-            cursor = connection.cursor()
+            cursor = connection.cursor(dictionary=True)
+            # 从 conversationSituation 表中查询 class 字段
+            cursor.execute("SELECT class FROM conversationSituation WHERE id = %s", (situation_id,))
+            situation = cursor.fetchone()
+            if situation is None:
+                flash('Invalid situation ID.', 'danger')
+                return redirect(url_for('admin_bp.add_conversation'))
 
             voice_data = conversation_voice.read() if conversation_voice else None
             query = """
-                INSERT INTO conversation (situation_id, character_id, conversation_en, conversation_tw, class, conversation_voice)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                INSERT INTO conversation (situation_id, character_id, conversation_en, conversation_tw, conversation_voice)
+                VALUES (%s, %s, %s, %s, %s)
             """
-            cursor.execute(query, (situation_id, character_id, conversation_en, conversation_tw, difficulty_class, voice_data))
+            cursor.execute(query, (situation_id, character_id, conversation_en, conversation_tw, voice_data))
             connection.commit()
             flash('Conversation added successfully!', 'success')
         except mysql.connector.Error as err:
@@ -507,7 +510,7 @@ def add_conversation():
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('add_conversation'))
+        return redirect(url_for('admin.add_conversation'))
     else:
         try:
             connection = mysql.connector.connect(**config)
@@ -742,7 +745,7 @@ def edit_conversation(conversation_id):
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('conversations'))
+        return redirect(url_for('admin.conversations'))
     else:
         try:
             connection = mysql.connector.connect(**config)
@@ -790,7 +793,7 @@ def delete_conversation(conversation_id):
             cursor.close()
         if connection:
             connection.close()
-    return redirect(url_for('conversations'))
+    return redirect(url_for('admin.conversations'))
 
 
 # 查看和編輯對話情境
@@ -938,7 +941,7 @@ def edit_character(character_id):
                 cursor.close()
             if connection:
                 connection.close()
-        return redirect(url_for('characters', situation_id=request.form['situation_id']))
+        return redirect(url_for('admin.characters', situation_id=request.form['situation_id']))
     else:
         try:
             connection = mysql.connector.connect(**config)
@@ -974,7 +977,7 @@ def delete_character(character_id, situation_id):
             cursor.close()
         if connection:
             connection.close()
-    return redirect(url_for('characters', situation_id=situation_id))
+    return redirect(url_for('admin.characters', situation_id=situation_id))
 
 @admin_bp.route('/icon/<int:situation_id>')
 @admin_required
