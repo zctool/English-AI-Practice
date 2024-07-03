@@ -1,5 +1,7 @@
 import librosa
 import numpy as np
+from pydub import AudioSegment
+import io
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Lambda
 import tensorflow.keras.backend as K
@@ -8,7 +10,16 @@ import os
 
 # 預處理語音數據
 def preprocess_audio(file_path):
-    y, sr = librosa.load(file_path, sr=16000)
+    # 使用pydub將MP3轉換為WAV
+    if file_path.endswith('.mp3'):
+        audio = AudioSegment.from_mp3(file_path)
+        file_handle = io.BytesIO()
+        audio.export(file_handle, format='wav')
+        file_handle.seek(0)
+        y, sr = librosa.load(file_handle, sr=16000)
+    else:
+        y, sr = librosa.load(file_path, sr=16000)
+    
     y = librosa.effects.trim(y)[0]  # 去掉靜音部分
     y = librosa.util.fix_length(y, size=16000)  # 調整長度到1秒（假設語音長度為1秒）
     return y
@@ -54,8 +65,8 @@ def create_siamese_network(input_shape):
 # 主程序
 if __name__ == "__main__":
     # 設置語音文件路徑
-    same_audio_files = [('audio_file_1.wav', 'audio_file_2.wav')] * 500
-    diff_audio_files = [('audio_file_3.wav', 'audio_file_4.wav')] * 500
+    same_audio_files = [('audio_file_1.mp3', 'audio_file_2.mp3')] * 500
+    diff_audio_files = [('audio_file_3.mp3', 'audio_file_4.mp3')] * 500
 
     num_pairs = len(same_audio_files) + len(diff_audio_files)
     X_left = np.zeros((num_pairs, 13))
@@ -68,14 +79,14 @@ if __name__ == "__main__":
         audio_2 = preprocess_audio(file2)
         X_left[i] = extract_features(audio_1)
         X_right[i] = extract_features(audio_2)
-        y[i] = 1  # 相同
+        y[i] = 1  # 標註為正例
 
     for i, (file1, file2) in enumerate(diff_audio_files, start=len(same_audio_files)):
         audio_1 = preprocess_audio(file1)
         audio_2 = preprocess_audio(file2)
         X_left[i] = extract_features(audio_1)
         X_right[i] = extract_features(audio_2)
-        y[i] = 0  # 不同
+        y[i] = 0  # 標註為反例
 
     # 訓練模型
     input_shape = (13,)
@@ -89,14 +100,15 @@ if __name__ == "__main__":
     model = load_model('siamese_network_model.h5', custom_objects={'contrastive_loss': contrastive_loss})
 
     # 測試新的語音對
-    new_audio_1 = preprocess_audio('new_audio_file_1.wav')
-    new_audio_2 = preprocess_audio('new_audio_file_2.wav')
+    new_audio_1 = preprocess_audio('new_audio_file_1.mp3')
+    new_audio_2 = preprocess_audio('new_audio_file_2.mp3')
 
     new_features_1 = extract_features(new_audio_1)
     new_features_2 = extract_features(new_audio_2)
 
     distance = model.predict([new_features_1.reshape(1, -1), new_features_2.reshape(1, -1)])
-    if distance < 0.5:
+    threshold = 0.5  # 閾值
+    if distance < threshold:
         print("內容一致")
     else:
         print("內容不一致")
