@@ -6,7 +6,12 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Lambda
 import tensorflow.keras.backend as K
 from tensorflow.keras.models import load_model
+import tensorflow as tf
 import os
+
+# 明確指定ffmpeg和ffprobe的路徑
+AudioSegment.converter = "C:/ffmpeg/bin/ffmpeg.exe"
+AudioSegment.ffprobe = "C:/ffmpeg/bin/ffprobe.exe"
 
 # 預處理語音數據
 def preprocess_audio(file_path):
@@ -42,6 +47,11 @@ def contrastive_loss(y_true, y_pred):
     margin = 1
     return K.mean(y_true * K.square(y_pred) + (1 - y_true) * K.square(K.maximum(margin - y_pred, 0)))
 
+# 自定義歐幾里得距離函數
+def euclidean_distance(vectors):
+    x, y = vectors
+    return K.sqrt(K.sum(K.square(x - y), axis=1, keepdims=True))
+
 # 構建Siamese Network
 def create_siamese_network(input_shape):
     left_input = Input(input_shape)
@@ -52,10 +62,6 @@ def create_siamese_network(input_shape):
     left_output = base_network(left_input)
     right_output = base_network(right_input)
     
-    def euclidean_distance(vectors):
-        x, y = vectors
-        return K.sqrt(K.sum(K.square(x - y), axis=1, keepdims=True))
-    
     distance = Lambda(euclidean_distance, output_shape=(1,))([left_output, right_output])
     
     model = Model([left_input, right_input], distance)
@@ -65,8 +71,16 @@ def create_siamese_network(input_shape):
 # 主程序
 if __name__ == "__main__":
     # 設置語音文件路徑
-    same_audio_files = [('audio_file_1.mp3', 'audio_file_2.mp3')] * 500
-    diff_audio_files = [('audio_file_3.mp3', 'audio_file_4.mp3')] * 500
+    data_directory = os.path.join(os.getcwd(), "mnt", "data")
+    same_audio_files = [
+        (os.path.join(data_directory, 'common_voice_en_40187648.mp3'), os.path.join(data_directory, 'common_voice_en_40187649.mp3')), 
+        (os.path.join(data_directory, 'common_voice_en_40187650.mp3'), os.path.join(data_directory, 'common_voice_en_40187651.mp3'))
+    ]
+    
+    diff_audio_files = [
+        (os.path.join(data_directory, 'common_voice_en_40187652.mp3'), os.path.join(data_directory, 'common_voice_en_40187653.mp3')), 
+        (os.path.join(data_directory, 'common_voice_en_40187654.mp3'), os.path.join(data_directory, 'common_voice_en_40187649.mp3'))
+    ]
 
     num_pairs = len(same_audio_files) + len(diff_audio_files)
     X_left = np.zeros((num_pairs, 13))
@@ -91,17 +105,17 @@ if __name__ == "__main__":
     # 訓練模型
     input_shape = (13,)
     model = create_siamese_network(input_shape)
-    model.fit([X_left, X_right], y, batch_size=32, epochs=10, validation_split=0.2)
+    model.fit([X_left, X_right], y, batch_size=2, epochs=10, validation_split=0.2)
 
     # 保存模型
     model.save('siamese_network_model.h5')
 
     # 加載模型並進行測試
-    model = load_model('siamese_network_model.h5', custom_objects={'contrastive_loss': contrastive_loss})
+    model = load_model('siamese_network_model.h5', custom_objects={'contrastive_loss': contrastive_loss, 'euclidean_distance': euclidean_distance})
 
     # 測試新的語音對
-    new_audio_1 = preprocess_audio('new_audio_file_1.mp3')
-    new_audio_2 = preprocess_audio('new_audio_file_2.mp3')
+    new_audio_1 = preprocess_audio(os.path.join(data_directory, 'common_voice_en_40187648.mp3'))
+    new_audio_2 = preprocess_audio(os.path.join(data_directory, 'common_voice_en_40187650.mp3'))
 
     new_features_1 = extract_features(new_audio_1)
     new_features_2 = extract_features(new_audio_2)
