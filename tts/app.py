@@ -26,7 +26,7 @@ def generate_and_save_speech(text, file_name):
     print(f"Audio file saved as {mp3_path}")
 
 # Text to be converted to speech
-text = "Hello, this is a test of the TTS model with a smoother and more natural voice."
+text = "he's buried at the Union Cemetery in Billings Oklahoma"
 
 # Generate and save speech
 
