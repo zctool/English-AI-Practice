@@ -2,12 +2,14 @@ import librosa
 import numpy as np
 from pydub import AudioSegment
 import io
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense, Lambda
-import tensorflow.keras.backend as K
-from tensorflow.keras.models import load_model
-import tensorflow as tf
 import os
+import speech_recognition as sr
+from difflib import Differ
+from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.layers import Input, Dense, Lambda, Dropout, BatchNormalization
+import tensorflow.keras.backend as K
+from sklearn.preprocessing import StandardScaler
+import tensorflow as tf
 
 # 明確指定ffmpeg和ffprobe的路徑
 AudioSegment.converter = "C:/ffmpeg/bin/ffmpeg.exe"
@@ -27,18 +29,69 @@ def preprocess_audio(file_path):
     
     y = librosa.effects.trim(y)[0]  # 去掉靜音部分
     y = librosa.util.fix_length(y, size=16000)  # 調整長度到1秒（假設語音長度為1秒）
-    return y
+    return y, sr
 
 # 特徵提取（使用MFCC）
-def extract_features(audio):
-    mfccs = librosa.feature.mfcc(y=audio, sr=16000, n_mfcc=13)
+def extract_features(audio, sr):
+    mfccs = librosa.feature.mfcc(y=audio, sr=sr, n_mfcc=13)
     return np.mean(mfccs.T, axis=0)
+
+# 数据增强
+def augment_audio(audio, sr):
+    # 添加噪音
+    noise = np.random.randn(len(audio))
+    audio_noise = audio + 0.005 * noise
+    # 改变音调
+    audio_shift = librosa.effects.pitch_shift(y=audio, sr=sr, n_steps=4)
+    # 改变速度
+    audio_stretch = librosa.effects.time_stretch(y=audio, rate=0.8)
+    return [audio, audio_noise, audio_shift, audio_stretch]
+
+# 將音頻轉換為WAV格式
+def convert_to_wav(file_path):
+    if file_path.endswith('.mp3'):
+        audio = AudioSegment.from_mp3(file_path)
+        wav_path = file_path.replace('.mp3', '.wav')
+        audio.export(wav_path, format='wav')
+        return wav_path
+    return file_path
+
+# 語音轉文字
+def speech_to_text(audio_path):
+    recognizer = sr.Recognizer()
+    audio_path = convert_to_wav(audio_path)
+    audio_file = sr.AudioFile(audio_path)
+    with audio_file as source:
+        audio_data = recognizer.record(source)
+    try:
+        text = recognizer.recognize_google(audio_data)
+    except sr.UnknownValueError:
+        text = ""
+    return text
+
+# 比較兩段文字並顯示不同之處
+def compare_texts(text1, text2):
+    d = Differ()
+    diff = list(d.compare(text1.split(), text2.split()))
+    print("不同之處:")
+    for line in diff:
+        if line.startswith('+ ') or line.startswith('- '):
+            print(line)
+
+# 自定義歐幾里得距離函數
+def euclidean_distance(vectors):
+    x, y = vectors
+    return K.sqrt(K.sum(K.square(x - y), axis=1, keepdims=True))
 
 # 定義Siamese Network結構
 def build_base_network(input_shape):
     input = Input(input_shape)
     x = Dense(128, activation='relu')(input)
+    x = Dropout(0.2)(x)
+    x = BatchNormalization()(x)
     x = Dense(128, activation='relu')(x)
+    x = Dropout(0.2)(x)
+    x = BatchNormalization()(x)
     x = Dense(128, activation='relu')(x)
     return Model(input, x)
 
@@ -46,11 +99,6 @@ def build_base_network(input_shape):
 def contrastive_loss(y_true, y_pred):
     margin = 1
     return K.mean(y_true * K.square(y_pred) + (1 - y_true) * K.square(K.maximum(margin - y_pred, 0)))
-
-# 自定義歐幾里得距離函數
-def euclidean_distance(vectors):
-    x, y = vectors
-    return K.sqrt(K.sum(K.square(x - y), axis=1, keepdims=True))
 
 # 構建Siamese Network
 def create_siamese_network(input_shape):
@@ -70,8 +118,9 @@ def create_siamese_network(input_shape):
 
 # 主程序
 if __name__ == "__main__":
-    # 設置語音文件路徑
     data_directory = os.path.join(os.getcwd(), "mnt", "data")
+    
+    # 訓練Siamese網絡的數據
     same_audio_files = [
         (os.path.join(data_directory, 'common_voice_en_40187648.mp3'), os.path.join(data_directory, 'common_voice_en_40187649.mp3')), 
         (os.path.join(data_directory, 'common_voice_en_40187650.mp3'), os.path.join(data_directory, 'common_voice_en_40187651.mp3'))
@@ -83,29 +132,42 @@ if __name__ == "__main__":
     ]
 
     num_pairs = len(same_audio_files) + len(diff_audio_files)
-    X_left = np.zeros((num_pairs, 13))
-    X_right = np.zeros((num_pairs, 13))
-    y = np.zeros((num_pairs,))
+    X_left = []
+    X_right = []
+    y = []
 
     # 構建語音對和標籤
     for i, (file1, file2) in enumerate(same_audio_files):
-        audio_1 = preprocess_audio(file1)
-        audio_2 = preprocess_audio(file2)
-        X_left[i] = extract_features(audio_1)
-        X_right[i] = extract_features(audio_2)
-        y[i] = 1  # 標註為正例
+        audio_1, sr_1 = preprocess_audio(file1)
+        audio_2, sr_2 = preprocess_audio(file2)
+        for aug_audio_1 in augment_audio(audio_1, sr_1):
+            for aug_audio_2 in augment_audio(audio_2, sr_2):
+                X_left.append(extract_features(aug_audio_1, sr_1))
+                X_right.append(extract_features(aug_audio_2, sr_2))
+                y.append(1)  # 標註為正例
 
     for i, (file1, file2) in enumerate(diff_audio_files, start=len(same_audio_files)):
-        audio_1 = preprocess_audio(file1)
-        audio_2 = preprocess_audio(file2)
-        X_left[i] = extract_features(audio_1)
-        X_right[i] = extract_features(audio_2)
-        y[i] = 0  # 標註為反例
+        audio_1, sr_1 = preprocess_audio(file1)
+        audio_2, sr_2 = preprocess_audio(file2)
+        for aug_audio_1 in augment_audio(audio_1, sr_1):
+            for aug_audio_2 in augment_audio(audio_2, sr_2):
+                X_left.append(extract_features(aug_audio_1, sr_1))
+                X_right.append(extract_features(aug_audio_2, sr_2))
+                y.append(0)  # 標註為反例
+
+    X_left = np.array(X_left)
+    X_right = np.array(X_right)
+    y = np.array(y)
+
+    # 標準化特徵
+    scaler = StandardScaler()
+    X_left = scaler.fit_transform(X_left)
+    X_right = scaler.transform(X_right)
 
     # 訓練模型
     input_shape = (13,)
     model = create_siamese_network(input_shape)
-    model.fit([X_left, X_right], y, batch_size=2, epochs=10, validation_split=0.2)
+    model.fit([X_left, X_right], y, batch_size=32, epochs=100, validation_split=0.2)
 
     # 保存模型
     model.save('siamese_network_model.h5')
@@ -113,16 +175,45 @@ if __name__ == "__main__":
     # 加載模型並進行測試
     model = load_model('siamese_network_model.h5', custom_objects={'contrastive_loss': contrastive_loss, 'euclidean_distance': euclidean_distance})
 
-    # 測試新的語音對
-    new_audio_1 = preprocess_audio(os.path.join(data_directory, 'common_voice_en_40187648.mp3'))
-    new_audio_2 = preprocess_audio(os.path.join(data_directory, 'common_voice_en_40187650.mp3'))
+    test_pairs = [
+        (os.path.join(data_directory, 'common_voice_en_40187648.mp3'), os.path.join(data_directory, 'coolenglish_x1.mp3')),
+        (os.path.join(data_directory, 'common_voice_en_40187652.mp3'), os.path.join(data_directory, 'common_voice_en_40187653.mp3')),
+    ]
+    test_labels = [1, 0]  # 正確的標籤，假設第一對是一致的，第二對是不一致的
 
-    new_features_1 = extract_features(new_audio_1)
-    new_features_2 = extract_features(new_audio_2)
+    correct_predictions = 0
 
-    distance = model.predict([new_features_1.reshape(1, -1), new_features_2.reshape(1, -1)])
-    threshold = 0.5  # 閾值
-    if distance < threshold:
-        print("內容一致")
-    else:
-        print("內容不一致")
+    for i, (file1, file2) in enumerate(test_pairs):
+        audio_1, sr_1 = preprocess_audio(file1)
+        audio_2, sr_2 = preprocess_audio(file2)
+
+        new_features_1 = extract_features(audio_1, sr_1)
+        new_features_2 = extract_features(audio_2, sr_2)
+
+        # 標準化測試特徵
+        new_features_1 = scaler.transform(new_features_1.reshape(1, -1))
+        new_features_2 = scaler.transform(new_features_2.reshape(1, -1))
+
+        distance = model.predict([new_features_1, new_features_2])[0][0]
+        threshold = 0.5  # 閾值
+        print(f"測試對 {i+1} 距離值: {distance}")
+
+        if (distance < threshold and test_labels[i] == 1) or (distance >= threshold and test_labels[i] == 0):
+            print(f"測試對 {i+1} 判斷正確")
+            correct_predictions += 1
+        else:
+            print(f"測試對 {i+1} 判斷錯誤")
+
+    overall_accuracy = correct_predictions / len(test_pairs) * 100
+    print(f"模型整體正確率: {overall_accuracy:.2f}%")
+
+    # 進行語音轉文字比較
+    for i, (file1, file2) in enumerate(test_pairs):
+        text1 = speech_to_text(file1)
+        text2 = speech_to_text(file2)
+
+        print(f"語音對 {i+1} 的文字轉換結果:")
+        print(f"語音1: {text1}")
+        print(f"語音2: {text2}")
+
+        compare_texts(text1, text2)

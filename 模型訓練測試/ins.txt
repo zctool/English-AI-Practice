@@ -3,3 +3,5 @@ pip install tensorflow
 pip install numpy
 pip install matplotlib
 pip install pydub
+pip install SpeechRecognition
+pip install librosa pydub tensorflow numpy scikit-learn
