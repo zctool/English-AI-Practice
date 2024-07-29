@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上傳課程資料 - 英語智學平台</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #34495e;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --button-color: #27ae60;
+            --input-background: #ffffff;
+            --input-border: #e0e0e0;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        body {
+            font-family: 'Microsoft JhengHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: var(--box-shadow);
+        }
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            position: relative;
+        }
+        h1::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background-color: var(--primary-color);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+        form {
+            display: grid;
+            gap: 25px;
+        }
+        .form-group {
+            position: relative;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+            color: var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+        input[type="text"],
+        input[type="date"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--input-background);
+            transition: all 0.3s ease;
+        }
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+            outline: none;
+        }
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        input[type="file"] {
+            border: 2px dashed var(--input-border);
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        input[type="file"]:hover {
+            border-color: var(--primary-color);
+        }
+        button {
+            background-color: var(--button-color);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #219653;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(39, 174, 96, 0.2);
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>上傳課程資料</h1>
+        <form action="/submit-course" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="courseName">課程名稱</label>
+                <input type="text" id="courseName" name="courseName" required placeholder="輸入課程名稱">
+            </div>
+            <div class="form-group">
+                <label for="courseDescription">課程描述</label>
+                <textarea id="courseDescription" name="courseDescription" required placeholder="詳細描述您的課程內容和目標"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="courseLevel">課程等級</label>
+                <select id="courseLevel" name="courseLevel" required>
+                    <option value="">請選擇課程等級</option>
+                    <option value="beginner">初級</option>
+                    <option value="intermediate">中級</option>
+                    <option value="advanced">高級</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="startDate">開課日期</label>
+                <input type="date" id="startDate" name="startDate" required>
+            </div>
+            <div class="form-group">
+                <label for="courseOutline">課程大綱（PDF）</label>
+                <input type="file" id="courseOutline" name="courseOutline" accept=".pdf" required>
+            </div>
+            <div class="form-group">
+                <label for="courseMaterials">課程教材（可多選）</label>
+                <input type="file" id="courseMaterials" name="courseMaterials" multiple>
+            </div>
+            <div class="form-group">
+                <button type="submit">提交課程資料</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

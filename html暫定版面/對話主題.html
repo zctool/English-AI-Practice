@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <title>英語對話學習平台</title>
+    <style>
+      :root {
+        --primary-color: #4a90e2;
+        --secondary-color: #50c878;
+        --background-color: #f0f4f8;
+        --card-color: #ffffff;
+        --text-color: #333333;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+      }
+      header {
+        background-color: var(--primary-color);
+        color: white;
+        text-align: center;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+      }
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      .cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+      }
+      .card {
+        background-color: var(--card-color);
+        border-radius: 10px;
+        padding: 1rem;
+        width: calc(33.333% - 40px); /* 3 cards per row with a 20px gap */
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .card h2 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+      }
+      .card p {
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+      .card button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s;
+        margin: 5px 0;
+      }
+      .card button:hover {
+        background-color: #3a7bc8;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+      .modal-content {
+        background-color: var(--card-color);
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 800px;
+        box-shadow: var(--shadow);
+      }
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .close:hover,
+      .close:focus {
+        color: black;
+        text-decoration: none;
+      }
+      .conversation-group {
+        margin-bottom: 30px;
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+      }
+      .conversation-title {
+        font-size: 1.2rem;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+      }
+      .conversation-item {
+        margin-bottom: 10px;
+      }
+      .play-btn,
+      .pause-btn,
+      .resume-btn {
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+      .image-container {
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+      .image-container img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+      }
+      .pagination {
+        text-align: center;
+        margin: 20px 0;
+      }
+      .pagination button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s;
+        margin: 0 5px;
+      }
+      .pagination button:hover {
+        background-color: #3a7bc8;
+      }
+      .pagination button[disabled] {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>英語對話學習平台</h1>
+      <p>探索不同情境，提升你的英語對話能力</p>
+    </header>
+
+    <main id="mainContent"></main>
+
+    <div id="conversationModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 id="conversationTitle"></h2>
+        <div id="conversationContainer"></div>
+      </div>
+    </div>
+
+    <div id="quizModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeQuizModal()">&times;</span>
+        <h2 id="quizTitle"></h2>
+        <div id="quizContainer"></div>
+      </div>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <script>
+      const conversations = {
+        daily: [
+          {
+            title: "問候和近況",
+            dialogue: [
+              { speaker: "A", text: "Hey, how's it going?" },
+              {
+                speaker: "B",
+                text: "Not bad, just busy with work. How about you?",
+              },
+              {
+                speaker: "A",
+                text: "I'm doing well. Say, do you want to grab lunch later?",
+              },
+              {
+                speaker: "B",
+                text: "Sure, that sounds great! Where should we go?",
+              },
+            ],
+          },
+          {
+            title: "討論計劃",
+            dialogue: [
+              { speaker: "A", text: "What are your plans for the weekend?" },
+              {
+                speaker: "B",
+                text: "I'm thinking of going hiking. Want to join?",
+              },
+              {
+                speaker: "A",
+                text: "That sounds fun! Which trail are you planning to take?",
+              },
+              {
+                speaker: "B",
+                text: "I was thinking about the Mountain View trail. It's not too difficult.",
+              },
+            ],
+          },
+        ],
+        business: [
+          {
+            title: "開始會議",
+            dialogue: [
+              {
+                speaker: "A",
+                text: "Good morning everyone, shall we begin the meeting?",
+              },
+              {
+                speaker: "B",
+                text: "Yes, let's start. Can we go over the agenda first?",
+              },
+              {
+                speaker: "A",
+                text: "Certainly. Our main focus today is the quarterly report.",
+              },
+              {
+                speaker: "B",
+                text: "Great. Do we have all the necessary data for that?",
+              },
+            ],
+          },
+          {
+            title: "討論項目",
+            dialogue: [
+              {
+                speaker: "A",
+                text: "Let's move on to the next item: the new product launch.",
+              },
+              {
+                speaker: "B",
+                text: "Excellent. What's our timeline for this?",
+              },
+              {
+                speaker: "A",
+                text: "We're aiming for a launch next quarter. Marketing team, can you update us on the campaign?",
+              },
+              {
+                speaker: "C",
+                text: "Certainly. We've drafted the initial marketing strategy and are ready to present it.",
+              },
+            ],
+          },
+        ],
+        travel: [
+          {
+            title: "問路",
+            dialogue: [
+              {
+                speaker: "A",
+                text: "Excuse me, could you tell me how to get to the museum?",
+              },
+              {
+                speaker: "B",
+                text: "Sure, it's about a 10-minute walk from here. Go straight and turn left at the second traffic light.",
+              },
+              {
+                speaker: "A",
+                text: "Thank you! Is there an entrance fee for the museum?",
+              },
+              {
+                speaker: "B",
+                text: "Yes, it's $10 for adults, but it's free on Wednesdays.",
+              },
+            ],
+          },
+          {
+            title: "預訂住宿",
+            dialogue: [
+              {
+                speaker: "A",
+                text: "Hello, I'd like to book a room for two nights, please.",
+              },
+              {
+                speaker: "B",
+                text: "Certainly. What dates were you looking at?",
+              },
+              {
+                speaker: "A",
+                text: "From the 15th to the 17th of next month.",
+              },
+              {
+                speaker: "B",
+                text: "Let me check our availability... Yes, we have a double room available for those dates.",
+              },
+            ],
+          },
+        ],
+        food: [
+          {
+            title: "點餐",
+            dialogue: [
+              { speaker: "A", text: "I'd like to order the steak, please." },
+              { speaker: "B", text: "How would you like your steak cooked?" },
+              { speaker: "A", text: "Medium rare, please." },
+              { speaker: "B", text: "Sure, anything else?" },
+            ],
+          },
+          {
+            title: "推薦菜單",
+            dialogue: [
+              { speaker: "A", text: "Can you recommend a good dessert?" },
+              { speaker: "B", text: "Our chocolate cake is very popular." },
+              { speaker: "A", text: "I'll have that, thank you." },
+              { speaker: "B", text: "You're welcome. Anything to drink?" },
+            ],
+          },
+        ],
+        shopping: [
+          {
+            title: "詢問價格",
+            dialogue: [
+              { speaker: "A", text: "How much is this dress?" },
+              { speaker: "B", text: "It's $50." },
+              { speaker: "A", text: "Do you have it in a smaller size?" },
+              { speaker: "B", text: "Yes, let me check the back for you." },
+            ],
+          },
+          {
+            title: "退換貨",
+            dialogue: [
+              { speaker: "A", text: "I'd like to return this item." },
+              { speaker: "B", text: "May I ask why?" },
+              { speaker: "A", text: "It doesn't fit." },
+              { speaker: "B", text: "I see. Do you have the receipt?" },
+            ],
+          },
+        ],
+        healthcare: [
+          {
+            title: "預約看診",
+            dialogue: [
+              {
+                speaker: "A",
+                text: "I'd like to make an appointment with Dr. Smith.",
+              },
+              { speaker: "B", text: "Sure, when would you like to come in?" },
+              { speaker: "A", text: "How about next Monday?" },
+              {
+                speaker: "B",
+                text: "Let me check... Yes, we have an opening at 10 AM.",
+              },
+            ],
+          },
+          {
+            title: "健康狀況",
+            dialogue: [
+              {
+                speaker: "A",
+                text: "I've been feeling a bit under the weather lately.",
+              },
+              { speaker: "B", text: "What symptoms are you experiencing?" },
+              { speaker: "A", text: "Mostly a sore throat and a headache." },
+              {
+                speaker: "B",
+                text: "I see. I'll take your temperature and blood pressure.",
+              },
+            ],
+          },
+        ],
+        technology: [
+          {
+            title: "購買新電腦",
+            dialogue: [
+              { speaker: "A", text: "I'm looking to buy a new laptop." },
+              {
+                speaker: "B",
+                text: "What specifications are you looking for?",
+              },
+              {
+                speaker: "A",
+                text: "I need something with at least 16GB of RAM and a fast processor.",
+              },
+              {
+                speaker: "B",
+                text: "We have several models that meet those requirements.",
+              },
+            ],
+          },
+          {
+            title: "修理手機",
+            dialogue: [
+              { speaker: "A", text: "My phone isn't charging properly." },
+              {
+                speaker: "B",
+                text: "Let me take a look. It might be an issue with the charging port.",
+              },
+              { speaker: "A", text: "Can it be fixed today?" },
+              {
+                speaker: "B",
+                text: "Yes, we can have it ready by this afternoon.",
+              },
+            ],
+          },
+        ],
+        sports: [
+          {
+            title: "計劃運動",
+            dialogue: [
+              {
+                speaker: "A",
+                text: "Do you want to go for a run this weekend?",
+              },
+              {
+                speaker: "B",
+                text: "Sure, that sounds great. Where should we go?",
+              },
+              { speaker: "A", text: "How about the park?" },
+              { speaker: "B", text: "Perfect, let's meet there at 9 AM." },
+            ],
+          },
+          {
+            title: "健身房會員",
+            dialogue: [
+              { speaker: "A", text: "I'm thinking of joining a gym." },
+              {
+                speaker: "B",
+                text: "That's a good idea. Which one are you considering?",
+              },
+              {
+                speaker: "A",
+                text: "The one downtown. It has great facilities.",
+              },
+              {
+                speaker: "B",
+                text: "I might join you. I've been wanting to get back into shape.",
+              },
+            ],
+          },
+        ],
+        education: [
+          {
+            title: "選課",
+            dialogue: [
+              {
+                speaker: "A",
+                text: "Which classes are you taking this semester?",
+              },
+              {
+                speaker: "B",
+                text: "I'm enrolled in Advanced Mathematics and Physics.",
+              },
+              { speaker: "A", text: "Those sound challenging." },
+              { speaker: "B", text: "Yes, but I'm excited to learn more." },
+            ],
+          },
+          {
+            title: "交作業",
+            dialogue: [
+              { speaker: "A", text: "When is the project due?" },
+              { speaker: "B", text: "We need to submit it by next Friday." },
+              { speaker: "A", text: "Let's work on it together." },
+              {
+                speaker: "B",
+                text: "Good idea. We can meet at the library tomorrow.",
+              },
+            ],
+          },
+        ],
+      };
+
+      const quizzes = {
+        daily: [
+          {
+            question: "What does person A suggest doing later?",
+            options: [
+              "Having dinner",
+              "Grabbing lunch",
+              "Going for a walk",
+              "Watching a movie",
+            ],
+            correctAnswer: 1,
+          },
+          {
+            question: "What activity does person B suggest for the weekend?",
+            options: ["Shopping", "Hiking", "Swimming", "Reading"],
+            correctAnswer: 1,
+          },
+        ],
+        business: [
+          {
+            question: "What is the main focus of the meeting?",
+            options: [
+              "Annual report",
+              "Quarterly report",
+              "Monthly report",
+              "Weekly report",
+            ],
+            correctAnswer: 1,
+          },
+          {
+            question: "What is the next item to be discussed in the meeting?",
+            options: [
+              "Budget review",
+              "Team building",
+              "New product launch",
+              "HR policies",
+            ],
+            correctAnswer: 2,
+          },
+        ],
+        travel: [
+          {
+            question: "How far is the museum from the current location?",
+            options: [
+              "5-minute walk",
+              "10-minute walk",
+              "15-minute walk",
+              "20-minute walk",
+            ],
+            correctAnswer: 1,
+          },
+          {
+            question: "On which day is the museum free to enter?",
+            options: ["Monday", "Tuesday", "Wednesday", "Thursday"],
+            correctAnswer: 2,
+          },
+        ],
+        food: [
+          {
+            question: "How does person A want their steak cooked?",
+            options: ["Rare", "Medium rare", "Medium", "Well done"],
+            correctAnswer: 1,
+          },
+          {
+            question: "What dessert does person B recommend?",
+            options: ["Apple pie", "Ice cream", "Chocolate cake", "Cheesecake"],
+            correctAnswer: 2,
+          },
+        ],
+        shopping: [
+          {
+            question: "How much is the dress?",
+            options: ["$30", "$40", "$50", "$60"],
+            correctAnswer: 2,
+          },
+          {
+            question: "Why does person A want to return the item?",
+            options: [
+              "It's too expensive",
+              "It doesn't fit",
+              "They changed their mind",
+              "It's damaged",
+            ],
+            correctAnswer: 1,
+          },
+        ],
+        healthcare: [
+          {
+            question: "Who does person A want to make an appointment with?",
+            options: ["Dr. Smith", "Dr. Brown", "Dr. Johnson", "Dr. Davis"],
+            correctAnswer: 0,
+          },
+          {
+            question: "What symptoms is person A experiencing?",
+            options: [
+              "Cough and fever",
+              "Sore throat and headache",
+              "Nausea and vomiting",
+              "Dizziness and fatigue",
+            ],
+            correctAnswer: 1,
+          },
+        ],
+        technology: [
+          {
+            question:
+              "What specifications is person A looking for in a laptop?",
+            options: [
+              "8GB of RAM and a fast processor",
+              "16GB of RAM and a fast processor",
+              "16GB of RAM and a slow processor",
+              "8GB of RAM and a slow processor",
+            ],
+            correctAnswer: 1,
+          },
+          {
+            question:
+              "What is likely causing the charging issue with person A's phone?",
+            options: [
+              "Battery problem",
+              "Screen problem",
+              "Charging port issue",
+              "Software issue",
+            ],
+            correctAnswer: 2,
+          },
+        ],
+        sports: [
+          {
+            question: "Where do person A and B plan to go for a run?",
+            options: ["Gym", "Beach", "Park", "Stadium"],
+            correctAnswer: 2,
+          },
+          {
+            question: "Which gym is person A considering joining?",
+            options: [
+              "Uptown Gym",
+              "Suburban Gym",
+              "Downtown Gym",
+              "Neighborhood Gym",
+            ],
+            correctAnswer: 2,
+          },
+        ],
+        education: [
+          {
+            question: "Which classes is person B enrolled in?",
+            options: [
+              "Advanced Mathematics and Physics",
+              "Biology and Chemistry",
+              "History and Literature",
+              "Economics and Political Science",
+            ],
+            correctAnswer: 0,
+          },
+          {
+            question: "When is the project due?",
+            options: [
+              "Next Monday",
+              "Next Wednesday",
+              "Next Friday",
+              "Next Sunday",
+            ],
+            correctAnswer: 2,
+          },
+        ],
+      };
+
+      const themesPerPage = 6;
+      let currentPage = 1;
+
+      function showPage(page) {
+        currentPage = page;
+        const mainContent = document.getElementById("mainContent");
+        mainContent.innerHTML = "";
+        const start = (page - 1) * themesPerPage;
+        const end = start + themesPerPage;
+        const themes = Object.keys(conversations).slice(start, end);
+
+        mainContent.innerHTML = '<div class="cards-container"></div>';
+        const cardsContainer = document.querySelector(".cards-container");
+
+        themes.forEach((theme) => {
+          cardsContainer.innerHTML += `
+                    <div class="card">
+                        <h2>${getThemeTitle(theme)}</h2>
+                        <div class="image-container">
+                            <img src="path-to-your-image.jpg" alt="${getThemeTitle(
+                              theme
+                            )}圖片">
+                        </div>
+                        <p>${getThemeDescription(theme)}</p>
+                        <button onclick="showConversation('${theme}')">顯示對話</button>
+                        <button onclick="showQuiz('${theme}')">開始測驗</button>
+                    </div>
+                `;
+        });
+
+        updatePagination();
+      }
+
+      function getThemeTitle(theme) {
+        switch (theme) {
+          case "daily":
+            return "日常生活對話";
+          case "business":
+            return "商務會議對話";
+          case "travel":
+            return "旅遊情境對話";
+          case "food":
+            return "餐飲對話";
+          case "shopping":
+            return "購物對話";
+          case "healthcare":
+            return "醫療對話";
+          case "technology":
+            return "科技對話";
+          case "sports":
+            return "運動對話";
+          case "education":
+            return "教育對話";
+          default:
+            return "對話練習";
+        }
+      }
+
+      function getThemeDescription(theme) {
+        switch (theme) {
+          case "daily":
+            return "學習日常生活中常見的對話，增進日常交流能力。";
+          case "business":
+            return "掌握商務場合的專業用語，提升職場競爭力。";
+          case "travel":
+            return "學習旅遊中實用的對話，讓你的旅程更加順暢。";
+          case "food":
+            return "學習餐飲場合中的實用對話，增進你的點餐和交流能力。";
+          case "shopping":
+            return "學習購物時常用的對話，提升你的購物體驗。";
+          case "healthcare":
+            return "掌握醫療場合的對話用語，提升健康管理能力。";
+          case "technology":
+            return "了解科技對話，提高你的科技知識。";
+          case "sports":
+            return "學習運動場合中的對話，提高你的運動交流能力。";
+          case "education":
+            return "學習教育場合中的對話，提升你的學習交流能力。";
+          default:
+            return "對話練習";
+        }
+      }
+
+      function updatePagination() {
+        const pagination = document.getElementById("pagination");
+        const totalThemes = Object.keys(conversations).length;
+        const totalPages = Math.ceil(totalThemes / themesPerPage);
+        pagination.innerHTML = "";
+
+        for (let i = 1; i <= totalPages; i++) {
+          pagination.innerHTML += `<button onclick="showPage(${i})" ${
+            i === currentPage ? "disabled" : ""
+          }>${i}</button>`;
+        }
+      }
+
+      function showConversation(theme) {
+        const modal = document.getElementById("conversationModal");
+        const title = document.getElementById("conversationTitle");
+        const container = document.getElementById("conversationContainer");
+
+        title.textContent = getThemeTitle(theme);
+        container.innerHTML = conversations[theme]
+          .map(
+            (group) => `
+                <div class="conversation-group">
+                    <h3 class="conversation-title">${group.title}</h3>
+                    ${group.dialogue
+                      .map(
+                        (item, index) => `
+                        <div class="conversation-item">
+                            <strong>${item.speaker}:</strong> ${item.text}
+                            <button class="play-btn" onclick="speak('${item.text.replace(
+                              /'/g,
+                              "\\'"
+                            )}')">播放</button>
+                            <button class="pause-btn" onclick="pauseSpeech()">暫停</button>
+                            <button class="resume-btn" onclick="resumeSpeech()">恢復</button>
+                        </div>
+                    `
+                      )
+                      .join("")}
+                </div>
+            `
+          )
+          .join("");
+
+        modal.style.display = "block";
+      }
+
+      function showQuiz(theme) {
+        const modal = document.getElementById("quizModal");
+        const title = document.getElementById("quizTitle");
+        const container = document.getElementById("quizContainer");
+
+        title.textContent = `${getThemeTitle(theme)} - 測驗`;
+        container.innerHTML = `
+                <form id="quizForm">
+                    ${quizzes[theme]
+                      .map(
+                        (quiz, index) => `
+                        <div>
+                            <p><strong>${index + 1}. ${
+                          quiz.question
+                        }</strong></p>
+                            ${quiz.options
+                              .map(
+                                (option, optionIndex) => `
+                                <label>
+                                    <input type="radio" name="question${index}" value="${optionIndex}">
+                                    ${option}
+                                </label>
+                            `
+                              )
+                              .join("<br>")}
+                        </div>
+                    `
+                      )
+                      .join("")}
+                    <button type="button" onclick="submitQuiz('${theme}')">提交答案</button>
+                </form>
+                <div id="quizResult"></div>
+            `;
+
+        modal.style.display = "block";
+      }
+
+      let currentUtterance;
+
+      function speak(text) {
+        if (currentUtterance) {
+          speechSynthesis.cancel();
+        }
+        currentUtterance = new SpeechSynthesisUtterance(text);
+        currentUtterance.lang = "en-US";
+        speechSynthesis.speak(currentUtterance);
+      }
+
+      function pauseSpeech() {
+        if (speechSynthesis.speaking && !speechSynthesis.paused) {
+          speechSynthesis.pause();
+        }
+      }
+
+      function resumeSpeech() {
+        if (speechSynthesis.paused) {
+          speechSynthesis.resume();
+        }
+      }
+
+      function submitQuiz(theme) {
+        const form = document.getElementById("quizForm");
+        const resultDiv = document.getElementById("quizResult");
+        let score = 0;
+        let summary = "";
+
+        quizzes[theme].forEach((quiz, index) => {
+          const selectedOption = form.elements[`question${index}`].value;
+          const isCorrect =
+            selectedOption !== "" &&
+            parseInt(selectedOption) === quiz.correctAnswer;
+
+          if (isCorrect) {
+            score++;
+          }
+
+          summary += `
+                    <p>
+                        <strong>問題 ${index + 1}:</strong> ${quiz.question}<br>
+                        你的答案: ${
+                          selectedOption !== ""
+                            ? quiz.options[selectedOption]
+                            : "未作答"
+                        }<br>
+                        正確答案: ${quiz.options[quiz.correctAnswer]}<br>
+                        <span class="${isCorrect ? "correct" : "incorrect"}">${
+            isCorrect ? "正確" : "錯誤"
+          }</span>
+                    </p>
+                `;
+        });
+
+        resultDiv.innerHTML = `
+                <h3>測驗結果</h3>
+                <p>你的得分是: ${score}/${quizzes[theme].length}</p>
+                <div>${summary}</div>
+                <button type="button" onclick="showQuiz('${theme}')">重新測驗</button>
+            `;
+      }
+
+      function closeModal() {
+        document.getElementById("conversationModal").style.display = "none";
+      }
+
+      function closeQuizModal() {
+        document.getElementById("quizModal").style.display = "none";
+      }
+
+      window.onclick = function (event) {
+        const conversationModal = document.getElementById("conversationModal");
+        const quizModal = document.getElementById("quizModal");
+        if (event.target == conversationModal) {
+          conversationModal.style.display = "none";
+        } else if (event.target == quizModal) {
+          quizModal.style.display = "none";
+        }
+      };
+
+      // 初始化
+      showPage(1);
+    </script>
+  </body>
+</html>

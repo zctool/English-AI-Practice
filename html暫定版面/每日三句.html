@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日英語金句</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 40px;
+            max-width: 800px;
+            width: 90%;
+        }
+        h1 {
+            color: #4a4a4a;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .date {
+            text-align: center;
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        .sentence-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .sentence {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .sentence:hover {
+            transform: translateY(-5px);
+        }
+        .sentence h3 {
+            color: #764ba2;
+            margin-top: 0;
+            font-size: 1.3em;
+        }
+        .english {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .translation {
+            color: #666;
+            font-style: italic;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>每日英語金句</h1>
+        <div class="date" id="current-date"></div>
+        <div class="sentence-container">
+            <div class="sentence">
+                <h3>今日精選 #1</h3>
+                <p class="english">"The only way to do great work is to love what you do."</p>
+                <p class="translation">翻譯：做出偉大的工作的唯一方法就是熱愛你所做的事。</p>
+            </div>
+            <div class="sentence">
+                <h3>今日精選 #2</h3>
+                <p class="english">"Believe you can and you're halfway there."</p>
+                <p class="translation">翻譯：相信你能做到，你就已經成功了一半。</p>
+            </div>
+            <div class="sentence">
+                <h3>今日精選 #3</h3>
+                <p class="english">"The future belongs to those who believe in the beauty of their dreams."</p>
+                <p class="translation">翻譯：未來屬於那些相信夢想之美的人。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dateElement = document.getElementById('current-date');
+        const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+        dateElement.textContent = new Date().toLocaleDateString('zh-TW', options);
+    </script>
+</body>
+</html>

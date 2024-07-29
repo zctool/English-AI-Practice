@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>單字數據庫 - 英語智學平台</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap");
+      :root {
+        --primary-color: #4a90e2;
+        --secondary-color: #34495e;
+        --background-color: #f8f9fa;
+        --text-color: #333;
+        --border-color: #e0e0e0;
+        --button-edit: #27ae60;
+        --button-delete: #e74c3c;
+        --phonetic-color: #9b59b6;
+      }
+      body {
+        font-family: "Noto Sans", "Microsoft JhengHei", "Segoe UI", Tahoma,
+          Geneva, Verdana, sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+      }
+      th {
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: bold;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+      .btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s, transform 0.1s;
+        text-transform: uppercase;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+      }
+      .btn-edit {
+        background-color: var(--button-edit);
+        color: white;
+      }
+      .btn-delete {
+        background-color: var(--button-delete);
+        color: white;
+      }
+      .btn:hover {
+        opacity: 0.9;
+        transform: translateY(1px);
+      }
+      .btn:active {
+        transform: translateY(2px);
+      }
+      .word {
+        font-weight: bold;
+        color: var(--primary-color);
+      }
+      .phonetic {
+        color: var(--phonetic-color);
+        font-style: italic;
+      }
+      .meaning {
+        color: #e67e22;
+        font-style: italic;
+      }
+      .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      .pagination button {
+        margin: 0 5px;
+        padding: 5px 10px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .pagination button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+
+      @media screen and (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+          display: block;
+        }
+        thead tr {
+          position: absolute;
+          top: -9999px;
+          left: -9999px;
+        }
+        tr {
+          margin-bottom: 15px;
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          overflow: hidden;
+        }
+        td {
+          border: none;
+          position: relative;
+          padding-left: 50%;
+          padding-right: 10px;
+          padding-top: 10px;
+          padding-bottom: 10px;
+          text-align: left;
+          min-height: 30px;
+          border-bottom: 1px solid var(--border-color);
+        }
+        td:last-child {
+          border-bottom: none;
+        }
+        td:before {
+          content: attr(data-label);
+          position: absolute;
+          left: 6px;
+          width: 45%;
+          padding-right: 10px;
+          white-space: nowrap;
+          font-weight: bold;
+          text-align: left;
+        }
+        .actions {
+          justify-content: flex-start;
+          padding-left: 50%;
+        }
+        .btn {
+          padding: 8px 12px;
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>單字數據庫</h1>
+      <table id="vocabularyTable">
+        <thead>
+          <tr>
+            <th>單字</th>
+            <th>音標</th>
+            <th>中文意思</th>
+            <th>英文定義</th>
+            <th>例句</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 表格內容將由 JavaScript 動態生成 -->
+        </tbody>
+      </table>
+      <div class="pagination">
+        <button id="prevPage" onclick="changePage(-1)">上一頁</button>
+        <span id="pageInfo"></span>
+        <button id="nextPage" onclick="changePage(1)">下一頁</button>
+      </div>
+    </div>
+
+    <script>
+      // 模擬的單字數據
+      const vocabularyData = [
+        {
+          id: 1,
+          word: "Serendipity",
+          phonetic: "/ˌserənˈdɪpəti/",
+          meaning: "意外發現，機緣巧合",
+          definition:
+            "The occurrence and development of events by chance in a happy or beneficial way.",
+          example:
+            "Her serendipitous discovery of the old book led to a breakthrough in her research.",
+        },
+        {
+          id: 2,
+          word: "Eloquent",
+          phonetic: "/ˈeləkwənt/",
+          meaning: "雄辯的，有說服力的",
+          definition: "Fluent or persuasive in speaking or writing.",
+          example:
+            "The eloquent speaker held the audience's attention throughout his presentation.",
+        },
+        {
+          id: 3,
+          word: "Resilience",
+          phonetic: "/rɪˈzɪliəns/",
+          meaning: "恢復力，適應力",
+          definition:
+            "The capacity to recover quickly from difficulties; toughness.",
+          example:
+            "Her resilience in the face of adversity was truly inspiring to everyone around her.",
+        },
+        {
+          id: 4,
+          word: "Ephemeral",
+          phonetic: "/əˈfem(ə)rəl/",
+          meaning: "短暫的，瞬息的",
+          definition: "Lasting for a very short time.",
+          example:
+            "The ephemeral beauty of cherry blossoms makes them all the more appreciated.",
+        },
+        {
+          id: 5,
+          word: "Ubiquitous",
+          phonetic: "/juːˈbɪkwɪtəs/",
+          meaning: "無處不在的，普遍的",
+          definition: "Present, appearing, or found everywhere.",
+          example: "Smartphones have become ubiquitous in modern society.",
+        },
+        {
+          id: 6,
+          word: "Enigma",
+          phonetic: "/ɪˈnɪɡmə/",
+          meaning: "謎，難解之事",
+          definition:
+            "A person or thing that is mysterious, puzzling, or difficult to understand.",
+          example:
+            "The true nature of dark matter remains an enigma to scientists.",
+        },
+        {
+          id: 7,
+          word: "Benevolent",
+          phonetic: "/bəˈnevələnt/",
+          meaning: "仁慈的，慈善的",
+          definition: "Kind, generous, and caring about others.",
+          example:
+            "The benevolent donor anonymously gave millions to various charities.",
+        },
+      ];
+
+      let currentPage = 1;
+      const itemsPerPage = 5;
+
+      function renderTable() {
+        const tableBody = document.querySelector("#vocabularyTable tbody");
+        tableBody.innerHTML = "";
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const pageData = vocabularyData.slice(startIndex, endIndex);
+
+        pageData.forEach((item) => {
+          const row = `
+                    <tr>
+                        <td data-label="單字"><span class="word">${item.word}</span></td>
+                        <td data-label="音標"><span class="phonetic">${item.phonetic}</span></td>
+                        <td data-label="中文意思"><span class="meaning">${item.meaning}</span></td>
+                        <td data-label="英文定義">${item.definition}</td>
+                        <td data-label="例句">${item.example}</td>
+                        <td data-label="操作">
+                            <div class="actions">
+                                <button class="btn btn-edit" onclick="editWord(${item.id})">修改</button>
+                                <button class="btn btn-delete" onclick="deleteWord(${item.id})">刪除</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+          tableBody.innerHTML += row;
+        });
+
+        updatePagination();
+      }
+
+      function updatePagination() {
+        const totalPages = Math.ceil(vocabularyData.length / itemsPerPage);
+        document.getElementById(
+          "pageInfo"
+        ).textContent = `第 ${currentPage} 頁，共 ${totalPages} 頁`;
+        document.getElementById("prevPage").disabled = currentPage === 1;
+        document.getElementById("nextPage").disabled =
+          currentPage === totalPages;
+      }
+
+      function changePage(direction) {
+        const newPage = currentPage + direction;
+        if (
+          newPage > 0 &&
+          newPage <= Math.ceil(vocabularyData.length / itemsPerPage)
+        ) {
+          currentPage = newPage;
+          renderTable();
+          // 滾動到頁面頂部
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth", // 這會使滾動更平滑
+          });
+        }
+      }
+
+      function editWord(id) {
+        alert("修改單字 ID: " + id);
+        // 這裡添加修改單字的邏輯
+      }
+
+      function deleteWord(id) {
+        if (confirm("確定要刪除這個單字嗎？")) {
+          alert("刪除單字 ID: " + id);
+          // 這裡添加刪除單字的邏輯
+        }
+      }
+
+      // 初始化表格
+      renderTable();
+    </script>
+  </body>
+</html>

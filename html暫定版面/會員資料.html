@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會員資料 - 英語智學平台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --background-color: #ecf0f1;
+            --text-color: #34495e;
+            --border-color: #bdc3c7;
+            --button-edit: #27ae60;
+            --button-save: #2980b9;
+            --card-background: #ffffff;
+        }
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: var(--card-background);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            position: relative;
+        }
+        h1::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 4px;
+            background-color: var(--primary-color);
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .profile-section {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+        .avatar-section {
+            flex: 0 0 120px;
+            margin-right: 40px;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .avatar:hover {
+            transform: scale(1.05);
+        }
+        .info-section {
+            flex: 1;
+        }
+        .info-item {
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .info-item:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .info-label {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-value {
+            font-size: 1.1em;
+            color: var(--text-color);
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-edit {
+            background-color: var(--button-edit);
+            color: white;
+        }
+        .btn-save {
+            background-color: var(--button-save);
+            color: white;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        #editForm {
+            display: none;
+        }
+        #editForm input, #editForm select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        #editForm input:focus, #editForm select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            .profile-section {
+                flex-direction: column;
+                align-items: center;
+            }
+            .avatar-section {
+                margin-right: 0;
+                margin-bottom: 30px;
+            }
+            .info-section {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>會員資料</h1>
+        <div class="profile-section">
+            <div class="avatar-section">
+                <img src="https://i.pravatar.cc/120" alt="會員頭像" class="avatar" id="avatarImg">
+            </div>
+            <div class="info-section">
+                <div class="info-item">
+                    <div class="info-label">姓名</div>
+                    <div class="info-value" id="nameValue">王小明</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">電子郵件</div>
+                    <div class="info-value" id="emailValue">xiaoming.wang@example.com</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">會員等級</div>
+                    <div class="info-value" id="levelValue">高級會員</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">註冊日期</div>
+                    <div class="info-value" id="dateValue">2023年1月15日</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">學習進度</div>
+                    <div class="info-value" id="progressValue">中級英語 (75% 完成)</div>
+                </div>
+            </div>
+        </div>
+        <button id="editButton" class="btn btn-edit" onclick="toggleEditForm()">編輯資料</button>
+        
+        <form id="editForm">
+            <input type="text" id="nameInput" placeholder="姓名">
+            <input type="email" id="emailInput" placeholder="電子郵件">
+            <select id="levelInput">
+                <option value="初級會員">初級會員</option>
+                <option value="中級會員">中級會員</option>
+                <option value="高級會員">高級會員</option>
+            </select>
+            <input type="text" id="progressInput" placeholder="學習進度">
+            <input type="file" id="avatarInput" accept="image/*">
+            <button type="button" class="btn btn-save" onclick="saveChanges()">保存更改</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleEditForm() {
+            const form = document.getElementById('editForm');
+            const infoSection = document.querySelector('.info-section');
+            const editButton = document.getElementById('editButton');
+
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+                infoSection.style.display = 'none';
+                editButton.style.display = 'none';
+                document.getElementById('nameInput').value = document.getElementById('nameValue').textContent;
+                document.getElementById('emailInput').value = document.getElementById('emailValue').textContent;
+                document.getElementById('levelInput').value = document.getElementById('levelValue').textContent;
+                document.getElementById('progressInput').value = document.getElementById('progressValue').textContent;
+            } else {
+                form.style.display = 'none';
+                infoSection.style.display = 'block';
+                editButton.style.display = 'block';
+            }
+        }
+
+        function saveChanges() {
+            document.getElementById('nameValue').textContent = document.getElementById('nameInput').value;
+            document.getElementById('emailValue').textContent = document.getElementById('emailInput').value;
+            document.getElementById('levelValue').textContent = document.getElementById('levelInput').value;
+            document.getElementById('progressValue').textContent = document.getElementById('progressInput').value;
+
+            const fileInput = document.getElementById('avatarInput');
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarImg').src = e.target.result;
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+
+            toggleEditForm();
+        }
+    </script>
+</body>
+</html>

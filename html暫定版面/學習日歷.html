@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學習月曆 - 英語智學平台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .calendar-nav {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .calendar-nav:hover {
+            background-color: #2980b9;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            position: relative;
+            background-color: #f8f9fa;
+        }
+        .calendar-day.active {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            cursor: pointer;
+        }
+        .calendar-day .date {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .calendar-day .practice {
+            font-size: 10px;
+            text-align: center;
+        }
+        .weekday {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px 0;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close:hover {
+            color: #333;
+        }
+        #modalDate {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .modal-section {
+            margin-bottom: 20px;
+        }
+        .modal-section h3 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        .modal-section ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .modal-section li {
+            background-color: #ecf0f1;
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .modal-section li:hover {
+            background-color: #3498db;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .word-item {
+            background-color: #d5f5e3 !important;
+        }
+        .sentence-item {
+            background-color: #d6eaf8 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>學習月曆</h1>
+        <div class="calendar-header">
+            <button class="calendar-nav" onclick="changeMonth(-1)">上個月</button>
+            <h2 id="currentMonth"></h2>
+            <button class="calendar-nav" onclick="changeMonth(1)">下個月</button>
+        </div>
+        <div class="calendar">
+            <div class="weekday">日</div>
+            <div class="weekday">一</div>
+            <div class="weekday">二</div>
+            <div class="weekday">三</div>
+            <div class="weekday">四</div>
+            <div class="weekday">五</div>
+            <div class="weekday">六</div>
+        </div>
+    </div>
+
+    <div id="practiceModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalDate"></h2>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+
+        const learningData = {
+            '2023-07-15': { 
+                words: ['apple', 'banana', 'cherry'],
+                sentences: [
+                    "Can I have a menu, please?",
+                    "How do I get to the nearest subway station?"
+                ]
+            },
+            '2023-07-20': { 
+                words: ['dog', 'elephant', 'frog', 'giraffe', 'horse'],
+                sentences: [
+                    "Hi, my name is John. Nice to meet you.",
+                    "It's quite sunny today, isn't it?",
+                    "I'd like to make an appointment for next Tuesday."
+                ]
+            },
+            '2023-08-03': { 
+                words: ['ice cream', 'juice', 'kiwi'],
+                sentences: [
+                    "Excuse me, where can I find the dairy products?",
+                    "I enjoy playing tennis in my free time."
+                ]
+            },
+            '2023-08-10': { 
+                words: ['laptop', 'mouse', 'notebook', 'pen'],
+                sentences: [
+                    "Could you tell me about your previous work experience?",
+                    "What are your greatest strengths and weaknesses?"
+                ]
+            },
+        };
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDay = firstDay.getDay();
+
+            const calendarEl = document.querySelector('.calendar');
+            const monthEl = document.getElementById('currentMonth');
+
+            // 清除之前的日期
+            while (calendarEl.children.length > 7) {
+                calendarEl.removeChild(calendarEl.lastChild);
+            }
+
+            // 設置月份標題
+            monthEl.textContent = `${year}年${month + 1}月`;
+
+            // 添加空白天數
+            for (let i = 0; i < startingDay; i++) {
+                calendarEl.appendChild(document.createElement('div'));
+            }
+
+            // 添加日期
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayEl = document.createElement('div');
+                dayEl.classList.add('calendar-day');
+                
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const dayData = learningData[dateStr];
+
+                if (dayData) {
+                    dayEl.classList.add('active');
+                    dayEl.innerHTML = `
+                        <span class="date">${i}</span>
+                        <span class="practice">單字: ${dayData.words.length}</span>
+                        <span class="practice">句子: ${dayData.sentences.length}</span>
+                    `;
+                    dayEl.onclick = () => showPracticeDetails(dateStr);
+                } else {
+                    dayEl.innerHTML = `<span class="date">${i}</span>`;
+                }
+
+                calendarEl.appendChild(dayEl);
+            }
+        }
+
+        function changeMonth(delta) {
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function showPracticeDetails(date) {
+            const modal = document.getElementById('practiceModal');
+            const modalDate = document.getElementById('modalDate');
+            const modalContent = document.getElementById('modalContent');
+            const data = learningData[date];
+
+            modalDate.textContent = `${date} 學習記錄`;
+            modalContent.innerHTML = `
+                <div class="modal-section">
+                    <h3>單字練習 (${data.words.length})</h3>
+                    <ul>
+                        ${data.words.map(word => `<li class="word-item">${word}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="modal-section">
+                    <h3>對話句子練習 (${data.sentences.length})</h3>
+                    <ul>
+                        ${data.sentences.map(sentence => `<li class="sentence-item">${sentence}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+
+            modal.style.display = 'block';
+        }
+
+        // 關閉模態框
+        document.querySelector('.close').onclick = function() {
+            document.getElementById('practiceModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('practiceModal')) {
+                document.getElementById('practiceModal').style.display = 'none';
+            }
+        }
+
+        renderCalendar();
+    </script>
+</body>
+</html>
