@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <title>英語單字學習平台</title>
+    <style>
+      :root {
+        --primary-color: #4a90e2;
+        --secondary-color: #50c878;
+        --background-color: #f0f4f8;
+        --card-color: #ffffff;
+        --text-color: #333333;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --button-hover: #3a7bc8;
+        --button-active: #2a5a8a;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+      }
+      header {
+        background-color: var(--primary-color);
+        color: white;
+        text-align: center;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+      }
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      .cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+      }
+      .card {
+        background-color: var(--card-color);
+        border-radius: 10px;
+        padding: 1rem;
+        width: calc(33.333% - 40px);
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .card h2 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+      }
+      .card p {
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+      .card button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s, transform 0.3s;
+        margin: 5px 0;
+      }
+      .card button:hover {
+        background-color: var(--button-hover);
+        transform: translateY(-2px);
+      }
+      .card button:active {
+        background-color: var(--button-active);
+        transform: translateY(0);
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+      .modal-content {
+        background-color: var(--card-color);
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 800px;
+        box-shadow: var(--shadow);
+      }
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .close:hover,
+      .close:focus {
+        color: black;
+        text-decoration: none;
+      }
+      .level-container,
+      .word-container,
+      .quiz-container {
+        margin-bottom: 30px;
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+      }
+      .level-title,
+      .word-title {
+        font-size: 1.2rem;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+      }
+      .level-item,
+      .word-item {
+        margin-bottom: 10px;
+      }
+      .level-item {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s, transform 0.3s;
+        margin: 5px;
+      }
+      .level-item:hover {
+        background-color: var(--button-hover);
+        transform: translateY(-2px);
+      }
+      .level-item:active {
+        background-color: var(--button-active);
+        transform: translateY(0);
+      }
+      .play-btn,
+      .pause-btn,
+      .resume-btn {
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: background-color 0.3s, transform 0.3s;
+      }
+      .play-btn:hover,
+      .pause-btn:hover,
+      .resume-btn:hover {
+        background-color: var(--button-hover);
+        transform: translateY(-2px);
+      }
+      .play-btn:active,
+      .pause-btn:active,
+      .resume-btn:active {
+        background-color: var(--button-active);
+        transform: translateY(0);
+      }
+      .image-container {
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+      .image-container img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+      }
+      .pagination {
+        text-align: center;
+        margin: 20px 0;
+      }
+      .pagination button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s, transform 0.3s;
+        margin: 0 5px;
+      }
+      .pagination button:hover {
+        background-color: var(--button-hover);
+        transform: translateY(-2px);
+      }
+      .pagination button:active {
+        background-color: var(--button-active);
+        transform: translateY(0);
+      }
+      .pagination button[disabled] {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>英語單字學習平台</h1>
+      <p>探索不同單字主題，提升你的英語詞彙量</p>
+    </header>
+
+    <main id="mainContent"></main>
+
+    <div id="levelModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeLevelModal()">&times;</span>
+        <h2 id="levelTitle"></h2>
+        <div id="levelContainer" class="level-container"></div>
+      </div>
+    </div>
+
+    <div id="wordModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeWordModal()">&times;</span>
+        <h2 id="wordTitle"></h2>
+        <div id="wordContainer" class="word-container"></div>
+      </div>
+    </div>
+
+    <div id="quizModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeQuizModal()">&times;</span>
+        <h2 id="quizTitle"></h2>
+        <div id="quizContainer" class="quiz-container"></div>
+      </div>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <script>
+      const wordThemes = {
+        fruits: {
+          A1: [
+            {
+              word: "Apple",
+              definition: "A fruit that is usually red, green, or yellow.",
+            },
+            {
+              word: "Banana",
+              definition:
+                "A long, curved fruit with a yellow skin and soft, sweet, white flesh inside.",
+            },
+          ],
+          A2: [
+            {
+              word: "Cherry",
+              definition:
+                "A small, round fruit that is typically bright or dark red.",
+            },
+            {
+              word: "Date",
+              definition:
+                "The sweet fruit of a tropical palm, often eaten dried.",
+            },
+          ],
+          B1: [
+            {
+              word: "Elderberry",
+              definition:
+                "A small, dark purple fruit used in making wines, jellies, and medicines.",
+            },
+          ],
+          B2: [
+            {
+              word: "Fig",
+              definition:
+                "A soft fruit with a thin skin that can be eaten fresh or dried.",
+            },
+          ],
+          C1: [
+            {
+              word: "Grapefruit",
+              definition:
+                "A large round fruit with a yellow skin and a pink or yellow interior.",
+            },
+          ],
+          C2: [
+            {
+              word: "Huckleberry",
+              definition:
+                "A small round fruit that is usually black or dark blue.",
+            },
+          ],
+        },
+        animals: {
+          A1: [
+            {
+              word: "Cat",
+              definition:
+                "A small domesticated carnivorous mammal with soft fur.",
+            },
+            {
+              word: "Dog",
+              definition:
+                "A domesticated carnivorous mammal that typically has a long snout and acute sense of smell.",
+            },
+          ],
+          A2: [
+            {
+              word: "Elephant",
+              definition:
+                "A large herbivorous mammal with a trunk, native to Africa and southern Asia.",
+            },
+            {
+              word: "Falcon",
+              definition:
+                "A bird of prey with long, pointed wings and a notched beak.",
+            },
+          ],
+          B1: [
+            {
+              word: "Giraffe",
+              definition:
+                "A large African mammal with a very long neck and forelegs.",
+            },
+          ],
+          B2: [
+            {
+              word: "Hedgehog",
+              definition:
+                "A small mammal with a spiny back, known for its ability to roll into a ball.",
+            },
+          ],
+          C1: [
+            {
+              word: "Iguana",
+              definition:
+                "A large arboreal tropical American lizard with a spiny crest.",
+            },
+          ],
+          C2: [
+            {
+              word: "Jaguar",
+              definition:
+                "A large, heavily built cat that has a yellowish-brown coat with black spots.",
+            },
+          ],
+        },
+        colors: {
+          A1: [
+            {
+              word: "Red",
+              definition:
+                "The color at the end of the spectrum next to orange and opposite violet.",
+            },
+            {
+              word: "Blue",
+              definition: "The color of the clear sky and the deep sea.",
+            },
+          ],
+          A2: [
+            {
+              word: "Green",
+              definition: "The color between blue and yellow in the spectrum.",
+            },
+            {
+              word: "Yellow",
+              definition: "The color of gold, butter, and ripe lemons.",
+            },
+          ],
+          B1: [
+            {
+              word: "Purple",
+              definition: "A color intermediate between red and blue.",
+            },
+          ],
+          B2: [
+            {
+              word: "Magenta",
+              definition:
+                "A light mauvish-crimson, one of the primary subtractive colors.",
+            },
+          ],
+          C1: [
+            {
+              word: "Cyan",
+              definition:
+                "A greenish-blue color, one of the primary subtractive colors.",
+            },
+          ],
+          C2: [
+            {
+              word: "Chartreuse",
+              definition:
+                "A color halfway between green and yellow that is named after the green color of one of the French liquors called green chartreuse.",
+            },
+          ],
+        },
+        technology: {
+          A1: [
+            {
+              word: "Computer",
+              definition:
+                "An electronic device for storing and processing data.",
+            },
+            {
+              word: "Mouse",
+              definition:
+                "A small handheld device that controls a cursor on a computer screen.",
+            },
+          ],
+          A2: [
+            {
+              word: "Keyboard",
+              definition: "A set of keys used to operate a computer.",
+            },
+            {
+              word: "Monitor",
+              definition:
+                "An output device that displays information in pictorial form.",
+            },
+          ],
+          B1: [
+            {
+              word: "Software",
+              definition:
+                "The programs and other operating information used by a computer.",
+            },
+          ],
+          B2: [
+            {
+              word: "Hardware",
+              definition: "The physical parts of a computer system.",
+            },
+          ],
+          C1: [
+            {
+              word: "Router",
+              definition: "A device that forwards data packets along networks.",
+            },
+          ],
+          C2: [
+            {
+              word: "Bandwidth",
+              definition:
+                "The range of frequencies within a given band, especially that used for transmitting a signal.",
+            },
+          ],
+        },
+        healthcare: {
+          A1: [
+            {
+              word: "Doctor",
+              definition:
+                "A person who is qualified to treat people who are ill.",
+            },
+            {
+              word: "Nurse",
+              definition: "A person trained to care for the sick or infirm.",
+            },
+          ],
+          A2: [
+            {
+              word: "Hospital",
+              definition:
+                "An institution providing medical and surgical treatment and nursing care for sick or injured people.",
+            },
+            {
+              word: "Medicine",
+              definition:
+                "The science or practice of the diagnosis, treatment, and prevention of disease.",
+            },
+          ],
+          B1: [
+            {
+              word: "Surgery",
+              definition:
+                "The treatment of injuries or disorders of the body by incision or manipulation, especially with instruments.",
+            },
+          ],
+          B2: [
+            {
+              word: "Therapy",
+              definition: "Treatment intended to relieve or heal a disorder.",
+            },
+          ],
+          C1: [
+            {
+              word: "Pharmacy",
+              definition:
+                "A store where medicinal drugs are dispensed and sold.",
+            },
+          ],
+          C2: [
+            {
+              word: "Radiology",
+              definition:
+                "The science dealing with X-rays and other high-energy radiation, especially the use of such radiation for the diagnosis and treatment of disease.",
+            },
+          ],
+        },
+        sports: {
+          A1: [
+            {
+              word: "Football",
+              definition:
+                "A game in which two teams of 11 players try to kick or head a ball into the other team's goal.",
+            },
+            {
+              word: "Tennis",
+              definition:
+                "A game played between two or four players with a racket and a ball on a rectangular court.",
+            },
+          ],
+          A2: [
+            {
+              word: "Basketball",
+              definition:
+                "A game in which two teams of five players try to score points by throwing a ball through a high hoop.",
+            },
+            {
+              word: "Volleyball",
+              definition:
+                "A game in which two teams hit a ball over a high net using their hands.",
+            },
+          ],
+          B1: [
+            {
+              word: "Badminton",
+              definition:
+                "A game with rackets in which a shuttlecock is hit back and forth across a net.",
+            },
+          ],
+          B2: [
+            {
+              word: "Baseball",
+              definition:
+                "A ball game played between two teams of nine on a diamond-shaped circuit of four bases.",
+            },
+          ],
+          C1: [
+            {
+              word: "Hockey",
+              definition:
+                "A game played on an ice rink in which two teams of six skaters use sticks to drive a puck into the opposing goal.",
+            },
+          ],
+          C2: [
+            {
+              word: "Gymnastics",
+              definition:
+                "Physical exercises designed to develop strength and coordination.",
+            },
+          ],
+        },
+        occupations: {
+          A1: [
+            {
+              word: "Teacher",
+              definition: "A person who teaches, especially in a school.",
+            },
+            {
+              word: "Engineer",
+              definition:
+                "A person who designs, builds, or maintains engines, machines, or structures.",
+            },
+          ],
+          A2: [
+            {
+              word: "Doctor",
+              definition:
+                "A person who is qualified to treat people who are ill.",
+            },
+            {
+              word: "Nurse",
+              definition: "A person trained to care for the sick or infirm.",
+            },
+          ],
+          B1: [
+            {
+              word: "Architect",
+              definition:
+                "A person who designs buildings and in many cases also supervises their construction.",
+            },
+          ],
+          B2: [
+            {
+              word: "Chef",
+              definition:
+                "A professional cook, typically the chief cook in a restaurant or hotel.",
+            },
+          ],
+          C1: [
+            {
+              word: "Journalist",
+              definition:
+                "A person who writes for newspapers, magazines, or news websites or prepares news to be broadcast.",
+            },
+          ],
+          C2: [
+            {
+              word: "Librarian",
+              definition:
+                "A person, typically with a degree in library science, who administers or assists in a library.",
+            },
+          ],
+        },
+        family: {
+          A1: [
+            {
+              word: "Mother",
+              definition: "A woman in relation to her child or children.",
+            },
+            {
+              word: "Father",
+              definition: "A man in relation to his child or children.",
+            },
+          ],
+          A2: [
+            {
+              word: "Brother",
+              definition:
+                "A boy or man who has one or both of the same parents as you.",
+            },
+            {
+              word: "Sister",
+              definition:
+                "A girl or woman who has one or both of the same parents as you.",
+            },
+          ],
+          B1: [
+            {
+              word: "Grandparent",
+              definition: "A parent of one's father or mother.",
+            },
+          ],
+          B2: [
+            {
+              word: "Uncle",
+              definition:
+                "The brother of one's father or mother or the husband of one's aunt.",
+            },
+          ],
+          C1: [
+            {
+              word: "Aunt",
+              definition:
+                "The sister of one's father or mother or the wife of one's uncle.",
+            },
+          ],
+          C2: [
+            { word: "Cousin", definition: "A child of one's uncle or aunt." },
+          ],
+        },
+      };
+
+      const quizzes = {
+        fruits: {
+          A1: [
+            {
+              question: "What is the definition of 'Apple'?",
+              options: [
+                "A fruit that is usually red, green, or yellow.",
+                "A long, curved fruit with a yellow skin.",
+                "A small, round fruit that is typically bright or dark red.",
+                "The sweet fruit of a tropical palm.",
+              ],
+              correctAnswer: 0,
+            },
+            {
+              question: "What is the definition of 'Banana'?",
+              options: [
+                "A small, round fruit that is typically bright or dark red.",
+                "The sweet fruit of a tropical palm.",
+                "A long, curved fruit with a yellow skin and soft, sweet, white flesh inside.",
+                "A small, dark purple fruit used in making wines, jellies, and medicines.",
+              ],
+              correctAnswer: 2,
+            },
+          ],
+          A2: [
+            {
+              question: "What is the definition of 'Cherry'?",
+              options: [
+                "A large herbivorous mammal with a trunk.",
+                "The sweet fruit of a tropical palm.",
+                "A small, round fruit that is typically bright or dark red.",
+                "A bird of prey with long, pointed wings and a notched beak.",
+              ],
+              correctAnswer: 2,
+            },
+            {
+              question: "What is the definition of 'Date'?",
+              options: [
+                "A long, curved fruit with a yellow skin.",
+                "The sweet fruit of a tropical palm, often eaten dried.",
+                "A small, dark purple fruit used in making wines, jellies, and medicines.",
+                "A large herbivorous mammal with a trunk.",
+              ],
+              correctAnswer: 1,
+            },
+          ],
+          B1: [
+            {
+              question: "What is the definition of 'Elderberry'?",
+              options: [
+                "A bird of prey with long, pointed wings and a notched beak.",
+                "A large African mammal with a very long neck and forelegs.",
+                "A small, dark purple fruit used in making wines, jellies, and medicines.",
+                "An electronic device for storing and processing data.",
+              ],
+              correctAnswer: 2,
+            },
+          ],
+          B2: [
+            {
+              question: "What is the definition of 'Fig'?",
+              options: [
+                "A soft fruit with a thin skin that can be eaten fresh or dried.",
+                "A large African mammal with a very long neck and forelegs.",
+                "A small, dark purple fruit used in making wines, jellies, and medicines.",
+                "An electronic device for storing and processing data.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C1: [
+            {
+              question: "What is the definition of 'Grapefruit'?",
+              options: [
+                "A soft fruit with a thin skin that can be eaten fresh or dried.",
+                "A large round fruit with a yellow skin and a pink or yellow interior.",
+                "A small, dark purple fruit used in making wines, jellies, and medicines.",
+                "An electronic device for storing and processing data.",
+              ],
+              correctAnswer: 1,
+            },
+          ],
+          C2: [
+            {
+              question: "What is the definition of 'Huckleberry'?",
+              options: [
+                "A large round fruit with a yellow skin and a pink or yellow interior.",
+                "A small round fruit that is usually black or dark blue.",
+                "A small, dark purple fruit used in making wines, jellies, and medicines.",
+                "An electronic device for storing and processing data.",
+              ],
+              correctAnswer: 1,
+            },
+          ],
+        },
+        animals: {
+          A1: [
+            {
+              question: "What is the definition of 'Cat'?",
+              options: [
+                "A small domesticated carnivorous mammal with soft fur.",
+                "A domesticated carnivorous mammal that typically has a long snout.",
+                "A large herbivorous mammal with a trunk.",
+                "A bird of prey with long, pointed wings and a notched beak.",
+              ],
+              correctAnswer: 0,
+            },
+            {
+              question: "What is the definition of 'Dog'?",
+              options: [
+                "A small domesticated carnivorous mammal with soft fur.",
+                "A domesticated carnivorous mammal that typically has a long snout and acute sense of smell.",
+                "A large herbivorous mammal with a trunk.",
+                "A bird of prey with long, pointed wings and a notched beak.",
+              ],
+              correctAnswer: 1,
+            },
+          ],
+          A2: [
+            {
+              question: "What is the definition of 'Elephant'?",
+              options: [
+                "A small domesticated carnivorous mammal with soft fur.",
+                "A domesticated carnivorous mammal that typically has a long snout and acute sense of smell.",
+                "A large herbivorous mammal with a trunk, native to Africa and southern Asia.",
+                "A bird of prey with long, pointed wings and a notched beak.",
+              ],
+              correctAnswer: 2,
+            },
+            {
+              question: "What is the definition of 'Falcon'?",
+              options: [
+                "A bird of prey with long, pointed wings and a notched beak.",
+                "A large herbivorous mammal with a trunk, native to Africa and southern Asia.",
+                "A small domesticated carnivorous mammal with soft fur.",
+                "A domesticated carnivorous mammal that typically has a long snout and acute sense of smell.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          B1: [
+            {
+              question: "What is the definition of 'Giraffe'?",
+              options: [
+                "A large African mammal with a very long neck and forelegs.",
+                "A small domesticated carnivorous mammal with soft fur.",
+                "A domesticated carnivorous mammal that typically has a long snout and acute sense of smell.",
+                "A bird of prey with long, pointed wings and a notched beak.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          B2: [
+            {
+              question: "What is the definition of 'Hedgehog'?",
+              options: [
+                "A small mammal with a spiny back, known for its ability to roll into a ball.",
+                "A small domesticated carnivorous mammal with soft fur.",
+                "A domesticated carnivorous mammal that typically has a long snout and acute sense of smell.",
+                "A bird of prey with long, pointed wings and a notched beak.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C1: [
+            {
+              question: "What is the definition of 'Iguana'?",
+              options: [
+                "A large arboreal tropical American lizard with a spiny crest.",
+                "A small domesticated carnivorous mammal with soft fur.",
+                "A domesticated carnivorous mammal that typically has a long snout and acute sense of smell.",
+                "A bird of prey with long, pointed wings and a notched beak.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C2: [
+            {
+              question: "What is the definition of 'Jaguar'?",
+              options: [
+                "A large, heavily built cat that has a yellowish-brown coat with black spots.",
+                "A small domesticated carnivorous mammal with soft fur.",
+                "A domesticated carnivorous mammal that typically has a long snout and acute sense of smell.",
+                "A bird of prey with long, pointed wings and a notched beak.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+        },
+        colors: {
+          A1: [
+            {
+              question: "What is the definition of 'Red'?",
+              options: [
+                "The color of the clear sky and the deep sea.",
+                "The color at the end of the spectrum next to orange and opposite violet.",
+                "The color between blue and yellow in the spectrum.",
+                "The color of gold, butter, and ripe lemons.",
+              ],
+              correctAnswer: 1,
+            },
+            {
+              question: "What is the definition of 'Blue'?",
+              options: [
+                "The color of the clear sky and the deep sea.",
+                "The color at the end of the spectrum next to orange and opposite violet.",
+                "The color between blue and yellow in the spectrum.",
+                "The color of gold, butter, and ripe lemons.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          A2: [
+            {
+              question: "What is the definition of 'Green'?",
+              options: [
+                "The color of the clear sky and the deep sea.",
+                "The color at the end of the spectrum next to orange and opposite violet.",
+                "The color between blue and yellow in the spectrum.",
+                "The color of gold, butter, and ripe lemons.",
+              ],
+              correctAnswer: 2,
+            },
+            {
+              question: "What is the definition of 'Yellow'?",
+              options: [
+                "The color of the clear sky and the deep sea.",
+                "The color at the end of the spectrum next to orange and opposite violet.",
+                "The color between blue and yellow in the spectrum.",
+                "The color of gold, butter, and ripe lemons.",
+              ],
+              correctAnswer: 3,
+            },
+          ],
+          B1: [
+            {
+              question: "What is the definition of 'Purple'?",
+              options: [
+                "The color of the clear sky and the deep sea.",
+                "The color at the end of the spectrum next to orange and opposite violet.",
+                "A color intermediate between red and blue.",
+                "The color of gold, butter, and ripe lemons.",
+              ],
+              correctAnswer: 2,
+            },
+          ],
+          B2: [
+            {
+              question: "What is the definition of 'Magenta'?",
+              options: [
+                "A light mauvish-crimson, one of the primary subtractive colors.",
+                "A color intermediate between red and blue.",
+                "The color of the clear sky and the deep sea.",
+                "The color of gold, butter, and ripe lemons.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C1: [
+            {
+              question: "What is the definition of 'Cyan'?",
+              options: [
+                "A greenish-blue color, one of the primary subtractive colors.",
+                "A light mauvish-crimson, one of the primary subtractive colors.",
+                "A color intermediate between red and blue.",
+                "The color of gold, butter, and ripe lemons.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C2: [
+            {
+              question: "What is the definition of 'Chartreuse'?",
+              options: [
+                "A color halfway between green and yellow that is named after the green color of one of the French liquors called green chartreuse.",
+                "A greenish-blue color, one of the primary subtractive colors.",
+                "A light mauvish-crimson, one of the primary subtractive colors.",
+                "A color intermediate between red and blue.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+        },
+        technology: {
+          A1: [
+            {
+              question: "What is the definition of 'Computer'?",
+              options: [
+                "A device for making calls.",
+                "An electronic device for storing and processing data.",
+                "A set of keys used to operate a computer.",
+                "A device for capturing images.",
+              ],
+              correctAnswer: 1,
+            },
+            {
+              question: "What is the definition of 'Mouse'?",
+              options: [
+                "A small handheld device that controls a cursor on a computer screen.",
+                "A set of keys used to operate a computer.",
+                "An output device that displays information in pictorial form.",
+                "The programs and other operating information used by a computer.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          A2: [
+            {
+              question: "What is the definition of 'Keyboard'?",
+              options: [
+                "A set of keys used to operate a computer.",
+                "An electronic device for storing and processing data.",
+                "A small handheld device that controls a cursor on a computer screen.",
+                "An output device that displays information in pictorial form.",
+              ],
+              correctAnswer: 0,
+            },
+            {
+              question: "What is the definition of 'Monitor'?",
+              options: [
+                "A set of keys used to operate a computer.",
+                "An electronic device for storing and processing data.",
+                "A small handheld device that controls a cursor on a computer screen.",
+                "An output device that displays information in pictorial form.",
+              ],
+              correctAnswer: 3,
+            },
+          ],
+          B1: [
+            {
+              question: "What is the definition of 'Software'?",
+              options: [
+                "A set of keys used to operate a computer.",
+                "An electronic device for storing and processing data.",
+                "The programs and other operating information used by a computer.",
+                "An output device that displays information in pictorial form.",
+              ],
+              correctAnswer: 2,
+            },
+          ],
+          B2: [
+            {
+              question: "What is the definition of 'Hardware'?",
+              options: [
+                "The physical parts of a computer system.",
+                "An electronic device for storing and processing data.",
+                "The programs and other operating information used by a computer.",
+                "A set of keys used to operate a computer.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C1: [
+            {
+              question: "What is the definition of 'Router'?",
+              options: [
+                "A device that forwards data packets along networks.",
+                "The physical parts of a computer system.",
+                "An electronic device for storing and processing data.",
+                "The programs and other operating information used by a computer.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C2: [
+            {
+              question: "What is the definition of 'Bandwidth'?",
+              options: [
+                "The range of frequencies within a given band, especially that used for transmitting a signal.",
+                "A device that forwards data packets along networks.",
+                "The physical parts of a computer system.",
+                "The programs and other operating information used by a computer.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+        },
+        healthcare: {
+          A1: [
+            {
+              question: "What is the definition of 'Doctor'?",
+              options: [
+                "A person who is qualified to treat people who are ill.",
+                "A person trained to care for the sick or infirm.",
+                "An institution providing medical and surgical treatment.",
+                "The science or practice of the diagnosis, treatment, and prevention of disease.",
+              ],
+              correctAnswer: 0,
+            },
+            {
+              question: "What is the definition of 'Nurse'?",
+              options: [
+                "A person who is qualified to treat people who are ill.",
+                "A person trained to care for the sick or infirm.",
+                "An institution providing medical and surgical treatment.",
+                "The science or practice of the diagnosis, treatment, and prevention of disease.",
+              ],
+              correctAnswer: 1,
+            },
+          ],
+          A2: [
+            {
+              question: "What is the definition of 'Hospital'?",
+              options: [
+                "A person who is qualified to treat people who are ill.",
+                "A person trained to care for the sick or infirm.",
+                "An institution providing medical and surgical treatment and nursing care for sick or injured people.",
+                "The science or practice of the diagnosis, treatment, and prevention of disease.",
+              ],
+              correctAnswer: 2,
+            },
+            {
+              question: "What is the definition of 'Medicine'?",
+              options: [
+                "A person who is qualified to treat people who are ill.",
+                "A person trained to care for the sick or infirm.",
+                "An institution providing medical and surgical treatment.",
+                "The science or practice of the diagnosis, treatment, and prevention of disease.",
+              ],
+              correctAnswer: 3,
+            },
+          ],
+          B1: [
+            {
+              question: "What is the definition of 'Surgery'?",
+              options: [
+                "The science or practice of the diagnosis, treatment, and prevention of disease.",
+                "An institution providing medical and surgical treatment.",
+                "The treatment of injuries or disorders of the body by incision or manipulation, especially with instruments.",
+                "A person who is qualified to treat people who are ill.",
+              ],
+              correctAnswer: 2,
+            },
+          ],
+          B2: [
+            {
+              question: "What is the definition of 'Therapy'?",
+              options: [
+                "The treatment intended to relieve or heal a disorder.",
+                "The science or practice of the diagnosis, treatment, and prevention of disease.",
+                "An institution providing medical and surgical treatment.",
+                "The treatment of injuries or disorders of the body by incision or manipulation, especially with instruments.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C1: [
+            {
+              question: "What is the definition of 'Pharmacy'?",
+              options: [
+                "A store where medicinal drugs are dispensed and sold.",
+                "The treatment intended to relieve or heal a disorder.",
+                "The science or practice of the diagnosis, treatment, and prevention of disease.",
+                "An institution providing medical and surgical treatment.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C2: [
+            {
+              question: "What is the definition of 'Radiology'?",
+              options: [
+                "The science dealing with X-rays and other high-energy radiation, especially the use of such radiation for the diagnosis and treatment of disease.",
+                "A store where medicinal drugs are dispensed and sold.",
+                "The treatment intended to relieve or heal a disorder.",
+                "The science or practice of the diagnosis, treatment, and prevention of disease.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+        },
+        sports: {
+          A1: [
+            {
+              question: "What is the definition of 'Football'?",
+              options: [
+                "A game in which two teams of 11 players try to kick or head a ball into the other team's goal.",
+                "A game played between two or four players with a racket and a ball on a rectangular court.",
+                "A game in which two teams of five players try to score points by throwing a ball through a high hoop.",
+                "A game in which two teams hit a ball over a high net using their hands.",
+              ],
+              correctAnswer: 0,
+            },
+            {
+              question: "What is the definition of 'Tennis'?",
+              options: [
+                "A game in which two teams of 11 players try to kick or head a ball into the other team's goal.",
+                "A game played between two or four players with a racket and a ball on a rectangular court.",
+                "A game in which two teams of five players try to score points by throwing a ball through a high hoop.",
+                "A game in which two teams hit a ball over a high net using their hands.",
+              ],
+              correctAnswer: 1,
+            },
+          ],
+          A2: [
+            {
+              question: "What is the definition of 'Basketball'?",
+              options: [
+                "A game in which two teams of 11 players try to kick or head a ball into the other team's goal.",
+                "A game played between two or four players with a racket and a ball on a rectangular court.",
+                "A game in which two teams of five players try to score points by throwing a ball through a high hoop.",
+                "A game in which two teams hit a ball over a high net using their hands.",
+              ],
+              correctAnswer: 2,
+            },
+            {
+              question: "What is the definition of 'Volleyball'?",
+              options: [
+                "A game in which two teams of 11 players try to kick or head a ball into the other team's goal.",
+                "A game played between two or four players with a racket and a ball on a rectangular court.",
+                "A game in which two teams of five players try to score points by throwing a ball through a high hoop.",
+                "A game in which two teams hit a ball over a high net using their hands.",
+              ],
+              correctAnswer: 3,
+            },
+          ],
+          B1: [
+            {
+              question: "What is the definition of 'Badminton'?",
+              options: [
+                "A game in which two teams of 11 players try to kick or head a ball into the other team's goal.",
+                "A game played between two or four players with a racket and a ball on a rectangular court.",
+                "A game in which two teams of five players try to score points by throwing a ball through a high hoop.",
+                "A game with rackets in which a shuttlecock is hit back and forth across a net.",
+              ],
+              correctAnswer: 3,
+            },
+          ],
+          B2: [
+            {
+              question: "What is the definition of 'Baseball'?",
+              options: [
+                "A ball game played between two teams of nine on a diamond-shaped circuit of four bases.",
+                "A game with rackets in which a shuttlecock is hit back and forth across a net.",
+                "A game in which two teams of five players try to score points by throwing a ball through a high hoop.",
+                "A game played between two or four players with a racket and a ball on a rectangular court.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C1: [
+            {
+              question: "What is the definition of 'Hockey'?",
+              options: [
+                "A game played on an ice rink in which two teams of six skaters use sticks to drive a puck into the opposing goal.",
+                "A ball game played between two teams of nine on a diamond-shaped circuit of four bases.",
+                "A game with rackets in which a shuttlecock is hit back and forth across a net.",
+                "A game in which two teams of five players try to score points by throwing a ball through a high hoop.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C2: [
+            {
+              question: "What is the definition of 'Gymnastics'?",
+              options: [
+                "Physical exercises designed to develop strength and coordination.",
+                "A game played on an ice rink in which two teams of six skaters use sticks to drive a puck into the opposing goal.",
+                "A ball game played between two teams of nine on a diamond-shaped circuit of four bases.",
+                "A game with rackets in which a shuttlecock is hit back and forth across a net.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+        },
+        occupations: {
+          A1: [
+            {
+              question: "What is the definition of 'Teacher'?",
+              options: [
+                "A person who designs, builds, or maintains engines, machines, or structures.",
+                "A person who teaches, especially in a school.",
+                "A person who is qualified to treat people who are ill.",
+                "A person trained to care for the sick or infirm.",
+              ],
+              correctAnswer: 1,
+            },
+            {
+              question: "What is the definition of 'Engineer'?",
+              options: [
+                "A person who designs, builds, or maintains engines, machines, or structures.",
+                "A person who teaches, especially in a school.",
+                "A person who is qualified to treat people who are ill.",
+                "A person trained to care for the sick or infirm.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          A2: [
+            {
+              question: "What is the definition of 'Doctor'?",
+              options: [
+                "A person who designs, builds, or maintains engines, machines, or structures.",
+                "A person who teaches, especially in a school.",
+                "A person who is qualified to treat people who are ill.",
+                "A person trained to care for the sick or infirm.",
+              ],
+              correctAnswer: 2,
+            },
+            {
+              question: "What is the definition of 'Nurse'?",
+              options: [
+                "A person who designs, builds, or maintains engines, machines, or structures.",
+                "A person who teaches, especially in a school.",
+                "A person who is qualified to treat people who are ill.",
+                "A person trained to care for the sick or infirm.",
+              ],
+              correctAnswer: 3,
+            },
+          ],
+          B1: [
+            {
+              question: "What is the definition of 'Architect'?",
+              options: [
+                "A person who designs, builds, or maintains engines, machines, or structures.",
+                "A person who designs buildings and in many cases also supervises their construction.",
+                "A person who is qualified to treat people who are ill.",
+                "A person trained to care for the sick or infirm.",
+              ],
+              correctAnswer: 1,
+            },
+          ],
+          B2: [
+            {
+              question: "What is the definition of 'Chef'?",
+              options: [
+                "A professional cook, typically the chief cook in a restaurant or hotel.",
+                "A person who designs buildings and in many cases also supervises their construction.",
+                "A person who is qualified to treat people who are ill.",
+                "A person trained to care for the sick or infirm.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C1: [
+            {
+              question: "What is the definition of 'Journalist'?",
+              options: [
+                "A person who writes for newspapers, magazines, or news websites or prepares news to be broadcast.",
+                "A professional cook, typically the chief cook in a restaurant or hotel.",
+                "A person who designs buildings and in many cases also supervises their construction.",
+                "A person who is qualified to treat people who are ill.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C2: [
+            {
+              question: "What is the definition of 'Librarian'?",
+              options: [
+                "A person, typically with a degree in library science, who administers or assists in a library.",
+                "A person who writes for newspapers, magazines, or news websites or prepares news to be broadcast.",
+                "A professional cook, typically the chief cook in a restaurant or hotel.",
+                "A person who designs buildings and in many cases also supervises their construction.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+        },
+        family: {
+          A1: [
+            {
+              question: "What is the definition of 'Mother'?",
+              options: [
+                "A woman in relation to her child or children.",
+                "A man in relation to his child or children.",
+                "A boy or man who has one or both of the same parents as you.",
+                "A girl or woman who has one or both of the same parents as you.",
+              ],
+              correctAnswer: 0,
+            },
+            {
+              question: "What is the definition of 'Father'?",
+              options: [
+                "A woman in relation to her child or children.",
+                "A man in relation to his child or children.",
+                "A boy or man who has one or both of the same parents as you.",
+                "A girl or woman who has one or both of the same parents as you.",
+              ],
+              correctAnswer: 1,
+            },
+          ],
+          A2: [
+            {
+              question: "What is the definition of 'Brother'?",
+              options: [
+                "A woman in relation to her child or children.",
+                "A man in relation to his child or children.",
+                "A boy or man who has one or both of the same parents as you.",
+                "A girl or woman who has one or both of the same parents as you.",
+              ],
+              correctAnswer: 2,
+            },
+            {
+              question: "What is the definition of 'Sister'?",
+              options: [
+                "A woman in relation to her child or children.",
+                "A man in relation to his child or children.",
+                "A boy or man who has one or both of the same parents as you.",
+                "A girl or woman who has one or both of the same parents as you.",
+              ],
+              correctAnswer: 3,
+            },
+          ],
+          B1: [
+            {
+              question: "What is the definition of 'Grandparent'?",
+              options: [
+                "A parent of one's father or mother.",
+                "A boy or man who has one or both of the same parents as you.",
+                "A girl or woman who has one or both of the same parents as you.",
+                "A man in relation to his child or children.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          B2: [
+            {
+              question: "What is the definition of 'Uncle'?",
+              options: [
+                "The brother of one's father or mother or the husband of one's aunt.",
+                "A parent of one's father or mother.",
+                "A boy or man who has one or both of the same parents as you.",
+                "A girl or woman who has one or both of the same parents as you.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C1: [
+            {
+              question: "What is the definition of 'Aunt'?",
+              options: [
+                "The sister of one's father or mother or the wife of one's uncle.",
+                "The brother of one's father or mother or the husband of one's aunt.",
+                "A parent of one's father or mother.",
+                "A boy or man who has one or both of the same parents as you.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+          C2: [
+            {
+              question: "What is the definition of 'Cousin'?",
+              options: [
+                "A child of one's uncle or aunt.",
+                "The sister of one's father or mother or the wife of one's uncle.",
+                "The brother of one's father or mother or the husband of one's aunt.",
+                "A parent of one's father or mother.",
+              ],
+              correctAnswer: 0,
+            },
+          ],
+        },
+      };
+
+      const themesPerPage = 6;
+      let currentPage = 1;
+
+      function showPage(page) {
+        currentPage = page;
+        const mainContent = document.getElementById("mainContent");
+        mainContent.innerHTML = "";
+        const start = (page - 1) * themesPerPage;
+        const end = start + themesPerPage;
+        const themes = Object.keys(wordThemes).slice(start, end);
+
+        mainContent.innerHTML = '<div class="cards-container"></div>';
+        const cardsContainer = document.querySelector(".cards-container");
+
+        themes.forEach((theme) => {
+          cardsContainer.innerHTML += `
+          <div class="card">
+            <h2>${getThemeTitle(theme)}</h2>
+            <div class="image-container">
+              <img src="path-to-your-image.jpg" alt="${getThemeTitle(
+                theme
+              )}圖片">
+            </div>
+            <p>${getThemeDescription(theme)}</p>
+            <button onclick="showLevels('${theme}')">顯示單字</button>
+            <button onclick="showQuiz('${theme}')">開始測驗</button>
+          </div>
+        `;
+        });
+
+        updatePagination();
+      }
+
+      function getThemeTitle(theme) {
+        switch (theme) {
+          case "fruits":
+            return "水果";
+          case "animals":
+            return "動物";
+          case "colors":
+            return "顏色";
+          case "technology":
+            return "科技";
+          case "healthcare":
+            return "醫療";
+          case "sports":
+            return "運動";
+          case "occupations":
+            return "職業";
+          case "family":
+            return "家庭";
+          default:
+            return "單字主題";
+        }
+      }
+
+      function getThemeDescription(theme) {
+        switch (theme) {
+          case "fruits":
+            return "學習常見的水果單字。";
+          case "animals":
+            return "學習常見的動物單字。";
+          case "colors":
+            return "學習常見的顏色單字。";
+          case "technology":
+            return "學習科技相關的單字。";
+          case "healthcare":
+            return "學習醫療相關的單字。";
+          case "sports":
+            return "學習運動相關的單字。";
+          case "occupations":
+            return "學習常見的職業單字。";
+          case "family":
+            return "學習家庭相關的單字。";
+          default:
+            return "單字主題";
+        }
+      }
+
+      function updatePagination() {
+        const pagination = document.getElementById("pagination");
+        const totalThemes = Object.keys(wordThemes).length;
+        const totalPages = Math.ceil(totalThemes / themesPerPage);
+        pagination.innerHTML = "";
+
+        for (let i = 1; i <= totalPages; i++) {
+          pagination.innerHTML += `<button onclick="showPage(${i})" ${
+            i === currentPage ? "disabled" : ""
+          }>${i}</button>`;
+        }
+      }
+
+      function showLevels(theme) {
+        const modal = document.getElementById("levelModal");
+        const title = document.getElementById("levelTitle");
+        const container = document.getElementById("levelContainer");
+
+        title.textContent = `選擇${getThemeTitle(theme)}的難度級別`;
+        container.innerHTML = "";
+
+        Object.keys(wordThemes[theme]).forEach((level) => {
+          container.innerHTML += `
+          <button class="level-item" onclick="showWords('${theme}', '${level}')">${level}</button>
+        `;
+        });
+
+        modal.style.display = "block";
+      }
+
+      function showWords(theme, level) {
+        const modal = document.getElementById("wordModal");
+        const title = document.getElementById("wordTitle");
+        const container = document.getElementById("wordContainer");
+
+        title.textContent = `${getThemeTitle(theme)} - ${level}`;
+        container.innerHTML = wordThemes[theme][level]
+          .map(
+            (wordItem) => `
+            <div class="word-group">
+              <h4 class="word-title">${wordItem.word}</h4>
+              <p>${wordItem.definition}</p>
+              <button class="play-btn" onclick="speak('${wordItem.word.replace(
+                /'/g,
+                "\\'"
+              )}')">播放</button>
+              <button class="pause-btn" onclick="pauseSpeech()">暫停</button>
+              <button class="resume-btn" onclick="resumeSpeech()">恢復</button>
+            </div>
+          `
+          )
+          .join("");
+
+        modal.style.display = "block";
+      }
+
+      function showQuiz(theme) {
+        const modal = document.getElementById("quizModal");
+        const title = document.getElementById("quizTitle");
+        const container = document.getElementById("quizContainer");
+
+        title.textContent = `${getThemeTitle(theme)} - 測驗`;
+        container.innerHTML = "";
+
+        Object.keys(quizzes[theme]).forEach((level) => {
+          container.innerHTML += `<h3>${level}</h3>`;
+          container.innerHTML += `
+          <form id="quizForm${level}">
+            ${quizzes[theme][level]
+              .map(
+                (quiz, index) => `
+                <div>
+                  <p><strong>${index + 1}. ${quiz.question}</strong></p>
+                  ${quiz.options
+                    .map(
+                      (option, optionIndex) => `
+                      <label>
+                        <input type="radio" name="question${index}" value="${optionIndex}">
+                        ${option}
+                      </label>
+                    `
+                    )
+                    .join("<br>")}
+                </div>
+              `
+              )
+              .join("")}
+            <button type="button" onclick="submitQuiz('${theme}', '${level}')">提交答案</button>
+          </form>
+          <div id="quizResult${level}"></div>
+        `;
+        });
+
+        modal.style.display = "block";
+      }
+
+      let currentUtterance;
+
+      function speak(text) {
+        if (currentUtterance) {
+          speechSynthesis.cancel();
+        }
+        currentUtterance = new SpeechSynthesisUtterance(text);
+        currentUtterance.lang = "en-US";
+        speechSynthesis.speak(currentUtterance);
+      }
+
+      function pauseSpeech() {
+        if (speechSynthesis.speaking && !speechSynthesis.paused) {
+          speechSynthesis.pause();
+        }
+      }
+
+      function resumeSpeech() {
+        if (speechSynthesis.paused) {
+          speechSynthesis.resume();
+        }
+      }
+
+      function submitQuiz(theme, level) {
+        const form = document.getElementById(`quizForm${level}`);
+        const resultDiv = document.getElementById(`quizResult${level}`);
+        let score = 0;
+        let summary = "";
+
+        quizzes[theme][level].forEach((quiz, index) => {
+          const selectedOption = form.elements[`question${index}`].value;
+          const isCorrect =
+            selectedOption !== "" &&
+            parseInt(selectedOption) === quiz.correctAnswer;
+
+          if (isCorrect) {
+            score++;
+          }
+
+          summary += `
+          <p>
+            <strong>問題 ${index + 1}:</strong> ${quiz.question}<br>
+            你的答案: ${
+              selectedOption !== "" ? quiz.options[selectedOption] : "未作答"
+            }<br>
+            正確答案: ${quiz.options[quiz.correctAnswer]}<br>
+            <span class="${isCorrect ? "correct" : "incorrect"}">${
+            isCorrect ? "正確" : "錯誤"
+          }</span>
+          </p>
+        `;
+        });
+
+        resultDiv.innerHTML = `
+        <h3>測驗結果</h3>
+        <p>你的得分是: ${score}/${quizzes[theme][level].length}</p>
+        <div>${summary}</div>
+        <button type="button" onclick="showQuiz('${theme}')">重新測驗</button>
+      `;
+      }
+
+      function closeLevelModal() {
+        document.getElementById("levelModal").style.display = "none";
+      }
+
+      function closeWordModal() {
+        document.getElementById("wordModal").style.display = "none";
+      }
+
+      function closeQuizModal() {
+        document.getElementById("quizModal").style.display = "none";
+      }
+
+      window.onclick = function (event) {
+        const levelModal = document.getElementById("levelModal");
+        const wordModal = document.getElementById("wordModal");
+        const quizModal = document.getElementById("quizModal");
+        if (event.target == levelModal) {
+          levelModal.style.display = "none";
+        } else if (event.target == wordModal) {
+          wordModal.style.display = "none";
+        } else if (event.target == quizModal) {
+          quizModal.style.display = "none";
+        }
+      };
+
+      // 初始化
+      showPage(1);
+    </script>
+  </body>
+</html>
