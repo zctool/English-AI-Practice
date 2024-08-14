@@ -1,0 +1,391 @@
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  color: #333;
+  text-align: center;
+}
+
+button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  margin: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  display: inline-block;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #55b0de;
+}
+
+form {
+  background-color: white;
+  padding: 20px;
+  margin: 20px auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"],
+select,
+input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type="submit"] {
+  background-color: #8ebfb7;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+input[type="submit"]:hover {
+  background-color: #77a29b;
+}
+
+.flashes {
+  list-style-type: none;
+  padding: 0;
+}
+
+.flashes li {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.flashes li.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.flashes li.danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.back-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  display: inline-block;
+  transition: background-color 0.3s;
+}
+
+.back-button:hover {
+  background-color: #0056b3;
+}
+
+.container {
+  text-align: center;
+}
+
+button,
+input[type="submit"],
+.back-button {
+  display: inline-block;
+}
+
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  color: #333;
+  text-align: center;
+}
+
+#sentences-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.sentence {
+  background-color: white;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+button {
+  background-color: #9dbfd2;
+  width: 200px;
+  color: white;
+  padding: 10px 20px;
+  margin: 7px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #89a6b7;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+audio {
+  width: 100%;
+  margin-top: 10px;
+}
+header {
+  width: 100%;
+  background-color: #b9d3e7;
+  padding: 10px 20px;
+  text-align: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  z-index: 1000;
+  align-items: center;
+  display: flex;
+  text-align: center;
+  justify-content: space-between;
+}
+header img {
+  margin-right: 10px; /* 为logo和标题之间提供一些间隔 */
+  width: 150px;
+  height: 150px;
+}
+.sidebar {
+  width: 200px;
+  background-color: #f4f4f4;
+  padding: 20px;
+  box-shadow: 3px 0px 5px rgba(0, 0, 0, 0.1);
+  height: 100vh;
+  position: fixed;
+  top: 70px; /* 考虑到header的高度 */
+  bottom: 0;
+  overflow-y: auto; /* 添加滚动条 */
+}
+.content {
+  flex-grow: 1;
+  margin-left: 220px;
+  padding: 20px;
+  padding-top: 60px; /* 留出头部空间 */
+}
+.bn60 {
+  background-color: #2c76c6;
+
+  color: #ffffff;
+  font-size: 1em;
+  font-weight: 600;
+  position: relative;
+  outline: none;
+  border-radius: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  height: 55px;
+  width: 200px;
+}
+/* 表格基本样式 */
+table {
+  width: 100%; /* 表格宽度占满容器 */
+  border-collapse: collapse; /* 边框合并，使得表格看起来更紧凑 */
+  table-layout: fixed; /* 优化表格的布局 */
+}
+
+/* 表格头部样式 */
+thead {
+  background-color: #f4f4f4; /* 表头背景色 */
+}
+
+/* 表头单元格样式 */
+th {
+  padding: 10px 15px; /* 单元格内边距 */
+  text-align: left; /* 文字左对齐 */
+  font-weight: bold; /* 字体加粗 */
+  border-bottom: 2px solid #e0e0e0; /* 表头下方的边框 */
+  width: auto;
+}
+
+/* 表格数据单元格样式 */
+td {
+  padding: 10px 15px; /* 单元格内边距 */
+  text-align: left; /* 文字左对齐 */
+  border-bottom: 1px solid #e0e0e0; /* 单元格之间的边框 */
+  width: auto;
+}
+
+/* 鼠标悬浮行的样式 */
+tr:hover {
+  background-color: #f0f0f0; /* 鼠标悬浮时的背景色 */
+}
+
+/* 奇数行样式 */
+tr:nth-child(odd) {
+  background-color: #fafafa; /* 奇数行的背景色 */
+}
+
+/* 偶数行样式 */
+tr:nth-child(even) {
+  background-color: #ffffff; /* 偶数行的背景色 */
+}
+.button-container {
+  display: flex;
+  justify-content: ; /* 在两端对齐 */
+  width: 100%; /* 或者根据实际需要调整宽度 */
+}
+
+.left-buttons,
+.right-button {
+  display: flex; /* 使用Flex布局 */
+  align-items: center; /* 在交叉轴上居中对齐 */
+}
+
+/* 如果左侧按钮之间需要一些间隔 */
+.left-buttons button {
+  margin-right: 10px; /* 添加适当的右边距 */
+}
+
+.button-container input[type="submit"] {
+  width: 101px; /* 按钮宽度 */
+  height: 39px;
+  text-align: center;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+}
+
+.submit-button {
+  width: auto;
+  background-color: #8ebfb7;
+}
+
+.submit-button:hover {
+  background-color: #77a29b; /* 鼠标悬停时的背景颜色 */
+  display: inline-block;
+}
+
+.btn20 {
+  background-color: #e1d19c;
+  width: 150px;
+  color: white;
+  padding: 10px 20px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+.btn20:hover {
+  background-color: #d7c793;
+}
+.btn21 {
+  background-color: #e1abab;
+  width: 150px;
+  color: white;
+  padding: 10px 20px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+.btn21:hover {
+  background-color: #cd9e9e;
+}
+.edit-btn,
+.delete-btn {
+  display: inline-block;
+  padding: 5px 10px;
+  text-decoration: none;
+  color: white;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.edit-btn {
+  transition: 0.5s;
+  background-color: #699f69;
+}
+
+.delete-btn {
+  transition: 0.5s;
+  background-color: #e36060;
+}
+.edit-btn:hover {
+  transition: 0.5s;
+  background-color: #4f804f; /* 鼠标悬停时颜色变深 */
+}
+
+.delete-btn:hover {
+  transition: 0.5s;
+  background-color: #c65353; /* 鼠标悬停时颜色变深 */
+}
+.view-btn {
+  display: inline-block;
+  padding: 5px 10px;
+  text-decoration: none;
+  color: white;
+  background-color: #3083d5;
+  border-radius: 4px;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+.view-btn:hover {
+  background-color: #2b75be;
+}
+a {
+  display: inline-block; /* 確保可以設定寬度和高度 */
+  padding: 10px 20px; /* 增加內邊距來擴大按鈕的大小 */
+  margin-right: 60px; /* 維持原有的外邊距 */
+  text-decoration: none; /* 移除下劃線 */
+  color: white; /* 設定文字顏色 */
+  background-color: #007bff; /* 設定背景顏色 */
+  border-radius: 20px; /* 設定一個高的圓角值來創造橢圓形效果 */
+  border: none; /* 移除邊框 */
+  cursor: pointer; /* 讓鼠標懸停時顯示指針樣式 */
+}

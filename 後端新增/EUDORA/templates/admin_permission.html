@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Index</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Welcome, {{ name }}</h1>
+    <form method="post" action="{{ url_for('admin.admin_permission') }}">
+        <input type="text" name="search" placeholder="Search by name or email" value="{{ search_query }}">
+        <button type="submit">Search</button>
+    </form>
+    <a href="{{ url_for('admin.logout') }}">Logout</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Icon</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.userName }}</td>
+                <td>{{ user.GoogleEmail }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('admin.update_user_role') }}">
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <select name="role">
+                            <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+                            <option value="teacher" {% if user.role == 'teacher' %}selected{% endif %}>Teacher</option>
+                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                        </select>
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+                <td>
+                    {% if user.icon %}
+                    <img src="data:image/png;base64,{{ user.icon }}" alt="Icon" width="50" height="50">
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="post" action="{{ url_for('admin.delete_user') }}">
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Conversations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Conversations</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>English Conversation</th>
+                <th>Chinese Conversation</th>
+                <th>Situation</th>
+                <th>Class</th>
+                <th>Topic</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for conversation in conversations %}
+            <tr>
+                <td>{{ conversation[1] }}</td>
+                <td>{{ conversation[2] }}</td>
+                <td>{{ conversation[3] }}</td>
+                <td>{{ conversation[4] }}</td>
+                <td>{{ conversation[5] }}</td>
+                <td><a href="{{ url_for('admin.edit_conversation', conversation_id=conversation[0]) }}" class="edit-btn">Edit</a></td>
+                <td><a href="{{ url_for('admin.delete_conversation', conversation_id=conversation[0]) }}" class="delete-btn">Delete</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('admin.add_conversation') }}">Add Conversation</a>
+</body>
+</html>

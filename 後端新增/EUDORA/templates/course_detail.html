@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>課程詳情</title>
+    <style>
+        .paragraph, .sentence {
+            margin-bottom: 1em;
+            cursor: pointer;
+            line-height: 1.5em;
+            transition: color 0.3s ease; /* 增加平滑过渡效果 */
+        }
+        .highlight {
+            color: #5DADE2; /* 淡藍色 */
+        }
+        .playing {
+            color: #28B463; /* 播放时的颜色 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ course.name }}</h1>
+        
+        {% if course.type == 'conversation' %}
+            <h2>對話內容</h2>
+            <div id="conversation-content">
+            {% for sentence in course.sentences %}
+                <div class="sentence" data-audio="{{ sentence.audio_file }}">
+                    {{ sentence.text }}
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <h2>文章內容</h2>
+            <div id="article-content">
+            {% for paragraph in course.content %}
+                <div class="paragraph" data-audio="{{ paragraph.audio_file }}">
+                    {{ paragraph.text }}
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <audio id="audioPlayer"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var textContents = document.querySelectorAll('.sentence, .paragraph');
+            var audioPlayer = document.getElementById('audioPlayer');
+
+            textContents.forEach(function(item) {
+                item.addEventListener('click', function() {
+                    // 停止任何正在播放的音頻
+                    audioPlayer.pause();
+
+                    // 重置所有文本內容的顏色
+                    textContents.forEach(function(tc) {
+                        tc.classList.remove('playing');
+                        tc.innerHTML = tc.textContent; // 重置文本内容
+                    });
+
+                    // 播放新的音頻
+                    var audioSrc = "data:audio/wav;base64," + this.getAttribute('data-audio');
+                    audioPlayer.src = audioSrc;
+                    audioPlayer.play();
+
+                    // 標記當前播放的文本內容
+                    this.classList.add('playing');
+
+                    // 獲取當前點擊文本的引用
+                    var textElement = this;
+
+                    // 更新音頻播放進度時，改變字的顏色
+                    audioPlayer.ontimeupdate = function() {
+                        var duration = audioPlayer.duration;
+                        var currentTime = audioPlayer.currentTime;
+                        var progress = currentTime / duration;
+
+                        // 計算要變色的字數
+                        var totalChars = textElement.textContent.length;
+                        var charsToHighlight = Math.floor(progress * totalChars);
+
+                        // 生成高亮的文本
+                        var highlightedText = '<span class="highlight">' + textElement.textContent.substring(0, charsToHighlight) + '</span>';
+                        var remainingText = textElement.textContent.substring(charsToHighlight);
+
+                        // 使用 requestAnimationFrame 使更新更流畅
+                        requestAnimationFrame(function() {
+                            textElement.innerHTML = highlightedText + remainingText;
+                        });
+                    };
+
+                    // 音頻播放結束時，重置顏色
+                    audioPlayer.onended = function() {
+                        textElement.classList.remove('playing');
+                        textElement.innerHTML = textElement.textContent; // 重置文本内容
+                    };
+                });
+            });
+        });
+    </script>
+</body>
+</html>

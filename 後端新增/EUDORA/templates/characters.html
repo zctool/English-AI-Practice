@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Characters</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Characters</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Character Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for character in characters %}
+            <tr>
+                <td>{{ character[0] }}</td>
+                <td>{{ character[1] }}</td>
+                <td>
+                    <a href="{{ url_for('admin.edit_character', character_id=character[0], situation_id=situation_id) }}">Edit</a>
+                    <a href="{{ url_for('admin.delete_character', character_id=character[0], situation_id=situation_id) }}" onclick="return confirm('Are you sure you want to delete this character?');">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('admin.admin_conversation_situations') }}" class="back-button">Back to Situations</a>
+</body>
+</html>

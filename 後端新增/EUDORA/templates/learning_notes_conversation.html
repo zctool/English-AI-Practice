@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>學習筆記 - 對話收藏</title>
+    <style>
+        .star-button {
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            outline: none;
+            color: transparent;
+            text-shadow: 0 0 0 #ffd700;
+        }
+        .star-button.filled::before {
+            content: "★";
+            color: #ffd700;
+        }
+        .star-button.unfilled::before {
+            content: "☆";
+            color: #ffd700;
+        }
+        .highlighted-text span {
+            font-weight: bold;
+        }
+        .highlighted-text .added {
+            color: red;
+        }
+        .highlighted-text .removed {
+            color: green;
+        }
+        img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            padding-top: 10px;
+        }
+        ul {
+            list-style: none; /* 移除圓點 */
+            border-bottom: 1px solid black;
+        }
+        audio {
+            width: 20%; /* 設定控件的寬度為容器的20% */
+            height: 50px; /* 設定控件的高度 */
+            border: 1px solid #ccc; /* 為控件添加邊框 */
+            border-radius: 10px; /* 圓角邊框 */
+            background-color: #f8f8f8; /* 設定背景顏色 */
+            padding-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>學習筆記 - 對話收藏</h1>
+    <div class="content">
+        <ul>
+            {% for conversation in conversations %}
+            <li class="conversation">
+                <div class="character">
+                    <img src="data:image/png;base64,{{ conversation.icon }}" alt="{{ conversation.character_name }}的圖標" />
+                    <strong>{{ conversation.character_name }}</strong>
+                </div>
+                <p>對話(英文): {{ conversation.conversation_en }}</p>
+                <p>對話(繁體中文): {{ conversation.conversation_tw }}</p>
+                <p>原文</p>
+                <audio controls>
+                    <source src="data:audio/wav;base64,{{ conversation.conversation_voice }}" type="audio/wav" />
+                    您的瀏覽器不支持音頻元素。
+                </audio>
+                {% if conversation.user_voice %}
+                <p>錄音</p>
+                <audio controls>
+                    <source src="data:audio/wav;base64,{{ conversation.user_voice }}" type="audio/wav" />
+                    您的瀏覽器不支持音頻元素。
+                </audio>
+                {% endif %}
+                <button class="star-button {{ 'filled' if conversation.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ conversation.id }}', this)"></button>
+                <div class="stt-result">
+                    <h3>STT Result</h3>
+                    <p><strong>STT Text:</strong> <span class="stt-text">{{ conversation.STT }}</span></p>
+                    <p><strong>Accuracy:</strong> <span class="accuracy">{{ conversation.accuracy == 100.0 and "completely" or (conversation.accuracy|round(2) ~ '%') }}</span></p>
+                    <p><strong>Differences:</strong></p>
+                    <div class="highlighted-text">{{ conversation.highlighted_text|safe }}</div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script>
+        function toggleCollect(conversationId, starButton) {
+            const isCollected = starButton.classList.contains("filled");
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/toggle_conversation_collect", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    if (isCollected) {
+                        starButton.classList.remove("filled");
+                        starButton.classList.add("unfilled");
+                    } else {
+                        starButton.classList.remove("unfilled");
+                        starButton.classList.add("filled");
+                    }
+                }
+            };
+            xhr.send(`conversation_id=${conversationId}&collect=${!isCollected}`);
+        }
+    </script>
+</body>
+</html>

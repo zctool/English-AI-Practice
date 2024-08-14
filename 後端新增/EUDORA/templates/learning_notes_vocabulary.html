@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>學習筆記 - 單字收藏</title>
+    <style>
+        .star-button {
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            outline: none;
+            color: transparent;
+            text-shadow: 0 0 0 #ffd700;
+        }
+        .star-button.filled::before {
+            content: "★";
+            color: #ffd700;
+        }
+        .star-button.unfilled::before {
+            content: "☆";
+            color: #ffd700;
+        }
+        .highlighted-text span {
+            font-weight: bold;
+        }
+        .highlighted-text .added {
+            color: red;
+        }
+        .highlighted-text .removed {
+            color: green;
+        }
+        ul {
+            list-style: none; /* 移除圓點 */
+            border-bottom: 1px solid black;
+        }
+        audio {
+            width: 20%; /* 設定控件的寬度為容器的20% */
+            height: 50px; /* 設定控件的高度 */
+            border: 1px solid #ccc; /* 為控件添加邊框 */
+            border-radius: 10px; /* 圓角邊框 */
+            background-color: #f8f8f8; /* 設定背景顏色 */
+            padding-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>學習筆記 - 單字收藏</h1>
+    <div class="content">
+        <ul>
+            {% for vocabulary in vocabularies %}
+            <li class="vocabulary">
+                <p>單字(英文): {{ vocabulary.vocabulary_en }}</p>
+                <p>單字(繁體中文): {{ vocabulary.vocabulary_tw }}</p>
+                <p>詞性: {{ vocabulary.part_of_speech }}</p>
+                <p>音標: {{ vocabulary.ipa }}</p>
+                <p>例句: {{ vocabulary.example }}</p>
+                <p>主題: {{ vocabulary.topic_name }}</p>
+                <p>原文</p>
+                <audio controls>
+                    <source src="data:audio/wav;base64,{{ vocabulary.vocabulary_voice }}" type="audio/wav">
+                    您的瀏覽器不支持音頻元素。
+                </audio>
+                {% if vocabulary.user_voice %}
+                <p>錄音</p>
+                <audio controls>
+                    <source src="data:audio/wav;base64,{{ vocabulary.user_voice }}" type="audio/wav">
+                    您的瀏覽器不支持音頻元素。
+                </audio>
+                {% endif %}
+                <button class="star-button {{ 'filled' if vocabulary.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ vocabulary.id }}', this)"></button>
+                <div class="stt-result">
+                    <h3>STT Result</h3>
+                    <p><strong>STT Text:</strong> <span class="stt-text">{{ vocabulary.STT }}</span></p>
+                    <p><strong>Accuracy:</strong> <span class="accuracy">{{ vocabulary.accuracy == 100.0 and "completely" or (vocabulary.accuracy|round(2) ~ '%') }}</span></p>
+                    <p><strong>Differences:</strong></p>
+                    <div class="highlighted-text">{{ vocabulary.highlighted_text|safe }}</div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script>
+        function toggleCollect(vocabularyId, starButton) {
+            const isCollected = starButton.classList.contains("filled");
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/toggle_vocabulary_collect", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    if (isCollected) {
+                        starButton.classList.remove("filled");
+                        starButton.classList.add("unfilled");
+                    } else {
+                        starButton.classList.remove("unfilled");
+                        starButton.classList.add("filled");
+                    }
+                }
+            };
+            xhr.send(`vocabulary_id=${vocabularyId}&collect=${!isCollected}`);
+        }
+    </script>
+</body>
+</html>
