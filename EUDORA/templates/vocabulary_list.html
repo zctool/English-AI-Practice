@@ -10416,6 +10416,7 @@ a.text-dark:focus {
 .ul-list{
   height: 100%;
 }
+
  .hidden {
         display: none;
       }
@@ -10455,7 +10456,7 @@ a.text-dark:focus {
     margin: 20px auto; /* 上下邊距和自動水平居中 */
     padding: 20px;
     background-color: white; /* 設定背景顏色 */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* 添加陰影效果 */
+     /* 添加陰影效果 */
     list-style: none; /* 移除列表點 */
     counter-reset: list-counter;
 }
@@ -10475,10 +10476,7 @@ a.text-dark:focus {
    transition: 0.5s; /* 移除最後一個列表項的底部邊線 */
    
 }
-.vocabulary-list li::before {
-    content: counter(list-counter) ". "; /* 顯示計數器值和點 */
-    font-weight: bold; /* 使序號更顯眼 */
-}
+
 
 a:hover{
   text-decoration: none;
@@ -10499,6 +10497,17 @@ a:hover{
     background-color: #139ba3; /* 懸浮時的背景顏色變深 */
     cursor: pointer; /* 懸浮時鼠標變為手指形狀 */
 }
+.vocab-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .vocab-item {
+            transition: all 0.3s ease;
+        }
+        .vocab-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
    </style>
   </head>
 
@@ -10568,7 +10577,7 @@ a:hover{
 
     <!-- Blog Start -->
     <div class="container-fluid pt-5">
-      <div class="row">
+     
         <!-- This is the left column, now using 2 out of 12 grid parts -->
             <!-- Left Side Content -->
            
@@ -10577,9 +10586,9 @@ a:hover{
               <h1>單字列表</h1>
               <ul class="vocabulary-list">
                 {% for vocab in vocabularies %}
-                <li>
-                  <a href="{{ url_for('vocabulary_detail', vocabulary_id=vocab.id) }}">
-                    {{ vocab.vocabulary_en }} - {{ vocab.vocabulary_tw }}
+                <li style="list-style-type: disc;">
+                  <a href="{{ url_for('vocabulary_detail', vocabulary_id=vocab.id) }}" class="">
+                    <span class="text-lg font-medium">{{ vocab.vocabulary_en }}</span> <span class="text-gray-600"> {{ vocab.vocabulary_tw }}</span>
                   </a>
                 </li>
                 {% endfor %}
