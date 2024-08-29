@@ -7,3 +7,4 @@ pip install SpeechRecognition
 pip install librosa pydub tensorflow numpy scikit-learn
 pip install joblib
 pip install tensorflow tensorflow_hub tensorflow_io
+pip install pyannote.audio
