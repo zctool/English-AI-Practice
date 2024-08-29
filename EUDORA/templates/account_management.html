@@ -22,14 +22,24 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
       rel="stylesheet"
     />
-
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+      rel="stylesheet"
+    />
     <!-- Flaticon Font -->
     <link href="lib/flaticon/font/flaticon.css" rel="stylesheet" />
 
     <!-- Libraries Stylesheet -->
     <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" />
     <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet" />
-
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+      rel="stylesheet"
+    />
     <!-- Customized Bootstrap Stylesheet -->
     <style>
       /******* Bootstrap Theming ********/
@@ -118,39 +128,38 @@
         overflow: visible;
       }
       .sidebar {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around; /* 這將會在項目之間平均分配空間 */
-        height: 100%; /* 假設側邊欄需要充滿整個高度 */
+        min-height: 100vh;
       }
-
-      .sidebar ul {
-        width: 100%; /* 讓ul佔滿整個側邊欄的寬度 */
-        list-style: none; /* 移除預設的列表樣式 */
-        padding: 0; /* 移除預設的內距 */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around; /* 平均分配內部的li元素 */
-        text-align: center;
+      .sidebar-heading {
+        font-size: 1.2rem;
+        font-weight: bold;
       }
-
-      .sidebar ul li {
-        padding: 10px; /* 增加一點內距讓文本不會貼太近邊緣 */
-        /* 給列表項目一個背景色，更容易看出布局 */
-        border-bottom: 1px solid #ccc; /* 添加邊框讓每個項目更加明顯 */
+      .list-group-item {
+        border: none;
+        padding: 0.75rem 1.25rem;
       }
-
+      .list-group-item:hover {
+        background-color: #f8f9fa;
+      }
+      .list-group-item.active {
+        background-color: #007bff;
+        border-color: #007bff;
+      }
+      .fas,
+      .far {
+        width: 20px;
+      }
       .main-content {
         flex-grow: 1;
         margin-left: 0px;
         padding: 20px;
         padding-top: 60px; /* 留出头部空间 */
         max-width: 1100px;
-    margin: 40px auto;
-    background-color: #8db6ce;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin: 40px auto;
+        background-color: #8db6ce;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       }
       h1,
       h2,
@@ -216,12 +225,6 @@
 
       small {
         font-size: 80%;
-      }
-      .sidebar {
-        background-color: #8db6ce; 
-        padding: 20px;
-        border-right: 1px solid #dee2e6; /* 添加分隔线 */
-        height: 100vh;
       }
 
       .main-content {
@@ -10388,7 +10391,7 @@
       }
       .menu-toggle {
         padding: 0px;
-        color: #FFF;
+        color: #fff;
         cursor: pointer;
       }
 
@@ -10396,7 +10399,7 @@
         list-style: none;
         padding: 0;
         position: relative;
-        background:#8db6ce;
+        background: #8db6ce;
         margin: 0;
         display: none; /* 默认不显示 */
         cursor: pointer;
@@ -10414,7 +10417,7 @@
 
       .menu-toggle2 {
         padding: 0px;
-        color: #FFF;
+        color: #fff;
         cursor: pointer;
       }
 
@@ -10445,453 +10448,452 @@
         display: none;
       }
 
-
       :root {
-      --primary-color: #4a90e2;
-      --secondary-color: #50c878;
-      --accent-color: #6bb9ab;
-      --text-color: #333;
-      --bg-color: #fff;
-      --header-height: 60px;
-      --border-radius: 8px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Noto Sans TC', sans-serif;
-      line-height: 1.8;
-      color: var(--text-color);
-      background-color: var(--bg-color);
-      padding-top: var(--header-height);
-    }
-
-    .container {
-      width: 90%;
-      max-width: 1200px;
-      margin: auto;
-      overflow: hidden;
-    }
-
-    header {
-      background: #4e9ccf;
-      color: white;
-      position: fixed;
-      width: 100%;
-      top: 0;
-      left: 0;
-      z-index: 1000;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease-in-out;
-    }
-
-    header .container2 {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      height: var(--header-height);
-      width: 90%;
-      max-width: 1200px;
-      margin: auto;
-      overflow: hidden;
-    }
-
-    header.hidden {
-      transform: translateY(-100%);
-    }
-
-    header a {
-      color: white;
-      text-decoration: none;
-      font-weight: 700;
-      transition: color 0.3s ease;
-    }
-
-    header ul {
-      padding: 0;
-      list-style: none;
-      display: flex;
-    }
-
-    header #branding {
-      display: flex;
-      align-items: center;
-    }
-
-    header #branding h1 {
-      font-size: 1.5rem;
-      margin: 0;
-    }
-
-    header nav {
-      display: flex;
-      align-items: center;
-    }
-
-    header nav li {
-      margin-left: 20px;
-    }
-
-    header .highlight,
-    header .current a {
-      color: #87d1c3;
-    }
-
-    header a:hover,
-    header a:focus {
-      color: var(--accent-color);
-    }
-
-    header .logout-btn {
-      background-color: #87d1c3;
-      padding: 10px 20px;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    header .logout-btn:hover {
-      background-color: #6bb9ab;
-    }
-
-    .content {
-      padding-top: 20px;
-    }
-
-    section {
-      padding: 3rem 2rem;
-      margin-bottom: 2rem;
-      background: var(--bg-color);
-      border-radius: var(--border-radius);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      text-align: center;
-    }
-
-    section:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    section h2 {
-      color: #ffffff;
-      margin-bottom: 1rem;
-      font-size: 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    section h2 i {
-      margin-right: 10px;
-    }
-
-    section p {
-      margin-bottom: 1.5rem;
-      font-size: 1.1rem;
-      line-height: 1.6;
-    }
-
-    .btn {
-      display: inline-block;
-      background: #87d1c3;
-      color: white;
-      padding: 0.8rem 1.5rem;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1rem;
-      text-decoration: none;
-      transition: background 0.3s ease, transform 0.3s ease;
-    }
-
-    .btn:hover,
-    .btn:focus {
-      background: var(--accent-color);
-      transform: translateY(-2px);
-    }
-
-    #menu-toggle {
-      display: none;
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    @media(max-width: 768px) {
-      header nav ul {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: var(--primary-color);
-        flex-direction: column;
-        align-items: center;
-        padding: 1rem 0;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        --primary-color: #4a90e2;
+        --secondary-color: #50c878;
+        --accent-color: #6bb9ab;
+        --text-color: #333;
+        --bg-color: #fff;
+        --header-height: 60px;
+        --border-radius: 8px;
       }
 
-      header nav ul.show {
-        display: flex;
-      }
-
-      header nav li {
-        margin: 0.5rem 0;
-        width: 100%;
-        text-align: center;
-      }
-
-      #menu-toggle {
-        display: block;
-      }
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text-color: #f0f0f0;
-        --bg-color: #dcf2ff;
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
 
       body {
+        font-family: "Noto Sans TC", sans-serif;
+        line-height: 1.8;
+        color: var(--text-color);
         background-color: var(--bg-color);
+        padding-top: var(--header-height);
+      }
+
+      .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: auto;
+        overflow: hidden;
+      }
+
+      header {
+        background: #4e9ccf;
+        color: white;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease-in-out;
+      }
+
+      header .container2 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: var(--header-height);
+        width: 90%;
+        max-width: 1200px;
+        margin: auto;
+        overflow: hidden;
+      }
+
+      header.hidden {
+        transform: translateY(-100%);
+      }
+
+      header a {
+        color: white;
+        text-decoration: none;
+        font-weight: 700;
+        transition: color 0.3s ease;
+      }
+
+      header ul {
+        padding: 0;
+        list-style: none;
+        display: flex;
+      }
+
+      header #branding {
+        display: flex;
+        align-items: center;
+      }
+
+      header #branding h1 {
+        font-size: 1.5rem;
+        margin: 0;
+      }
+
+      header nav {
+        display: flex;
+        align-items: center;
+      }
+
+      header nav li {
+        margin-left: 20px;
+      }
+
+      header .highlight,
+      header .current a {
+        color: #87d1c3;
+      }
+
+      header a:hover,
+      header a:focus {
+        color: var(--accent-color);
+      }
+
+      header .logout-btn {
+        background-color: #87d1c3;
+        padding: 10px 20px;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      header .logout-btn:hover {
+        background-color: #6bb9ab;
+      }
+
+      .content {
+        padding-top: 20px;
       }
 
       section {
-        background: #8db6ce;
+        padding: 3rem 2rem;
+        margin-bottom: 2rem;
+        background: var(--bg-color);
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: center;
       }
-    }
 
-    #back-to-top {
-            display: none;
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 100;
-            width: 50px;
-            height: 50px;
-            background-color: #3776bfbd;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 24px;
-            text-align: center;
-            line-height: 50px;
-            cursor: pointer;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+      section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      section h2 {
+        color: #ffffff;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      section h2 i {
+        margin-right: 10px;
+      }
+
+      section p {
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+
+      .btn {
+        display: inline-block;
+        background: #87d1c3;
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: background 0.3s ease, transform 0.3s ease;
+      }
+
+      .btn:hover,
+      .btn:focus {
+        background: var(--accent-color);
+        transform: translateY(-2px);
+      }
+
+      #menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      @media (max-width: 768px) {
+        header nav ul {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: var(--primary-color);
+          flex-direction: column;
+          align-items: center;
+          padding: 1rem 0;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        #back-to-top:hover {
-            background-color: #357abd;
-            transform: translateY(-5px);
+        header nav ul.show {
+          display: flex;
         }
 
-        #back-to-top:active {
-            transform: scale(0.95);
+        header nav li {
+          margin: 0.5rem 0;
+          width: 100%;
+          text-align: center;
         }
 
-    a.button {
-      display: inline-block;
-      /* 將<a>標籤轉換為區塊元素 */
-      padding: 10px 20px;
-      /* 調整內邊距，讓按鈕更大 */
-      font-size: 20px;
-      /* 調整字體大小 */
-      color: white;
-      /* 按鈕文字顏色 */
-      background-color: #007bff;
-      /* 按鈕背景顏色 */
-      text-align: center;
-      /* 文字居中 */
-      text-decoration: none;
-      /* 移除超連結的下劃線 */
-      border-radius: 5px;
-      /* 調整邊角圓滑度 */
-      transition: background-color 0.3s;
-      /* 添加背景色過渡效果 */
-      width: auto;
-    }
-
-    /* 滑鼠懸停樣式 */
-    a.button:hover {
-      background-color: #0056b3;
-      /* 更改滑鼠懸停時的背景色 */
-    }
-
-    /* 活動樣式 */
-    a.button:active {
-      background-color: #003f7f;
-      /* 更改按下按鈕時的背景色 */
-    }
-
-
-    :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --background-color: #dcf2ff;
-            --text-color: #34495e;
-            --border-color: #bdc3c7;
-            --button-edit: #87d1c3;
-            --button-save: #2980b9;
-            --card-background: #8db6ce;
+        #menu-toggle {
+          display: block;
         }
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --text-color: #f0f0f0;
+          --bg-color: #dcf2ff;
+        }
+
         body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background-color: #dcf2ff;
-            color: #34495e;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
+          background-color: var(--bg-color);
         }
+
+        section {
+          background: #8db6ce;
+        }
+      }
+
+      #back-to-top {
+        display: none;
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 100;
+        width: 50px;
+        height: 50px;
+        background-color: #3776bfbd;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 24px;
+        text-align: center;
+        line-height: 50px;
+        cursor: pointer;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease, transform 0.3s ease,
+          opacity 0.3s ease;
+      }
+
+      #back-to-top:hover {
+        background-color: #357abd;
+        transform: translateY(-5px);
+      }
+
+      #back-to-top:active {
+        transform: scale(0.95);
+      }
+
+      a.button {
+        display: inline-block;
+        /* 將<a>標籤轉換為區塊元素 */
+        padding: 10px 20px;
+        /* 調整內邊距，讓按鈕更大 */
+        font-size: 20px;
+        /* 調整字體大小 */
+        color: white;
+        /* 按鈕文字顏色 */
+        background-color: #007bff;
+        /* 按鈕背景顏色 */
+        text-align: center;
+        /* 文字居中 */
+        text-decoration: none;
+        /* 移除超連結的下劃線 */
+        border-radius: 5px;
+        /* 調整邊角圓滑度 */
+        transition: background-color 0.3s;
+        /* 添加背景色過渡效果 */
+        width: auto;
+      }
+
+      /* 滑鼠懸停樣式 */
+      a.button:hover {
+        background-color: #0056b3;
+        /* 更改滑鼠懸停時的背景色 */
+      }
+
+      /* 活動樣式 */
+      a.button:active {
+        background-color: #003f7f;
+        /* 更改按下按鈕時的背景色 */
+      }
+
+      :root {
+        --primary-color: #3498db;
+        --secondary-color: #2c3e50;
+        --background-color: #dcf2ff;
+        --text-color: #34495e;
+        --border-color: #bdc3c7;
+        --button-edit: #87d1c3;
+        --button-save: #2980b9;
+        --card-background: #8db6ce;
+      }
+      body {
+        font-family: "Noto Sans TC", sans-serif;
+        background-color: #dcf2ff;
+        color: #34495e;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 40px auto;
+        background-color: var(--card-background);
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: var(--secondary-color);
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 2.5em;
+        position: relative;
+      }
+      h1::after {
+        content: "";
+        display: block;
+        width: 50px;
+        height: 4px;
+        background-color: var(--primary-color);
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .profile-section {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 30px;
+      }
+      .avatar-section {
+        flex: 0 0 120px;
+        margin-right: 40px;
+      }
+      .avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--primary-color);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+      .avatar:hover {
+        transform: scale(1.05);
+      }
+      .info-section {
+        flex: 1;
+      }
+      .info-item {
+        margin-bottom: 20px;
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+      .info-item:hover {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .info-label {
+        font-weight: bold;
+        color: var(--secondary-color);
+        margin-bottom: 5px;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .info-value {
+        font-size: 1.1em;
+        color: var(--text-color);
+      }
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .btn-edit {
+        background-color: var(--button-edit);
+        color: white;
+      }
+      .btn-save {
+        background-color: var(--button-save);
+        color: white;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      #editForm {
+        display: none;
+      }
+      #editForm input,
+      #editForm select {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+      }
+      #editForm input:focus,
+      #editForm select:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+      }
+      @media (max-width: 600px) {
         .container {
-            max-width: 800px;
-            margin: 40px auto;
-            background-color: var(--card-background);
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: var(--secondary-color);
-            text-align: center;
-            margin-bottom: 40px;
-            font-size: 2.5em;
-            position: relative;
-        }
-        h1::after {
-            content: '';
-            display: block;
-            width: 50px;
-            height: 4px;
-            background-color: var(--primary-color);
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
+          padding: 20px;
         }
         .profile-section {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 30px;
+          flex-direction: column;
+          align-items: center;
         }
         .avatar-section {
-            flex: 0 0 120px;
-            margin-right: 40px;
-        }
-        .avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--primary-color);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        .avatar:hover {
-            transform: scale(1.05);
+          margin-right: 0;
+          margin-bottom: 30px;
         }
         .info-section {
-            flex: 1;
+          width: 100%;
         }
-        .info-item {
-            margin-bottom: 20px;
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        .info-item:hover {
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .info-label {
-            font-weight: bold;
-            color: var(--secondary-color);
-            margin-bottom: 5px;
-            font-size: 0.9em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .info-value {
-            font-size: 1.1em;
-            color: var(--text-color);
-        }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .btn-edit {
-            background-color: var(--button-edit);
-            color: white;
-        }
-        .btn-save {
-            background-color: var(--button-save);
-            color: white;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        #editForm {
-            display: none;
-        }
-        #editForm input, #editForm select {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-        #editForm input:focus, #editForm select:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px;
-            }
-            .profile-section {
-                flex-direction: column;
-                align-items: center;
-            }
-            .avatar-section {
-                margin-right: 0;
-                margin-bottom: 30px;
-            }
-            .info-section {
-                width: 100%;
-            }
-        }
-
-
+      }
     </style>
   </head>
 
@@ -10903,7 +10905,11 @@
           <h1><span class="highlight">E</span>UDORA</h1>
         </div>
         <nav>
-          <button id="menu-toggle" aria-expanded="false" aria-controls="main-nav">
+          <button
+            id="menu-toggle"
+            aria-expanded="false"
+            aria-controls="main-nav"
+          >
             <span class="sr-only">切換菜單</span>
             ☰
           </button>
@@ -10913,7 +10919,9 @@
             <li><a href="{{ url_for('vocabulary_topics') }}">單字</a></li>
             <li><a href="{{ url_for('conversation_topics') }}">句子</a></li>
             <li><a href="{{ url_for('account_management') }}">個人資料</a></li>
-            <li><a href="{{ url_for('logout') }}" class="logout-btn">登出</a></li>
+            <li>
+              <a href="{{ url_for('logout') }}" class="logout-btn">登出</a>
+            </li>
           </ul>
         </nav>
       </div>
@@ -10921,88 +10929,61 @@
     <!-- Navbar End -->
 
     <!-- Blog Start -->
-    <div class="container-fluid pt-5">
+    <div class="container-fluid">
       <div class="row">
         <div class="col-md-2">
-          <!-- This is the left column, now using 2 out of 12 grid parts -->
-          <!-- Left Side Content -->
-          <div class="sidebar">
-            <ul class="ul-list">
-              <li>
-                <a
-                  href="#"
-                  onclick="changeIframe('{{ url_for('account_manage') }}')"
-                  >帳號管理</a
-                >
-              </li>
-              <li>
-                <a href="#" onclick="changeIframe('{{ url_for('calendar') }}')"
-                  >學習月曆</a
-                >
-              </li>
-              <li>
-                <div class="menu-toggle">學習歷程</div>
-                <ul class="dropdown-ul rounded-0 m-0">
-                  <li>
-                    <a
-                      href="#"
-                      onclick="changeIframe('{{ url_for('learning_history_conversation') }}')"
-                      >對話</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      onclick="changeIframe('{{ url_for('learning_history_vocabulary') }}')"
-                      >單字</a
-                    >
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <div class="menu-toggle2">學習筆記</div>
-                <ul class="dropdown-ul2">
-                  <li>
-                    <a
-                      href="#"
-                      onclick="changeIframe('{{ url_for('learning_notes_conversation') }}')"
-                      >對話</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      onclick="changeIframe('{{ url_for('learning_notes_vocabulary') }}')"
-                      >單字</a
-                    >
-                  </li>
-                </ul>
-              </li>
-            </ul>
+          <div class="sidebar bg-light border-right">
+            <div class="sidebar-heading text-center py-4">會員中心</div>
+            <div class="list-group list-group-flush">
+              <a href="#" class="list-group-item list-group-item-action" onclick="changeIframe('{{ url_for('account_manage') }}')">
+                  <i class="fas fa-user-cog mr-2"></i> 帳號管理
+              </a>
+              <a href="#" class="list-group-item list-group-item-action" onclick="changeIframe('{{ url_for('calendar') }}')">
+                  <i class="far fa-calendar-alt mr-2"></i> 學習月曆
+              </a>
+              <a href="#" class="list-group-item list-group-item-action collapse-toggle" data-toggle="collapse" data-target="#learningHistorySubmenu">
+                  <i class="fas fa-history mr-2"></i> 學習歷程
+                  <i class="fas fa-chevron-down float-right mt-1"></i>
+              </a>
+              <div class="collapse" id="learningHistorySubmenu">
+                  <a href="#" class="list-group-item list-group-item-action pl-4" onclick="changeIframe('{{ url_for('learning_history_conversation') }}')">對話</a>
+                  <a href="#" class="list-group-item list-group-item-action pl-4" onclick="changeIframe('{{ url_for('learning_history_vocabulary') }}')">單字</a>
+              </div>
+              <a href="#" class="list-group-item list-group-item-action collapse-toggle" data-toggle="collapse" data-target="#learningNotesSubmenu">
+                  <i class="far fa-sticky-note mr-2"></i> 學習筆記
+                  <i class="fas fa-chevron-down float-right mt-1"></i>
+              </a>
+              <div class="collapse" id="learningNotesSubmenu">
+                  <a href="#" class="list-group-item list-group-item-action pl-4" onclick="changeIframe('{{ url_for('learning_notes_conversation') }}')">對話</a>
+                  <a href="#" class="list-group-item list-group-item-action pl-4" onclick="changeIframe('{{ url_for('learning_notes_vocabulary') }}')">單字</a>
+              </div>
+          </div>
           </div>
         </div>
-
-        <div class="main-content">
-          <iframe
-            frameborder="0"
-            id="contentFrame"
-            src="{{ url_for('account_manage') }}"
-            width="100%"
-            height="100%"
-          ></iframe>
+        <div class="col-md-10">
+          <div class="main-content">
+            <!-- 主要內容區域 -->
+            <iframe
+              frameborder="0"
+              id="contentFrame"
+              src="{{ url_for('account_manage') }}"
+              width="100%"
+              height="100%"
+            ></iframe>
+          </div>
         </div>
       </div>
     </div>
 
-    <button id="back-to-top" title="回到頂部">↑</button>
+   
     <!-- Blog End -->
 
     <!-- Footer Start -->
     <!-- <div
       class="container-fluid bg-secondary text-white mt-5 py-5 px-sm-3 px-md-5" 
     >-->
-      <!-- footer  -->
-      <!-- <div class="container-fluid pt-5">
+    <!-- footer  -->
+    <!-- <div class="container-fluid pt-5">
         <p class="m-0 text-center text-white">
           組別: 113201 指導老師 : 林俊杰老師
         </p>
@@ -11018,7 +10999,9 @@
     <!-- Back to Top -->
 
     <!-- Template Javascript -->
-
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
     <script src="lib/easing/easing.min.js"></script>
@@ -11032,137 +11015,132 @@
     <script src="js/main.js"></script>
     <!-- Template Javascript -->
     <script>
-      document
-        .querySelector(".menu-toggle")
-        .addEventListener("click", function () {
-          var menu = document.querySelector(".dropdown-ul");
-          if (menu.classList.contains("active")) {
-            // 如果已經是active，移除active並隱藏所有li
-            menu.classList.remove("active");
-            menu.querySelectorAll("li").forEach(function (li) {
-              li.style.display = "none";
+            $(document).ready(function () {
+            $('.list-group-item').on('click', function (e) {
+                var $this = $(this);
+                
+                if ($this.hasClass('list-group-item-action') && !$this.hasClass('collapse-toggle')) {
+                    $('.list-group-item').removeClass('active');
+                    $this.addClass('active');
+                }
+                
+                if ($this.data('toggle') === 'collapse') {
+                    e.preventDefault();
+                    var target = $this.data('target');
+                    $(target).collapse('toggle');
+                    
+                    // 移除所有子菜單的 'show' 類，除了當前點擊的
+                    $('.collapse').not(target).removeClass('show');
+                    
+                    // 重置所有箭頭方向，除了當前點擊的
+                    $('.collapse-toggle').not($this).find('.fas').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+                    
+                    // 切換當前箭頭方向
+                    $this.find('.fas').toggleClass('fa-chevron-down fa-chevron-up');
+                }
             });
-          } else {
-            // 添加active並顯示所有li
-            menu.classList.add("active");
-            menu.querySelectorAll("li").forEach(function (li) {
-              li.style.display = "block";
-            });
-          }
-        });
-      document
-        .querySelector(".menu-toggle2")
-        .addEventListener("click", function () {
-          var menu = document.querySelector(".dropdown-ul2");
-          if (menu.classList.contains("active")) {
-            // 如果已經是active，移除active並隱藏所有li
-            menu.classList.remove("active");
-            menu.querySelectorAll("li").forEach(function (li) {
-              li.style.display = "none";
-            });
-          } else {
-            // 添加active並顯示所有li
-            menu.classList.add("active");
-            menu.querySelectorAll("li").forEach(function (li) {
-              li.style.display = "block";
-            });
-          }
         });
       function changeIframe(url) {
         document.getElementById("contentFrame").src = url;
       }
 
-      const header = document.getElementById('main-header');
-    const menuToggle = document.getElementById("menu-toggle");
-    const mainNav = document.getElementById("main-nav");
-    let lastScrollY = window.scrollY;
-    let ticking = false;
+      const header = document.getElementById("main-header");
+      const menuToggle = document.getElementById("menu-toggle");
+      const mainNav = document.getElementById("main-nav");
+      let lastScrollY = window.scrollY;
+      let ticking = false;
 
-    const SCROLL_THRESHOLD = 100;
+      const SCROLL_THRESHOLD = 100;
 
-    function updateHeader() {
-      const currentScrollY = window.scrollY;
+      function updateHeader() {
+        const currentScrollY = window.scrollY;
 
-      if (currentScrollY <= SCROLL_THRESHOLD) {
-        header.classList.remove('hidden');
-      } else if (currentScrollY > lastScrollY) {
-        header.classList.add('hidden');
-      } else {
-        header.classList.remove('hidden');
+        if (currentScrollY <= SCROLL_THRESHOLD) {
+          header.classList.remove("hidden");
+        } else if (currentScrollY > lastScrollY) {
+          header.classList.add("hidden");
+        } else {
+          header.classList.remove("hidden");
+        }
+
+        lastScrollY = currentScrollY;
+        ticking = false;
       }
 
-      lastScrollY = currentScrollY;
-      ticking = false;
-    }
-
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        window.requestAnimationFrame(updateHeader);
-        ticking = true;
-      }
-    });
-
-    function smoothScroll(target, duration) {
-      var target = document.querySelector(target);
-      var targetPosition = target.getBoundingClientRect().top + window.pageYOffset;
-      var startPosition = window.pageYOffset;
-      var distance = targetPosition - startPosition;
-      var startTime = null;
-
-      function animation(currentTime) {
-        if (startTime === null) startTime = currentTime;
-        var timeElapsed = currentTime - startTime;
-        var run = ease(timeElapsed, startPosition, distance, duration);
-        window.scrollTo(0, run);
-        if (timeElapsed < duration) requestAnimationFrame(animation);
-      }
-
-      function ease(t, b, c, d) {
-        t /= d / 2;
-        if (t < 1) return c / 2 * t * t + b;
-        t--;
-        return -c / 2 * (t * (t - 2) - 1) + b;
-      }
-
-      requestAnimationFrame(animation);
-    }
-
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        smoothScroll(this.getAttribute('href'), 1000);
+      window.addEventListener("scroll", () => {
+        if (!ticking) {
+          window.requestAnimationFrame(updateHeader);
+          ticking = true;
+        }
       });
-    });
 
-    menuToggle.addEventListener('click', function () {
-      mainNav.classList.toggle('show');
-      this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'false' ? 'true' : 'false');
-    });
+      function smoothScroll(target, duration) {
+        var target = document.querySelector(target);
+        var targetPosition =
+          target.getBoundingClientRect().top + window.pageYOffset;
+        var startPosition = window.pageYOffset;
+        var distance = targetPosition - startPosition;
+        var startTime = null;
 
-    const navItems = mainNav.getElementsByTagName('a');
-    for (let item of navItems) {
-      item.addEventListener('click', function () {
-        mainNav.classList.remove('show');
-        menuToggle.setAttribute('aria-expanded', 'false');
-      });
-    }
+        function animation(currentTime) {
+          if (startTime === null) startTime = currentTime;
+          var timeElapsed = currentTime - startTime;
+          var run = ease(timeElapsed, startPosition, distance, duration);
+          window.scrollTo(0, run);
+          if (timeElapsed < duration) requestAnimationFrame(animation);
+        }
 
-    // 當頁面滾動時，顯示或隱藏「回到頂部」按鈕
-    window.addEventListener('scroll', function () {
-            const backToTopButton = document.getElementById('back-to-top');
-            if (window.scrollY > 300) {
-                backToTopButton.style.display = 'block';
-            } else {
-                backToTopButton.style.display = 'none';
-            }
+        function ease(t, b, c, d) {
+          t /= d / 2;
+          if (t < 1) return (c / 2) * t * t + b;
+          t--;
+          return (-c / 2) * (t * (t - 2) - 1) + b;
+        }
+
+        requestAnimationFrame(animation);
+      }
+
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          smoothScroll(this.getAttribute("href"), 1000);
         });
+      });
 
-        // 點擊「回到頂部」按鈕後，平滑滾動回到頁面頂部
-        document.getElementById('back-to-top').addEventListener('click', function () {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+      menuToggle.addEventListener("click", function () {
+        mainNav.classList.toggle("show");
+        this.setAttribute(
+          "aria-expanded",
+          this.getAttribute("aria-expanded") === "false" ? "true" : "false"
+        );
+      });
+
+      const navItems = mainNav.getElementsByTagName("a");
+      for (let item of navItems) {
+        item.addEventListener("click", function () {
+          mainNav.classList.remove("show");
+          menuToggle.setAttribute("aria-expanded", "false");
+        });
+      }
+
+      // 當頁面滾動時，顯示或隱藏「回到頂部」按鈕
+      window.addEventListener("scroll", function () {
+        const backToTopButton = document.getElementById("back-to-top");
+        if (window.scrollY > 300) {
+          backToTopButton.style.display = "block";
+        } else {
+          backToTopButton.style.display = "none";
+        }
+      });
+
+      // 點擊「回到頂部」按鈕後，平滑滾動回到頁面頂部
+      document
+        .getElementById("back-to-top")
+        .addEventListener("click", function () {
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
         });
     </script>
   </body>
