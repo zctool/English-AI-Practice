@@ -370,6 +370,7 @@
             width: 100%;
             max-width: 1200px;
             padding: 20px;
+             min-height:1080px;
         }
         .topics {
             display: flex;
@@ -459,7 +460,7 @@
   <!-- Header Start -->
   <main class="content">
    <div class="main-content">
-                <h1 style="color: #007bff;">選擇單字主題</h1>
+               <center> <h1 style="color: #007bff;">選擇單字主題</h1></center>
                 <div class="topics">
                     {% for topic in topics %}
                     <div class="image-container" data-topic-id="{{ topic.id }}">

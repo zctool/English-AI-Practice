@@ -467,21 +467,21 @@
 
   <!-- Blog Start -->
   <div class="container-fluid pt-5">
-    <div class="row">
+    
       <!-- This is the left column, now using 2 out of 12 grid parts -->
 
       <div class="main-content">
         <h1 style="color:#000">Conversation Situations</h1>
         <div class="situations">
-          <ul class="vocabulary-list">
+          <ul class="vocabulary-list" >
             <div class="sentence-container">
               {% for situation in situations %}
               <div class="sentence">
                 <form
                   action="{{ url_for('conversation_practice', topic_id=topic_id, difficulty=difficulty, situation_id=situation.id) }}"
                   method="GET">
-                  <li>
-                    <button type="submit">{{ situation.situation }}</button>
+                  <li style="list-style:none;">
+                    <button type="submit" style="background:transparent; border-width:0px; outline:none;">{{ situation.situation }}</button>
                   </li>
                 </form>
               </div>

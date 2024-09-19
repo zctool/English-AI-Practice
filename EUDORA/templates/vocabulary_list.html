@@ -44,7 +44,7 @@ body {
     /*linear-gradient(135deg, #667eea 0%, #764ba2 100%)*/
   ;
   min-height: 100vh;
-  display: flex;
+ 
   justify-content: center;
   align-items: center;
 }
@@ -75,7 +75,7 @@ h1 {
 }
 
 .sentence-container {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   gap: 20px;
 }
@@ -477,12 +477,12 @@ a.btn {
     <!-- <div class="container"> -->
       <!-- <div class="content"> -->
         <h1 style="color:#000">單字列表</h1>
-        <ul class="vocabulary-list">
+        <center><ul class="vocabulary-list">
           <div class="sentence-container">
             {% for vocab in vocabularies %}
             <div class="sentence">
-              <li style="list-style-type: disc;">
-                <a href="{{ url_for('vocabulary_detail', vocabulary_id=vocab.id) }}" class="">
+              <li style="list-style-type: none;">
+                <a href="{{ url_for('vocabulary_detail', vocabulary_id=vocab.id) }}" class="" style='text-decoration :none; color:gray;'>
                   <span class="text-lg font-medium">{{ vocab.vocabulary_en }}</span> <span class="text-gray-600"> {{
                     vocab.vocabulary_tw }}</span>
                 </a>
@@ -491,7 +491,7 @@ a.btn {
             {% endfor %}
           </div>
           
-        </ul>
+        </ul></center>
         <!-- <footer style="background-color: #4e9ccf; padding: 20px; text-align: center; border-top: 2px solid #87d1c3;">
           <p style="color: #fff; font-weight: bold; letter-spacing: 2px;">© 2024 Your Company. All Rights Reserved.</p>
           <p style="color: #ddd;">
@@ -743,7 +743,24 @@ a.btn {
 
 
   </script>
-  
+  <footer
+  style="
+    background-color: #4e9ccf;
+    padding: 20px;
+    text-align: center;
+    border-top: 2px solid #87d1c3;
+  "
+>
+  <p style="color: #fff; font-weight: bold; letter-spacing: 2px">
+    組別: 113201 指導老師 : 林俊杰老師
+  </p>
+  <p style="color: #ddd">
+    <a href="#" style="color: #ddd; text-decoration: none; margin: 0 10px"
+      >專題組員: 11236012 高穎萱 11236013 蔣杰森 11236022 巫承翰 11236025
+      葉于甄</a
+    >
+  </p>
+</footer>
 </body>
 
 </html>
