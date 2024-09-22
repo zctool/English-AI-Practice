@@ -1,20 +1,44 @@
-import io
 from flask import Blueprint, jsonify, render_template, request, redirect, send_file, url_for, flash, g, session
-import mysql.connector
+import mysql.connector.pooling as pooling
 from functools import wraps
+import mysql.connector
+import base64
+import io
+import os
+import secrets
 
 admin_bp = Blueprint('admin', __name__)
-admin_bp.secret_key = 'your_secret_key'
 
-# MySQL 数据库连接配置
-config = {
+# 使用环境变量或生成随机密钥
+admin_bp.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(16))
+
+# 創建資料庫連接池
+db_config = {
     'user': 'case113201',
     'password': '@Ntub_113201',
     'host': '140.131.114.242',
     'database': '113-NTUB',
+    'pool_name': 'mypool',
+    'pool_size': 5
 }
+cnxpool = pooling.MySQLConnectionPool(**db_config)
 
+# 檢查文件類型
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'jpeg', 'png'}
 
+# 獲取資料庫連接
+def get_db_connection():
+    return cnxpool.get_connection()
+
+# 關閉資料庫連接
+def close_db_connection(cursor, connection):
+    if cursor:
+        cursor.close()
+    if connection:
+        connection.close()
+
+# 管理員身份驗證
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -24,14 +48,23 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# 登出
 @admin_bp.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('admin.index'))
+    return redirect(url_for('index'))
 
+# 管理首頁
 @admin_bp.route('/')
 @admin_required
 def admin_index():
+    return render_template('admin_home.html')
+
+
+# 管理教學內容
+@admin_bp.route('/admin_index')
+@admin_required
+def admin_home():
     return render_template('admin_index.html')
 
 # 新增單詞主題
@@ -42,8 +75,11 @@ def add_vocabulary_topic():
         name = request.form['name']
         icon_file = request.files.get('icon')
 
+        connection = None
+        cursor = None
+
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
 
             query = "INSERT INTO vocabularyTopic (name) VALUES (%s)"
@@ -61,10 +97,8 @@ def add_vocabulary_topic():
             if connection:
                 connection.rollback()
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
+
         return redirect(url_for('admin.add_vocabulary_topic'))
     return render_template('add_vocabularyTopic.html')
 
@@ -82,8 +116,11 @@ def add_vocabulary():
         difficulty_class = request.form['class']
         vocabulary_voice = request.files['vocabulary_voice']
 
+        connection = None
+        cursor = None
+
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
             voice_data = vocabulary_voice.read()
             query = """
@@ -98,14 +135,14 @@ def add_vocabulary():
             if connection:
                 connection.rollback()
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
+
         return redirect(url_for('admin.add_vocabulary'))
     else:
+        connection = None
+        cursor = None
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
             cursor.execute("SELECT id, name FROM vocabularyTopic")
             topics = cursor.fetchall()
@@ -113,18 +150,17 @@ def add_vocabulary():
             flash(f"Error: {err}", 'danger')
             topics = []
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return render_template('add_vocabulary.html', topics=topics)
-        
+
 # 獲取指定主題的難易度
 @admin_bp.route('/get_vocabulary_difficulty_classes/<int:topic_id>', methods=['GET'])
 @admin_required
 def get_vocabulary_difficulty_classes(topic_id):
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute("SELECT DISTINCT class FROM conversationSituation WHERE topic_id = %s", (topic_id,))
         difficulty_classes = cursor.fetchall()
@@ -132,17 +168,16 @@ def get_vocabulary_difficulty_classes(topic_id):
     except mysql.connector.Error as err:
         return jsonify({'error': str(err)})
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
 
 # 獲取指定難易度和主題的情境
 @admin_bp.route('/get_vocabulary_situations/<int:topic_id>/<string:difficulty_class>', methods=['GET'])
 @admin_required
 def get_vocabulary_situations(topic_id, difficulty_class):
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
         query = "SELECT id, situation FROM conversationSituation WHERE topic_id = %s AND class = %s"
         cursor.execute(query, (topic_id, difficulty_class))
@@ -151,17 +186,16 @@ def get_vocabulary_situations(topic_id, difficulty_class):
     except mysql.connector.Error as err:
         return jsonify({'error': str(err)})
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
 
 # 獲取指定情境的人物
 @admin_bp.route('/get_vocabulary_characters_by_situation/<int:situation_id>', methods=['GET'])
 @admin_required
 def get_vocabulary_characters_by_situation(situation_id):
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
         query = "SELECT id, character_name FROM characters WHERE situation_id = %s"
         cursor.execute(query, (situation_id,))
@@ -170,17 +204,16 @@ def get_vocabulary_characters_by_situation(situation_id):
     except mysql.connector.Error as err:
         return jsonify({'error': str(err)})
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
 
 # 查看和编辑單字主題
 @admin_bp.route('/admin_vocabulary_topics')
 @admin_required
 def admin_vocabulary_topics():
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute("SELECT id, name FROM vocabularyTopic")
         topics = cursor.fetchall()
@@ -188,31 +221,30 @@ def admin_vocabulary_topics():
         flash(f"Error: {err}", 'danger')
         topics = []
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
     return render_template('admin_vocabulary_topics.html', topics=topics)
 
 # 编辑單字主題
 @admin_bp.route('/edit_vocabulary_topic/<int:topic_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_vocabulary_topic(topic_id):
+    connection = None
+    cursor = None
     if request.method == 'POST':
         name = request.form['name']
         icon_file = request.files.get('icon')
 
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
-            
+
             query = "UPDATE vocabularyTopic SET name = %s WHERE id = %s"
             cursor.execute(query, (name, topic_id))
-            
+
             if icon_file and allowed_file(icon_file.filename):
                 icon_data = icon_file.read()
                 cursor.execute("REPLACE INTO vocabularyTopicIcon (topic_id, icon) VALUES (%s, %s)", (topic_id, icon_data))
-                
+
             connection.commit()
             flash('Vocabulary Topic updated successfully!', 'success')
         except mysql.connector.Error as err:
@@ -220,38 +252,34 @@ def edit_vocabulary_topic(topic_id):
             if connection:
                 connection.rollback()
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return redirect(url_for('admin.admin_vocabulary_topics'))
     else:
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
             cursor.execute("SELECT name FROM vocabularyTopic WHERE id = %s", (topic_id,))
             topic = cursor.fetchone()
-            
+
             cursor.execute("SELECT icon FROM vocabularyTopicIcon WHERE topic_id = %s", (topic_id,))
             icon = cursor.fetchone()
-            
+
         except mysql.connector.Error as err:
             flash(f"Error: {err}", 'danger')
             topic = None
             icon = None
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return render_template('edit_vocabulary_topic.html', topic=topic, icon=icon, topic_id=topic_id)
 
 # 删除單字主題
 @admin_bp.route('/delete_vocabulary_topic/<int:topic_id>')
 @admin_required
 def delete_vocabulary_topic(topic_id):
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
 
         # 删除相关的图标
@@ -259,7 +287,7 @@ def delete_vocabulary_topic(topic_id):
 
         # 删除主題
         cursor.execute("DELETE FROM vocabularyTopic WHERE id = %s", (topic_id,))
-        
+
         connection.commit()
         flash('Vocabulary Topic deleted successfully!', 'success')
     except mysql.connector.Error as err:
@@ -267,18 +295,17 @@ def delete_vocabulary_topic(topic_id):
         if connection:
             connection.rollback()
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
     return redirect(url_for('admin.admin_vocabulary_topics'))
 
 # 查看和编辑單字
 @admin_bp.route('/vocabularies')
 @admin_required
 def vocabularies():
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute("SELECT id, vocabulary_en, vocabulary_tw FROM vocabulary")
         vocabularies = cursor.fetchall()
@@ -286,15 +313,15 @@ def vocabularies():
         flash(f"Error: {err}", 'danger')
         vocabularies = []
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
     return render_template('vocabularies.html', vocabularies=vocabularies)
 
+# 编辑單字
 @admin_bp.route('/edit_vocabulary/<int:vocabulary_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_vocabulary(vocabulary_id):
+    connection = None
+    cursor = None
     if request.method == 'POST':
         topic_id = request.form['topic_id']
         vocabulary_en = request.form['vocabulary_en']
@@ -306,7 +333,7 @@ def edit_vocabulary(vocabulary_id):
         vocabulary_voice = request.files.get('vocabulary_voice')
 
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
             if vocabulary_voice:
                 voice_data = vocabulary_voice.read()
@@ -328,14 +355,11 @@ def edit_vocabulary(vocabulary_id):
             if connection:
                 connection.rollback()
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return redirect(url_for('admin.vocabularies'))
     else:
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
             cursor.execute("SELECT id, topic_id, vocabulary_en, vocabulary_tw, part_of_speech, ipa, example, class FROM vocabulary WHERE id = %s", (vocabulary_id,))
             vocabulary = cursor.fetchone()
@@ -346,18 +370,17 @@ def edit_vocabulary(vocabulary_id):
             vocabulary = None
             topics = []
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return render_template('edit_vocabulary.html', vocabulary=vocabulary, topics=topics)
 
 # 删除單字
 @admin_bp.route('/delete_vocabulary/<int:vocabulary_id>')
 @admin_required
 def delete_vocabulary(vocabulary_id):
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute("DELETE FROM vocabulary WHERE id = %s", (vocabulary_id,))
         connection.commit()
@@ -367,22 +390,21 @@ def delete_vocabulary(vocabulary_id):
         if connection:
             connection.rollback()
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
     return redirect(url_for('admin.vocabularies'))
 
 # 新增對話主題
 @admin_bp.route('/add_conversation_topic', methods=['GET', 'POST'])
 @admin_required
 def add_conversation_topic():
+    connection = None
+    cursor = None
     if request.method == 'POST':
         name = request.form['name']
         icon_file = request.files.get('icon')
 
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
 
             check_query = "SELECT COUNT(*) FROM conversationTopic WHERE name = %s"
@@ -407,10 +429,7 @@ def add_conversation_topic():
             if connection:
                 connection.rollback()
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return redirect(url_for('admin.add_conversation_topic'))
     return render_template('add_conversationTopic.html')
 
@@ -418,6 +437,8 @@ def add_conversation_topic():
 @admin_bp.route('/add_conversation_situation', methods=['GET', 'POST'])
 @admin_required
 def add_conversation_situation():
+    connection = None
+    cursor = None
     if request.method == 'POST':
         situation = request.form['situation']
         topic_id = request.form['topic_id']
@@ -431,7 +452,7 @@ def add_conversation_situation():
             return redirect(url_for('admin.add_conversation_situation'))
 
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
 
             query = "INSERT INTO conversationSituation (situation, topic_id, class) VALUES (%s, %s, %s)"
@@ -455,14 +476,11 @@ def add_conversation_situation():
             if connection:
                 connection.rollback()
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return redirect(url_for('admin.add_conversation_situation'))
     else:
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
             cursor.execute("SELECT id, name FROM conversationTopic")
             topics = cursor.fetchall()
@@ -470,16 +488,15 @@ def add_conversation_situation():
             flash(f"Error: {err}", 'danger')
             topics = []
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return render_template('add_conversation_situation.html', topics=topics)
 
 # 新增對話內容
 @admin_bp.route('/add_conversation', methods=['GET', 'POST'])
 @admin_required
 def add_conversation():
+    connection = None
+    cursor = None
     if request.method == 'POST':
         situation_id = request.form['situation_id']
         character_id = request.form['character_id']
@@ -488,7 +505,7 @@ def add_conversation():
         conversation_voice = request.files['conversation_voice']
 
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor(dictionary=True)
             # 从 conversationSituation 表中查询 class 字段
             cursor.execute("SELECT class FROM conversationSituation WHERE id = %s", (situation_id,))
@@ -510,14 +527,11 @@ def add_conversation():
             if connection:
                 connection.rollback()
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return redirect(url_for('admin.add_conversation'))
     else:
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
             cursor.execute("SELECT id, name FROM conversationTopic")
             topics = cursor.fetchall()
@@ -525,72 +539,17 @@ def add_conversation():
             flash(f"Error: {err}", 'danger')
             topics = []
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return render_template('add_conversation.html', topics=topics)
 
-@admin_bp.route('/get_difficulty_classes/<int:topic_id>', methods=['GET'])
-@admin_required
-def get_difficulty_classes(topic_id):
-    try:
-        connection = mysql.connector.connect(**config)
-        cursor = connection.cursor()
-        query = "SELECT DISTINCT class FROM conversationSituation WHERE topic_id = %s"
-        cursor.execute(query, (topic_id,))
-        difficulty_classes = cursor.fetchall()
-        return jsonify([{'class': class_item[0]} for class_item in difficulty_classes])
-    except mysql.connector.Error as err:
-        return jsonify({'error': str(err)})
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
-
-@admin_bp.route('/get_situations/<int:topic_id>/<string:difficulty_class>', methods=['GET'])
-@admin_required
-def get_situations(topic_id, difficulty_class):
-    try:
-        connection = mysql.connector.connect(**config)
-        cursor = connection.cursor()
-        query = "SELECT id, situation FROM conversationSituation WHERE topic_id = %s AND class = %s"
-        cursor.execute(query, (topic_id, difficulty_class))
-        situations = cursor.fetchall()
-        return jsonify([{'id': situation[0], 'situation': situation[1]} for situation in situations])
-    except mysql.connector.Error as err:
-        return jsonify({'error': str(err)})
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
-
-@admin_bp.route('/get_characters_by_situation/<int:situation_id>', methods=['GET'])
-@admin_required
-def get_characters_by_situation(situation_id):
-    try:
-        connection = mysql.connector.connect(**config)
-        cursor = connection.cursor()
-        query = "SELECT id, character_name FROM characters WHERE situation_id = %s"
-        cursor.execute(query, (situation_id,))
-        characters = cursor.fetchall()
-        return jsonify([{'id': character[0], 'character_name': character[1]} for character in characters])
-    except mysql.connector.Error as err:
-        return jsonify({'error': str(err)})
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
-
-# 查看和編輯對話主題
+# 查看和编辑对话主题
 @admin_bp.route('/admin_conversation_topics')
 @admin_required
 def admin_conversation_topics():
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute("SELECT id, name FROM conversationTopic")
         topics = cursor.fetchall()
@@ -598,31 +557,30 @@ def admin_conversation_topics():
         flash(f"Error: {err}", 'danger')
         topics = []
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
     return render_template('admin_conversation_topics.html', topics=topics)
 
-#編輯對話主題
+# 编辑对话主题
 @admin_bp.route('/edit_conversation_topic/<int:topic_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_conversation_topic(topic_id):
+    connection = None
+    cursor = None
     if request.method == 'POST':
         name = request.form['name']
         icon_file = request.files.get('icon')
 
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
-            
+
             query = "UPDATE conversationTopic SET name = %s WHERE id = %s"
             cursor.execute(query, (name, topic_id))
-            
+
             if icon_file and allowed_file(icon_file.filename):
                 icon_data = icon_file.read()
                 cursor.execute("REPLACE INTO conversationTopicIcon (topic_id, icon) VALUES (%s, %s)", (topic_id, icon_data))
-                
+
             connection.commit()
             flash('Conversation Topic updated successfully!', 'success')
         except mysql.connector.Error as err:
@@ -630,49 +588,45 @@ def edit_conversation_topic(topic_id):
             if connection:
                 connection.rollback()
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return redirect(url_for('admin.admin_conversation_topics'))
     else:
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
             cursor.execute("SELECT name FROM conversationTopic WHERE id = %s", (topic_id,))
             topic = cursor.fetchone()
-            
+
             cursor.execute("SELECT icon FROM conversationTopicIcon WHERE topic_id = %s", (topic_id,))
             icon = cursor.fetchone()
-            
+
         except mysql.connector.Error as err:
             flash(f"Error: {err}", 'danger')
             topic = None
             icon = None
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return render_template('edit_conversation_topic.html', topic=topic, icon=icon, topic_id=topic_id)
 
-# 刪除對話主題
+# 删除对话主题
 @admin_bp.route('/delete_conversation_topic/<int:topic_id>')
 @admin_required
 def delete_conversation_topic(topic_id):
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
 
         # 刪除引用這些主題的外鍵
         cursor.execute("DELETE FROM conversationSituation WHERE topic_id = %s", (topic_id,))
-        
+
         # 刪除相關的圖標
         cursor.execute("DELETE FROM conversationTopicIcon WHERE topic_id = %s", (topic_id,))
-        
+
         # 刪除主題
         cursor.execute("DELETE FROM conversationTopic WHERE id = %s", (topic_id,))
-        
+
         connection.commit()
         flash('Conversation Topic deleted successfully!', 'success')
     except mysql.connector.Error as err:
@@ -680,18 +634,17 @@ def delete_conversation_topic(topic_id):
         if connection:
             connection.rollback()
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
     return redirect(url_for('admin.admin_conversation_topics'))
 
-# 查看和編輯對話
+# 查看和编辑对话
 @admin_bp.route('/conversations')
 @admin_required
 def conversations():
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
         query = """
             SELECT c.id, c.conversation_en, c.conversation_tw, cs.situation, cs.class, ct.name AS topic_name
@@ -705,16 +658,15 @@ def conversations():
         flash(f"Error: {err}", 'danger')
         conversations = []
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
     return render_template('conversations.html', conversations=conversations)
 
-# 編輯對話
+# 编辑对话
 @admin_bp.route('/edit_conversation/<int:conversation_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_conversation(conversation_id):
+    connection = None
+    cursor = None
     if request.method == 'POST':
         situation_id = request.form['situation_id']
         character_id = request.form['character_id']
@@ -723,7 +675,7 @@ def edit_conversation(conversation_id):
         conversation_voice = request.files.get('conversation_voice')
 
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
             if conversation_voice:
                 voice_data = conversation_voice.read()
@@ -745,14 +697,11 @@ def edit_conversation(conversation_id):
             if connection:
                 connection.rollback()
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return redirect(url_for('admin.conversations'))
     else:
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
             cursor.execute("""
                 SELECT c.id, c.conversation_en, c.conversation_tw, c.character_id, cs.id AS situation_id, cs.situation, ct.id AS topic_id, ct.name AS topic_name, cs.class
@@ -772,18 +721,17 @@ def edit_conversation(conversation_id):
             situations = []
             characters = []
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return render_template('edit_conversation.html', conversation=conversation, situations=situations, characters=characters)
 
-# 刪除對話
+# 删除对话
 @admin_bp.route('/delete_conversation/<int:conversation_id>')
 @admin_required
 def delete_conversation(conversation_id):
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute("DELETE FROM conversation WHERE id = %s", (conversation_id,))
         connection.commit()
@@ -793,19 +741,17 @@ def delete_conversation(conversation_id):
         if connection:
             connection.rollback()
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
     return redirect(url_for('admin.conversations'))
 
-
-# 查看和編輯對話情境
+# 查看和编辑对话情境
 @admin_bp.route('/admin_conversation_situations')
 @admin_required
 def admin_conversation_situations():
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute("""
             SELECT cs.id, cs.situation, cs.class, ct.name AS topic_name
@@ -817,27 +763,26 @@ def admin_conversation_situations():
         flash(f"Error: {err}", 'danger')
         situations = []
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
     return render_template('admin_conversation_situations.html', situations=situations)
 
-# 編輯對話情境
+# 编辑对话情境
 @admin_bp.route('/edit_conversation_situation/<int:situation_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_conversation_situation(situation_id):
+    connection = None
+    cursor = None
     if request.method == 'POST':
         situation = request.form['situation']
         topic_id = request.form['topic_id']
 
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
-            
+
             query = "UPDATE conversationSituation SET situation = %s, topic_id = %s WHERE id = %s"
             cursor.execute(query, (situation, topic_id, situation_id))
-            
+
             connection.commit()
             flash('Conversation Situation updated successfully!', 'success')
         except mysql.connector.Error as err:
@@ -845,42 +790,38 @@ def edit_conversation_situation(situation_id):
             if connection:
                 connection.rollback()
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return redirect(url_for('admin.admin_conversation_situations'))
     else:
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
             cursor.execute("SELECT situation, topic_id FROM conversationSituation WHERE id = %s", (situation_id,))
             situation = cursor.fetchone()
-            
+
             cursor.execute("SELECT id, name FROM conversationTopic")
             topics = cursor.fetchall()
-            
+
         except mysql.connector.Error as err:
             flash(f"Error: {err}", 'danger')
             situation = None
             topics = []
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return render_template('edit_conversation_situation.html', situation=situation, topics=topics, situation_id=situation_id)
 
-# 刪除對話情境
+# 删除对话情境
 @admin_bp.route('/delete_conversation_situation/<int:situation_id>')
 @admin_required
 def delete_conversation_situation(situation_id):
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
-        # 刪除相關的角色
+        # 删除相关的角色
         cursor.execute("DELETE FROM characters WHERE situation_id = %s", (situation_id,))
-        # 刪除情境
+        # 删除情境
         cursor.execute("DELETE FROM conversationSituation WHERE id = %s", (situation_id,))
         connection.commit()
         flash('Conversation Situation deleted successfully!', 'success')
@@ -889,18 +830,17 @@ def delete_conversation_situation(situation_id):
         if connection:
             connection.rollback()
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
     return redirect(url_for('admin.admin_conversation_situations'))
 
 # 查看和编辑人物
 @admin_bp.route('/characters/<int:situation_id>')
 @admin_required
 def characters(situation_id):
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute("SELECT id, character_name FROM characters WHERE situation_id = %s", (situation_id,))
         characters = cursor.fetchall()
@@ -908,22 +848,21 @@ def characters(situation_id):
         flash(f"Error: {err}", 'danger')
         characters = []
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
     return render_template('characters.html', characters=characters, situation_id=situation_id)
 
 # 编辑人物
 @admin_bp.route('/edit_character/<int:character_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_character(character_id):
+    connection = None
+    cursor = None
     if request.method == 'POST':
         character_name = request.form['character_name']
         icon_file = request.files.get('icon')
 
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
             if icon_file and allowed_file(icon_file.filename):
                 icon_data = icon_file.read()
@@ -941,14 +880,11 @@ def edit_character(character_id):
             if connection:
                 connection.rollback()
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return redirect(url_for('admin.characters', situation_id=request.form['situation_id']))
     else:
         try:
-            connection = mysql.connector.connect(**config)
+            connection = get_db_connection()
             cursor = connection.cursor()
             cursor.execute("SELECT id, character_name FROM characters WHERE id = %s", (character_id,))
             character = cursor.fetchone()
@@ -956,18 +892,17 @@ def edit_character(character_id):
             flash(f"Error: {err}", 'danger')
             character = None
         finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
+            close_db_connection(cursor, connection)
         return render_template('edit_character.html', character=character, situation_id=request.args.get('situation_id'))
 
 # 删除人物
 @admin_bp.route('/delete_character/<int:character_id>/<int:situation_id>')
 @admin_required
 def delete_character(character_id, situation_id):
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute("DELETE FROM characters WHERE id = %s", (character_id,))
         connection.commit()
@@ -977,17 +912,17 @@ def delete_character(character_id, situation_id):
         if connection:
             connection.rollback()
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
     return redirect(url_for('admin.characters', situation_id=situation_id))
 
+# 獲取圖標
 @admin_bp.route('/icon/<int:situation_id>')
 @admin_required
 def icon(situation_id):
+    connection = None
+    cursor = None
     try:
-        connection = mysql.connector.connect(**config)
+        connection = get_db_connection()
         cursor = connection.cursor()
         cursor.execute("SELECT icon FROM conversationTopicIcon WHERE topic_id = %s", (situation_id,))
         icon = cursor.fetchone()
@@ -1000,11 +935,94 @@ def icon(situation_id):
         flash(f"Error: {err}", 'danger')
         return '', 500
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        close_db_connection(cursor, connection)
 
-# 檢查文件類型
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'jpeg', 'png'}
+# 管理员权限页面
+@admin_bp.route('/admin_permission', methods=['GET', 'POST'])
+@admin_required
+def admin_permission():
+    if 'email' not in session or session.get('role') != 'admin':
+        return redirect(url_for('index'))
+
+    search_query = request.form.get('search', '')
+
+    connection = None
+    cursor = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        if search_query:
+            cursor.execute("""
+                SELECT id, userName, GoogleEmail, role, icon FROM users 
+                WHERE userName LIKE %s OR GoogleEmail LIKE %s
+            """, ('%' + search_query + '%', '%' + search_query + '%'))
+        else:
+            cursor.execute("SELECT id, userName, GoogleEmail, role, icon FROM users")
+
+        users = cursor.fetchall()
+        for user in users:
+            if user['icon']:
+                user['icon'] = base64.b64encode(user['icon']).decode('utf-8')
+
+    except mysql.connector.Error as err:
+        flash(f"Error: {err}", 'danger')
+        users = []
+    finally:
+        close_db_connection(cursor, connection)
+
+    return render_template('admin_permission.html', users=users, name=session['name'], search_query=search_query)
+
+# 更新用户角色
+@admin_bp.route('/update_user_role', methods=['POST'])
+@admin_required
+def update_user_role():
+    user_id = request.form['user_id']
+    new_role = request.form['role']
+
+    connection = None
+    cursor = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("UPDATE users SET role = %s WHERE id = %s", (new_role, user_id))
+        connection.commit()
+    except mysql.connector.Error as err:
+        flash(f"Error: {err}", 'danger')
+        if connection:
+            connection.rollback()
+    finally:
+        close_db_connection(cursor, connection)
+
+    return redirect(url_for('admin.admin_permission'))
+
+# 删除用户
+@admin_bp.route('/delete_user', methods=['POST'])
+@admin_required
+def delete_user():
+    user_id = request.form['user_id']
+
+    connection = None
+    cursor = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # 手動刪除與該使用者相關的資料
+        cursor.execute("DELETE FROM vocabularyCollect WHERE user_id = %s", (user_id,))
+        cursor.execute("DELETE FROM vocabularyUserVoice WHERE user_id = %s", (user_id,))
+        cursor.execute("DELETE FROM conversationCollect WHERE user_id = %s", (user_id,))
+        cursor.execute("DELETE FROM conversationUserVoice WHERE user_id = %s", (user_id,))
+
+        # 刪除使用者本身
+        cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+
+        connection.commit()
+    except mysql.connector.Error as err:
+        if connection:
+            connection.rollback()
+        flash(f"Error: {err}", 'danger')
+    finally:
+        close_db_connection(cursor, connection)
+
+    return redirect(url_for('admin.admin_permission'))

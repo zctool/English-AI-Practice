@@ -1,0 +1,46 @@
+{% extends 'teacher_home.html' %}
+
+{% block title %}編輯課程內容{% endblock %}
+
+{% block content %}
+<h2>編輯課程內容: {{ course.name }}</h2>
+<form action="{{ url_for('teacher.edit_course_content', course_id=course.id) }}" method="post" enctype="multipart/form-data">
+    <table border="1">
+        <thead>
+            <tr>
+                <th>句子內容</th>
+                <th>音頻文件</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sentence in sentences %}
+            <tr>
+                <td>
+                    <input type="hidden" name="sentence_id" value="{{ sentence.id }}">
+                    <input type="text" name="sentence" value="{{ sentence.content }}" required>
+                </td>
+                <td>
+                    <input type="file" name="audio">
+                    {% if sentence.audio_file %}
+                    <audio controls>
+                        <source src="{{ url_for('teacher.get_audio', sentence_id=sentence.id) }}" type="audio/mp3">
+                        您的瀏覽器不支持音頻播放。
+                    </audio>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('teacher.delete_sentence', sentence_id=sentence.id) }}" onclick="return confirm('確定要刪除這個句子嗎？');">刪除</a>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td><input type="text" name="sentence" placeholder="新增句子內容"></td>
+                <td><input type="file" name="audio"></td>
+            </tr>
+        </tbody>
+    </table>
+    <button type="submit">保存更改</button>
+</form>
+<a href="{{ url_for('teacher.manage_courses') }}">返回</a>
+{% endblock %}
