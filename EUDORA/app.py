@@ -1200,6 +1200,33 @@ def view_course_detail(course_id):
     conn.close()
     return render_template('course_detail.html', course=course)
 
+#課程聲音錄製
+@app.route('/save_audio', methods=['POST'])
+def save_audio():
+    # 獲取上傳的音檔
+    audio_file = request.files['audio_data'].read()
+    sentence_id = request.form['sentence_id']
+    user_id = session['user_id']  # 假設 session 中已經儲存了用戶的 ID
+
+    # 當日日期作為錄音時間
+    recording_date = datetime.datetime.now().date()
+
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor()
+
+    # 將錄音文件存入 UserRecordings 表
+    cursor.execute("""
+        INSERT INTO UserRecordings (user_id, sentence_id, audio_file, recording_date) 
+        VALUES (%s, %s, %s, %s)
+    """, (user_id, sentence_id, audio_file, recording_date))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({'success': True})
+
+
 
 # 註冊 Blueprint
 app.register_blueprint(teacher_bp, url_prefix='/teacher')
