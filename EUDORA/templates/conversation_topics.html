@@ -426,6 +426,32 @@
         .main-content{
           height: 600px;
         }
+        .dropdown-content {
+          display: none;
+          position: absolute;
+          background-color: #f9f9f9;
+          min-width: 160px;
+          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+          z-index: 1;
+        }
+        
+        /* 下拉選單中的每個選項樣式 */
+        .dropdown-content a {
+          color: black;
+          padding: 12px 16px;
+          text-decoration: none;
+          display: block;
+        }
+        
+        /* 當滑過時顯示下拉選單 */
+        .dropdown:hover .dropdown-content {
+          display: block;
+        }
+        
+        /* 滑過選單項目的效果 */
+        .dropdown-content a:hover {
+          background-color: #f1f1f1;
+        }
   </style>
 </head>
 
@@ -445,7 +471,14 @@
         </button>
         <ul id="main-nav">
           <li class="current"><a href="{{ url_for('main') }}">首頁</a></li>
-          <li><a href="#courses">課程</a></li>
+          <li class="dropdown">
+            <a href="#courses" class="dropbtn">課程</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('all_teachers') }}">所有老師</a>
+                <a href="{{ url_for('recommended_teachers') }}">推薦的老師</a>
+                <a href="{{ url_for('selected_teachers') }}">已選擇的老師</a>
+            </div>
+        </li>
           <li><a href="{{ url_for('vocabulary_topics') }}">單字</a></li>
           <li><a href="{{ url_for('conversation_topics') }}">句子</a></li>
           <li><a href="{{ url_for('account_management') }}">個人資料</a></li>
@@ -460,7 +493,7 @@
 
   <!-- Header Start -->
   <main class="content">
-   <div class="main-content">
+  <center> <div class="main-content">
          <center> <h1 style="color: #007bff;">對話主題</h1> </center>
           <div class="topics">
             {% for topic in topics %}
@@ -489,6 +522,7 @@
               {% endfor %}
             </div>
           </div>
+        </center>
   </main>
   <button id="back-to-top" title="回到頂部">↑</button>
   <!-- Header End -->

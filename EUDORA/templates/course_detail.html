@@ -8,22 +8,13 @@
             margin-bottom: 1em;
             cursor: pointer;
             line-height: 1.5em;
-            transition: color 0.3s ease;
+            transition: color 0.3s ease; /* 增加平滑过渡效果 */
         }
         .highlight {
-            color: #5DADE2;
+            color: #5DADE2; /* 淡藍色 */
         }
         .playing {
-            color: #28B463;
-        }
-        .recording {
-            color: #E74C3C;
-        }
-        .record-controls {
-            margin-left: 10px;
-        }
-        button {
-            margin-right: 5px;
+            color: #28B463; /* 播放时的颜色 */
         }
     </style>
 </head>
@@ -35,13 +26,8 @@
             <h2>對話內容</h2>
             <div id="conversation-content">
             {% for sentence in course.sentences %}
-                <div class="sentence" data-sentence-id="{{ sentence.id }}">
+                <div class="sentence" data-audio="{{ sentence.audio_file }}">
                     {{ sentence.text }}
-                    <!-- 每句話旁邊的錄音按鈕 -->
-                    <div class="record-controls">
-                        <button class="startRecording" data-sentence-id="{{ sentence.id }}">開始錄音</button>
-                        <button class="stopRecording" data-sentence-id="{{ sentence.id }}" disabled>停止錄音</button>
-                    </div>
                 </div>
             {% endfor %}
             </div>
@@ -49,82 +35,68 @@
             <h2>文章內容</h2>
             <div id="article-content">
             {% for paragraph in course.content %}
-                <div class="paragraph" data-paragraph-id="{{ paragraph.id }}">
+                <div class="paragraph" data-audio="{{ paragraph.audio_file }}">
                     {{ paragraph.text }}
-                    <!-- 每段落旁邊的錄音按鈕 -->
-                    <div class="record-controls">
-                        <button class="startRecording" data-paragraph-id="{{ paragraph.id }}">開始錄音</button>
-                        <button class="stopRecording" data-paragraph-id="{{ paragraph.id }}" disabled>停止錄音</button>
-                    </div>
                 </div>
             {% endfor %}
             </div>
         {% endif %}
     </div>
 
+    <audio id="audioPlayer"></audio>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var startButtons = document.querySelectorAll('.startRecording');
-            var stopButtons = document.querySelectorAll('.stopRecording');
-            var audioChunks = [];
-            var mediaRecorder = null;
-            var activeSentenceId = null;
+            var textContents = document.querySelectorAll('.sentence, .paragraph');
+            var audioPlayer = document.getElementById('audioPlayer');
 
-            // 開始錄音事件
-            startButtons.forEach(function(button) {
-                button.addEventListener('click', async function() {
-                    var sentenceId = this.getAttribute('data-sentence-id');
-                    activeSentenceId = sentenceId;
+            textContents.forEach(function(item) {
+                item.addEventListener('click', function() {
+                    // 停止任何正在播放的音頻
+                    audioPlayer.pause();
 
-                    // 獲取使用者的麥克風權限
-                    let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    // 重置所有文本內容的顏色
+                    textContents.forEach(function(tc) {
+                        tc.classList.remove('playing');
+                        tc.innerHTML = tc.textContent; // 重置文本内容
+                    });
 
-                    // 開始錄音
-                    mediaRecorder = new MediaRecorder(stream);
-                    mediaRecorder.start();
-                    audioChunks = []; // 清空之前的錄音緩存
+                    // 播放新的音頻
+                    var audioSrc = "data:audio/wav;base64," + this.getAttribute('data-audio');
+                    audioPlayer.src = audioSrc;
+                    audioPlayer.play();
 
-                    mediaRecorder.ondataavailable = function(event) {
-                        audioChunks.push(event.data);
-                    };
+                    // 標記當前播放的文本內容
+                    this.classList.add('playing');
 
-                    // 禁用開始錄音按鈕，啟用停止錄音按鈕
-                    this.disabled = true;
-                    document.querySelector(`.stopRecording[data-sentence-id="${sentenceId}"]`).disabled = false;
-                });
-            });
+                    // 獲取當前點擊文本的引用
+                    var textElement = this;
 
-            // 停止錄音事件
-            stopButtons.forEach(function(button) {
-                button.addEventListener('click', function() {
-                    var sentenceId = this.getAttribute('data-sentence-id');
+                    // 更新音頻播放進度時，改變字的顏色
+                    audioPlayer.ontimeupdate = function() {
+                        var duration = audioPlayer.duration;
+                        var currentTime = audioPlayer.currentTime;
+                        var progress = currentTime / duration;
 
-                    // 停止錄音
-                    mediaRecorder.stop();
+                        // 計算要變色的字數
+                        var totalChars = textElement.textContent.length;
+                        var charsToHighlight = Math.floor(progress * totalChars);
 
-                    mediaRecorder.onstop = function() {
-                        var audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                        var formData = new FormData();
-                        formData.append('audio_data', audioBlob);
-                        formData.append('sentence_id', sentenceId);
+                        // 生成高亮的文本
+                        var highlightedText = '<span class="highlight">' + textElement.textContent.substring(0, charsToHighlight) + '</span>';
+                        var remainingText = textElement.textContent.substring(charsToHighlight);
 
-                        // 發送錄音數據到後端
-                        fetch('/save_audio', {
-                            method: 'POST',
-                            body: formData
-                        }).then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('錄音已儲存！');
-                            } else {
-                                alert('錄音儲存失敗。');
-                            }
+                        // 使用 requestAnimationFrame 使更新更流畅
+                        requestAnimationFrame(function() {
+                            textElement.innerHTML = highlightedText + remainingText;
                         });
                     };
 
-                    // 重置按鈕狀態
-                    this.disabled = true;
-                    document.querySelector(`.startRecording[data-sentence-id="${sentenceId}"]`).disabled = false;
+                    // 音頻播放結束時，重置顏色
+                    audioPlayer.onended = function() {
+                        textElement.classList.remove('playing');
+                        textElement.innerHTML = textElement.textContent; // 重置文本内容
+                    };
                 });
             });
         });
