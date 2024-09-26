@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>課程詳情</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #555;
+            font-size: 1.5em;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        .paragraph, .sentence {
+            margin-bottom: 1.5em;
+            cursor: pointer;
+            line-height: 1.8em;
+            padding: 10px;
+            transition: color 0.3s ease, background-color 0.3s ease;
+        }
+        .sentence:hover, .paragraph:hover {
+            background-color: #f0f8ff;
+        }
+        .highlight {
+            color: #5DADE2;
+        }
+        .playing {
+            color: #28B463;
+        }
+        .record-controls {
+            margin-top: 10px;
+        }
+        .record-controls button {
+            padding: 8px 16px;
+            font-size: 1em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .startRecording {
+            background-color: #5DADE2;
+            color: white;
+        }
+        .startRecording:disabled {
+            background-color: #a1d0e6;
+        }
+        .stopRecording {
+            background-color: #E74C3C;
+            color: white;
+        }
+        .stopRecording:disabled {
+            background-color: #f2a4a4;
+        }
+        audio.playRecording {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ course.name }}</h1>
+        
+        {% if course.type == 'conversation' %}
+            <h2>對話內容</h2>
+            <div id="conversation-content">
+            {% for sentence in course.sentences %}
+                <div class="sentence" data-audio="{{ sentence.audio_file }}" data-sentence-id="{{ sentence.id }}">
+                    {{ sentence.text }}
+                </div>
+                <!-- 在句子下方顯示錄音按鈕 -->
+                <div class="record-controls">
+                    <button class="startRecording" data-sentence-id="{{ sentence.id }}" id="startRecording_{{ sentence.id }}">開始錄音</button>
+                    <button class="stopRecording" data-sentence-id="{{ sentence.id }}" id="stopRecording_{{ sentence.id }}" disabled>停止錄音</button>
+                    <audio class="playRecording" id="playRecording_{{ sentence.id }}" controls style="display:none;"></audio> <!-- 用於播放錄音結果 -->
+                    <div class="results" id="results_{{ sentence.id }}" style="display:none;">
+                        <p>音頻相似度: <span class="audio_similarity"></span></p>
+                        <p>文本相似度: <span class="text_similarity"></span></p>
+                        <div class="text_diff"></div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <h2>文章內容</h2>
+            <div id="article-content">
+            {% for paragraph in course.content %}
+                <div class="paragraph" data-audio="{{ paragraph.audio_file }}" data-paragraph-id="{{ paragraph.id }}">
+                    {{ paragraph.text }}
+                </div>
+                <!-- 在段落下方顯示錄音按鈕 -->
+                <div class="record-controls">
+                    <button class="startRecording" data-paragraph-id="{{ paragraph.id }}" id="startRecording_{{ paragraph.id }}">開始錄音</button>
+                    <button class="stopRecording" data-paragraph-id="{{ paragraph.id }}" id="stopRecording_{{ paragraph.id }}" disabled>停止錄音</button>
+                    <audio class="playRecording" id="playRecording_{{ paragraph.id }}" controls style="display:none;"></audio> <!-- 用於播放錄音結果 -->
+                    <div class="results" id="results_{{ paragraph.id }}" style="display:none;">
+                        <p>音頻相似度: <span class="audio_similarity"></span></p>
+                        <p>文本相似度: <span class="text_similarity"></span></p>
+                        <div class="text_diff"></div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <audio id="audioPlayer"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var textContents = document.querySelectorAll('.sentence, .paragraph');
+            var audioPlayer = document.getElementById('audioPlayer');
+            var mediaRecorder = null;
+            var audioChunks = [];
+
+            function stopAudioPlayback() {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+            }
+
+            // 播放音檔功能
+            textContents.forEach(function(item) {
+                item.addEventListener('click', function() {
+                    stopAudioPlayback();
+
+                    // 重置所有文本內容的顏色
+                    textContents.forEach(function(tc) {
+                        tc.classList.remove('playing');
+                        tc.innerHTML = tc.textContent; // 重置文本内容
+                    });
+
+                    // 播放新的音頻
+                    var audioSrc = "data:audio/wav;base64," + this.getAttribute('data-audio');
+                    audioPlayer.src = audioSrc;
+                    audioPlayer.play();
+
+                    // 標記當前播放的文本內容
+                    this.classList.add('playing');
+
+                    // 獲取當前點擊文本的引用
+                    var textElement = this;
+
+                    // 更新音頻播放進度時，改變字的顏色
+                    audioPlayer.ontimeupdate = function() {
+                        var duration = audioPlayer.duration;
+                        var currentTime = audioPlayer.currentTime;
+                        var progress = currentTime / duration;
+
+                        // 計算要變色的字數
+                        var totalChars = textElement.textContent.length;
+                        var charsToHighlight = Math.floor(progress * totalChars);
+
+                        // 生成高亮的文本
+                        var highlightedText = '<span class="highlight">' + textElement.textContent.substring(0, charsToHighlight) + '</span>';
+                        var remainingText = textElement.textContent.substring(charsToHighlight);
+
+                        // 使用 requestAnimationFrame 使更新更流暢
+                        requestAnimationFrame(function() {
+                            textElement.innerHTML = highlightedText + remainingText;
+                        });
+                    };
+
+                    // 音頻播放結束時，重置顏色
+                    audioPlayer.onended = function() {
+                        textElement.classList.remove('playing');
+                        textElement.innerHTML = textElement.textContent; // 重置文本内容
+                    };
+                });
+            });
+
+            // 錄音功能
+            document.querySelectorAll('.startRecording').forEach(function(button) {
+                button.addEventListener('click', async function() {
+                    var textContent = this.closest('.record-controls').previousElementSibling.textContent.trim();
+                    var startButton = this;
+                    var stopButton = this.closest('.record-controls').querySelector('.stopRecording');
+
+                    if (!textContent) {
+                        return;
+                    }
+
+                    try {
+                        let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        mediaRecorder = new MediaRecorder(stream);
+                        mediaRecorder.start();
+                        audioChunks = [];
+
+                        mediaRecorder.ondataavailable = function(event) {
+                            audioChunks.push(event.data);
+                        };
+
+                        startButton.disabled = true;
+                        stopButton.disabled = false;
+
+                    } catch (err) {
+                        console.error('無法啟用錄音:', err);
+                    }
+                });
+            });
+
+            // 停止錄音並保存
+            document.querySelectorAll('.stopRecording').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    var textContent = this.closest('.record-controls').previousElementSibling.textContent.trim();
+                    var playRecording = this.closest('.record-controls').querySelector('.playRecording');
+                    var stopButton = this;
+                    var startButton = this.closest('.record-controls').querySelector('.startRecording');
+                    var resultsDiv = this.closest('.record-controls').querySelector('.results');
+                    var audioSimilaritySpan = resultsDiv.querySelector('.audio_similarity');
+                    var textSimilaritySpan = resultsDiv.querySelector('.text_similarity');
+                    var textDiffDiv = resultsDiv.querySelector('.text_diff');
+                    var feedbackMessageDiv = document.createElement('div');
+
+                    if (!textContent) {
+                        return;
+                    }
+
+                    mediaRecorder.stop();
+
+                    mediaRecorder.onstop = function() {
+                        var audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        var formData = new FormData();
+                        formData.append('audio_data', audioBlob);
+                        formData.append('text_content', textContent);
+
+                        // 將 Blob 轉換成 URL 供用戶播放
+                        var audioURL = URL.createObjectURL(audioBlob);
+                        playRecording.src = audioURL;
+                        playRecording.style.display = 'block'; // 顯示播放按鈕
+
+                        fetch('/save_audio_by_text', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            // 顯示相似度結果
+                            audioSimilaritySpan.textContent = data.similarity_score.toFixed(2);
+                            textSimilaritySpan.textContent = data.text_similarity.toFixed(2);
+
+                            // 顯示文本轉化結果
+                            var recognizedUserText = `<p>用戶文本: ${data.recognized_text_user}</p>`;
+                            var recognizedOriginalText = `<p>原始文本: ${data.recognized_text_original}</p>`;
+                            textDiffDiv.innerHTML = recognizedUserText + recognizedOriginalText;
+
+                            // 顯示文本差異
+                            if (data.diff_ops && data.diff_ops.length > 0) {
+                                var diffHtml = '<p>文本差異:</p>';
+                                data.diff_ops.forEach(function(op) {
+                                    diffHtml += `<p>文本1: ${op.text1} | 文本2: ${op.text2}</p>`;
+                                });
+                                textDiffDiv.innerHTML += diffHtml;
+                            }
+
+                            // 顯示反饋消息
+                            feedbackMessageDiv.innerHTML = `<p><strong>${data.feedback_message}</strong></p>`;
+                            resultsDiv.appendChild(feedbackMessageDiv);
+
+                            resultsDiv.style.display = 'block';
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+
+                        startButton.disabled = false;
+                        stopButton.disabled = true;
+                    };
+                });
+            });
+        });
+    </script>
+</body>
+</html>

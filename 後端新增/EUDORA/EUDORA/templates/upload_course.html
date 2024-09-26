@@ -1,0 +1,41 @@
+{% extends 'teacher_home.html' %}
+
+{% block title %}新增課程{% endblock %}
+
+{% block content %}
+<h2>新增課程</h2>
+<form action="{{ url_for('teacher.upload_course') }}" method="post" enctype="multipart/form-data">
+    <label for="course_name">課程名稱:</label>
+    <input type="text" id="course_name" name="course_name" required>
+
+    <label for="course_type">課程類型:</label>
+    <select id="course_type" name="course_type">
+        <option value="dialog">對話</option>
+        <option value="article">文章</option>
+    </select>
+
+    <label for="is_open">是否開啟:</label>
+    <input type="checkbox" id="is_open" name="is_open">
+
+    <h3>句子和音頻</h3>
+    <div id="sentence_list">
+        <div class="sentence_item">
+            <input type="text" name="sentence" placeholder="句子內容" required>
+            <input type="file" name="audio" required>
+        </div>
+    </div>
+    <button type="button" onclick="addSentence()">添加更多句子</button>
+
+    <button type="submit">上傳課程</button>
+</form>
+
+<script>
+function addSentence() {
+    const container = document.getElementById('sentence_list');
+    const newItem = document.createElement('div');
+    newItem.classList.add('sentence_item');
+    newItem.innerHTML = '<input type="text" name="sentence" placeholder="句子內容" required><input type="file" name="audio" required>';
+    container.appendChild(newItem);
+}
+</script>
+{% endblock %}

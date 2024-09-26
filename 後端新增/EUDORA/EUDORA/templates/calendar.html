@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>月曆</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      .calendar {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+      }
+
+      .month {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        color: #466395;
+      }
+
+      .weekdays {
+        display: flex;
+        justify-content: space-between;
+        background-color: #d4e0ff;
+        padding: 8px 0;
+        border-radius: 4px;
+        margin-bottom: 10px;
+      }
+
+      .weekdays > div {
+        flex: 1;
+        text-align: center;
+        font-weight: bold;
+        color: #003ea7;
+      }
+
+      .days {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .day {
+        width: calc(100% / 7);
+        padding: 10px 0;
+        text-align: center;
+        border: 1px solid #a3adbb;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+        cursor: pointer;
+        position: relative;
+        color: #0042b2;
+        height: 80px; /* Ensure uniform height */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .day .circle {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        border: 2px solid #90b8f5;
+        border-radius: 50%;
+        text-align: center;
+        box-sizing: border-box;
+      }
+
+      .dialog {
+        position: absolute;
+        background-color: white;
+        border: 1px solid #ccc;
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        z-index: 1;
+        bottom: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: none;
+        width: 200px;
+        height: auto;
+        text-align: center;
+        border-radius: 10px;
+      }
+
+      #prev,
+      #next {
+        background-color: transparent;
+        border: none;
+        font-size: 25px;
+        cursor: pointer;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      #prev {
+        left: 15%;
+      }
+
+      #next {
+        right: 15%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="calendar">
+      <div class="month" id="month">
+        <button id="prev">&#9664;</button>
+        <span id="month-year"></span>
+        <button id="next">&#9654;</button>
+      </div>
+
+      <div class="weekdays">
+        <div>Sun</div>
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div>Sat</div>
+      </div>
+      <div class="days" id="days"></div>
+    </div>
+
+    <script>
+      async function fetchDailyCounts(month, year) {
+        const response = await fetch(
+          `/api/daily_counts?month=${month + 1}&year=${year}`
+        );
+        return await response.json();
+      }
+
+      async function generateCalendar(month, year) {
+        const monthNames = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+        let firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = 32 - new Date(year, month, 32).getDate();
+
+        document.getElementById(
+          "month-year"
+        ).textContent = `${monthNames[month]} ${year}`;
+
+        const daysContainer = document.getElementById("days");
+        daysContainer.innerHTML = "";
+
+        const dailyCounts = await fetchDailyCounts(month, year);
+
+        firstDay = firstDay === 0 ? 6 : firstDay;
+
+        for (let i = 0; i < firstDay; i++) {
+          const emptyCell = document.createElement("div");
+          emptyCell.classList.add("day");
+          daysContainer.appendChild(emptyCell);
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+          const newDay = document.createElement("div");
+          const circle = document.createElement("div");
+          circle.textContent = day;
+          if (
+            dailyCounts[
+              `${year}-${String(month + 1).padStart(2, "0")}-${String(
+                day
+              ).padStart(2, "0")}`
+            ]
+          ) {
+            circle.classList.add("circle");
+          }
+          newDay.classList.add("day");
+          newDay.appendChild(circle);
+
+          const dateKey = `${year}-${String(month + 1).padStart(
+            2,
+            "0"
+          )}-${String(day).padStart(2, "0")}`;
+          const counts = dailyCounts[dateKey] || {
+            conversations: 0,
+            vocabularies: 0,
+          };
+
+          newDay.addEventListener("click", function (event) {
+            event.stopPropagation();
+
+            const dialogs = document.querySelectorAll(".dialog");
+            dialogs.forEach((dialog) => {
+              dialog.style.display = "none";
+            });
+
+            let dialog = newDay.querySelector(".dialog");
+            if (dialog) {
+              dialog.style.display = "block";
+            } else {
+              dialog = document.createElement("div");
+              dialog.classList.add("dialog");
+              dialog.innerHTML = `
+                            Conversations: ${counts.conversations}<br>
+                            Vocabularies: ${counts.vocabularies}
+                        `;
+              newDay.appendChild(dialog);
+              dialog.style.display = "block";
+            }
+
+            document.addEventListener("click", function hideDialog(event) {
+              if (!newDay.contains(event.target)) {
+                dialog.style.display = "none";
+                document.removeEventListener("click", hideDialog);
+              }
+            });
+          });
+
+          daysContainer.appendChild(newDay);
+
+          if ((firstDay + day - 1) % 7 === 6) {
+            daysContainer.appendChild(document.createElement("div"));
+          }
+        }
+
+        const totalDaysDisplayed = firstDay + daysInMonth;
+        const remainingDays = totalDaysDisplayed % 7;
+        const emptyCells = remainingDays === 0 ? 0 : 7 - remainingDays;
+
+        for (let i = 0; i < emptyCells; i++) {
+          const emptyCell = document.createElement("div");
+          emptyCell.classList.add("day");
+          daysContainer.appendChild(emptyCell);
+        }
+      }
+
+      const today = new Date();
+      let currentMonth = today.getMonth();
+      let currentYear = today.getFullYear();
+
+      generateCalendar(currentMonth, currentYear);
+
+      document.getElementById("next").addEventListener("click", function () {
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+        generateCalendar(currentMonth, currentYear);
+      });
+
+      document.getElementById("prev").addEventListener("click", function () {
+        currentMonth--;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        generateCalendar(currentMonth, currentYear);
+      });
+
+      document.addEventListener("click", function (event) {
+        const dialogs = document.querySelectorAll(".dialog");
+        dialogs.forEach((dialog) => {
+          dialog.style.display = "none";
+        });
+      });
+    </script>
+  </body>
+</html>

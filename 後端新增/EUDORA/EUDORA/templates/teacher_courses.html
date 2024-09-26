@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>老師的課程</title>
+    <!-- 引入必要的樣式與腳本 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">課程列表</h1>
+
+        <!-- 顯示課程列表 -->
+        <ul class="list-group">
+            {% for course in courses %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('view_course_detail', course_id=course.id) }}">{{ course.name }}</a>
+                {% if course.is_favorite %}
+                    <span class="badge badge-danger">收藏</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- 引入必要的JavaScript函式庫 -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // 收藏/取消收藏按鈕的功能
+        document.querySelectorAll('.toggle-favorite').forEach(button => {
+            button.addEventListener('click', function() {
+                var courseId = this.getAttribute('data-course-id');
+                fetch('/toggle_favorite_course', {
+                    method: 'POST',
+                    body: JSON.stringify({ course_id: courseId }),
+                    headers: {'Content-Type': 'application/json'}
+                }).then(response => response.json()).then(data => {
+                    if (data.status === 'success') {
+                        location.reload();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

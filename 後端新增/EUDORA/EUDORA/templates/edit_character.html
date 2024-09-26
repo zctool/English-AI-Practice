@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Character</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Edit Character</h1>
+    <form method="post" enctype="multipart/form-data">
+        <label for="character_name">Character Name:</label>
+        <input type="text" id="character_name" name="character_name" value="{{ character[1] }}" required><br>
+
+        <label for="icon">Icon:</label>
+        <input type="file" id="icon" name="icon"><br>
+
+        <input type="hidden" name="situation_id" value="{{ situation_id }}">
+        
+        <input type="submit" value="Update Character">
+    </form>
+
+    <a href="{{ url_for('admin.characters', situation_id=situation_id) }}" class="back-button">Back to Characters</a>
+</body>
+</html>

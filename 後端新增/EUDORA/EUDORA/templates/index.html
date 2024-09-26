@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>登入</title>
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(200deg, #c5ebe0, #a9c7ed);
+            overflow: hidden;
+        }
+        .container {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            perspective: 1000px;
+        }
+        .card {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+        .is-flipped {
+            transform: rotateY(180deg);
+        }
+        .front, .back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #c2dbd4;
+            border-radius: 10px;
+            box-shadow: 10px 10px 20px rgba(33, 44, 55, 0.3);
+        }
+        .back {
+            transform: rotateY(180deg);
+        }
+        .google-btn, .toggle-btn, .submit-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            width: 180px;
+            height: 40px;
+            margin: 10px;
+        }
+        .google-btn:hover, .toggle-btn:hover, .submit-btn:hover {
+            border: 1px solid rgb(40, 38, 38);
+            background-color: #d4d4d4;
+            transition: 0.5s;
+        }
+        .google-btn img {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+        }
+        .login input {
+            width: 280px;
+            height: 30px;
+            margin: 12px auto;
+            text-indent: 8px;
+            border: none;
+            border-bottom: 1px solid #ddd;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="front">
+                <h2>登入</h2>
+                <div id="g_id_onload"
+                     data-client_id="75296281877-d456ri99d60gesq5kk4j5vid5nj9rhor.apps.googleusercontent.com"
+                     data-context="signin"
+                     data-ux_mode="popup"
+                     data-callback="handleCredentialResponse"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="rectangular"
+                     data-theme="outline"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="left">
+                </div>
+                <button class="toggle-btn">註冊</button>
+            </div>
+            <div class="back">
+                <h2>註冊</h2>
+                <div class="login">
+                    <form action="{{ url_for('register') }}" method="post" enctype="multipart/form-data">
+                        <input type="text" name="username" placeholder="使用者名稱" required />
+                        <input type="email" name="email" placeholder="電子郵件" required />
+                        <input type="file" name="icon" accept="image/*" />
+                        <button class="submit-btn" type="submit">註冊</button>
+                    </form>                    
+                </div>
+                <button class="toggle-btn">返回登入</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelector('.card').classList.toggle('is-flipped');
+            });
+        });
+
+        function handleCredentialResponse(response) {
+            const responsePayload = decodeJwtResponse(response.credential);
+            console.log("ID: " + responsePayload.sub);
+            console.log('Full Name: ' + responsePayload.name);
+            console.log('Given Name: ' + responsePayload.given_name);
+            console.log('Family Name: ' + responsePayload.family_name);
+            console.log("Image URL: " + responsePayload.picture);
+            console.log("Email: " + responsePayload.email);
+
+            // 發送 Google 登入的資料到後端
+            fetch('/login/callback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id_token: response.credential })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else if (data.register_required) {
+                    alert('此帳號未註冊');
+                    document.querySelector('.card').classList.add('is-flipped');
+                } else {
+                    alert('登入失敗');
+                }
+            });
+        }
+
+        function decodeJwtResponse(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+
+            return JSON.parse(jsonPayload);
+        }
+    </script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</body>
+</html>

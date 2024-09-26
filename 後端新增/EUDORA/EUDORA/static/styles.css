@@ -1,0 +1,125 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+.main-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+}
+
+.main-buttons button {
+  margin: 10px;
+  padding: 20px;
+  font-size: 16px;
+}
+
+.conversation,
+.vocabulary-detail,
+.vocabulary {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+.character {
+  display: flex;
+  align-items: center;
+}
+
+.character img {
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.recording {
+  display: flex;
+  align-items: center;
+}
+
+.topics {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.topic {
+  margin: 10px;
+  text-align: center;
+}
+
+.levels button {
+  display: block;
+  margin: 5px 0;
+}
+
+.vocabularies {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.vocabulary {
+  margin: 10px;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+.topics {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.topic {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 20px;
+  padding: 20px;
+  text-align: center;
+  width: 30%;
+}
+
+.topic img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 50%;
+}
+
+.topic h2 {
+  color: #333;
+}
+
+.difficulties {
+  margin-top: 10px;
+}
+
+.difficulty {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  text-decoration: none;
+  display: inline-block;
+  margin: 5px;
+}
+
+.difficulty:hover {
+  background-color: #0056b3;
+}
