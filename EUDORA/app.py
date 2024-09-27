@@ -9,6 +9,14 @@ import requests
 from ai_comparison import process_texts  # 导入你的文本处理模块
 from teacher import teacher_bp
 from admin import admin_bp  # 导入管理者藍圖
+import speech_recognition as sr
+from pyannote.audio import Model, Inference
+from scipy.spatial.distance import cosine
+from difflib import SequenceMatcher
+from pydub import AudioSegment
+import io
+import json
+
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -1200,7 +1208,170 @@ def view_course_detail(course_id):
     conn.close()
     return render_template('course_detail.html', course=course)
 
+# 音频保存为 wav 格式
+def save_audio_as_wav(file_data, output_path):
+    try:
+        audio = AudioSegment.from_file(io.BytesIO(file_data))
+        audio.export(output_path, format="wav")
+        print(f"Audio saved successfully at {output_path}")
+    except Exception as e:
+        print(f"Error saving audio: {e}")
 
+# 音频识别
+def recognize_speech(file_path):
+    recognizer = sr.Recognizer()
+    with sr.AudioFile(file_path) as source:
+        audio = recognizer.record(source)
+    try:
+        return recognizer.recognize_google(audio)
+    except sr.UnknownValueError:
+        return ""
+    except sr.RequestError as e:
+        return ""
+
+# 提取音频嵌入
+def extract_audio_embedding(file_path):
+    model = Model.from_pretrained("pyannote/embedding", use_auth_token="YOUR_HUGGINGFACE_TOKEN")
+    inference = Inference(model, window="whole")
+    embedding = inference(file_path)
+    return embedding
+
+# 比较音频嵌入
+def compare_audio_embeddings(embedding1, embedding2):
+    similarity = 1 - cosine(embedding1, embedding2)
+    return similarity
+
+# 比较文本
+def compare_text(text1, text2):
+    words1 = text1.split()
+    words2 = text2.split()
+    return SequenceMatcher(None, words1, words2).ratio(), SequenceMatcher(None, words1, words2).get_opcodes()
+
+# 处理保存音频并进行比对的路由
+# 处理保存音频并进行比对的路由
+@app.route('/save_audio_by_text', methods=['POST'])
+def save_audio_by_text():
+    try:
+        # 获取上传的音频文件和句子内容
+        audio_file = request.files['audio_data'].read()
+        text_content = request.form.get('text_content')
+
+        if not text_content:
+            return jsonify({'success': False, 'message': '句子内容为空，无法保存录音。'}), 400
+
+        # 从数据库中根据文本获取句子和原始音频文件
+        conn = cnxpool.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, audio_file FROM Sentence WHERE content = %s", (text_content,))
+        sentence = cursor.fetchone()
+
+        if not sentence:
+            return jsonify({'success': False, 'message': '未找到相应的句子ID。'}), 400
+
+        sentence_id = sentence['id']
+        original_audio = sentence['audio_file']
+
+        # 获取用户 email 并确定用户 ID
+        user_email = session.get('email')
+        if not user_email:
+            return jsonify({'success': False, 'message': '用户未登录，无法保存录音。'}), 401
+
+        user_id = get_user_id(user_email)
+        recording_date = datetime.datetime.now().date()
+
+        # 检查是否已有同一天的录音记录
+        cursor.execute("""
+            SELECT id FROM UserRecordings WHERE user_id = %s AND sentence_id = %s AND recording_date = %s
+        """, (user_id, sentence_id, recording_date))
+        existing_recording = cursor.fetchone()
+
+        # 确定临时文件夹路径
+        tmp_dir = '/tmp/audio_files'
+        if not os.path.exists(tmp_dir):
+            os.makedirs(tmp_dir)
+        
+        user_audio_path = os.path.join(tmp_dir, 'user_audio.wav')
+        original_audio_path = os.path.join(tmp_dir, 'original_audio.wav')
+
+        # 保存用户音频为 wav 文件
+        save_audio_as_wav(audio_file, user_audio_path)
+
+        # 保存原始音频为 wav 文件
+        save_audio_as_wav(original_audio, original_audio_path)
+
+        # 提取音频嵌入并进行对比
+        embedding1 = extract_audio_embedding(user_audio_path)
+        embedding2 = extract_audio_embedding(original_audio_path)
+
+        similarity_score = compare_audio_embeddings(embedding1, embedding2)
+
+        # 进行语音识别以进行文本比对
+        recognized_text_user = recognize_speech(user_audio_path)
+        recognized_text_original = recognize_speech(original_audio_path)
+
+        text_similarity, diff_ops = compare_text(recognized_text_user, recognized_text_original)
+
+        # 定义相似度阈值
+        audio_threshold = 0.1
+        text_threshold = 0.99
+
+        # 根据相似度结果确定消息
+        feedback_message = ""
+        if similarity_score < audio_threshold and text_similarity < text_threshold:
+            feedback_message = "大錯特錯，給我重念"
+        elif similarity_score < audio_threshold and text_similarity > text_threshold:
+            feedback_message = "念對了，但發音不標準"
+        elif similarity_score > audio_threshold and text_similarity > text_threshold:
+            feedback_message = "你好棒，念的很好"
+
+        # 生成文本差异的结果
+        result = {
+            'success': True,
+            'similarity_score': similarity_score,
+            'text_similarity': text_similarity,
+            'recognized_text_user': recognized_text_user,
+            'recognized_text_original': recognized_text_original,
+            'feedback_message': feedback_message,
+            'diff_ops': []
+        }
+
+        if similarity_score > audio_threshold:
+            if text_similarity < text_threshold:
+                for tag, i1, i2, j1, j2 in diff_ops:
+                    if tag != 'equal':
+                        result['diff_ops'].append({
+                            'text1': ' '.join(recognized_text_user.split()[i1:i2]),
+                            'text2': ' '.join(recognized_text_original.split()[j1:j2])
+                        })
+
+        # 更新或插入用户录音记录并存储比对结果
+        if existing_recording:
+            cursor.execute("""
+                UPDATE UserRecordings 
+                SET audio_file = %s, similarity_score = %s, text_similarity = %s, diff_ops = %s, 
+                    recognized_text_user = %s, recognized_text_original = %s 
+                WHERE id = %s
+            """, (audio_file, similarity_score, text_similarity, json.dumps(result['diff_ops']), 
+                  recognized_text_user, recognized_text_original, existing_recording['id']))
+        else:
+            cursor.execute("""
+                INSERT INTO UserRecordings (user_id, sentence_id, audio_file, recording_date, similarity_score, text_similarity, diff_ops, recognized_text_user, recognized_text_original) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (user_id, sentence_id, audio_file, recording_date, similarity_score, text_similarity, 
+                  json.dumps(result['diff_ops']), recognized_text_user, recognized_text_original))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        # 返回比对结果
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"Error saving audio: {e}")
+        return jsonify({'success': False, 'message': '录音保存失败。'}), 500
+
+    
 # 註冊 Blueprint
 app.register_blueprint(teacher_bp, url_prefix='/teacher')
 app.register_blueprint(admin_bp, url_prefix='/admin')
