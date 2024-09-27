@@ -118,26 +118,47 @@
         overflow: visible;
       }
       .sidebar {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around; /* 這將會在項目之間平均分配空間 */
-        height: 100%; /* 假設側邊欄需要充滿整個高度 */
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
-
-      .sidebar ul {
-        width: 100%; /* 讓ul佔滿整個側邊欄的寬度 */
-        list-style: none; /* 移除預設的列表樣式 */
-        padding: 0; /* 移除預設的內距 */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around; /* 平均分配內部的li元素 */
-        text-align: center;
+      .sidebar-menu {
+        list-style-type: none;
+        padding: 0;
       }
-
-      .sidebar ul li {
-        padding: 10px; /* 增加一點內距讓文本不會貼太近邊緣 */
-        /* 給列表項目一個背景色，更容易看出布局 */
-        border-bottom: 1px solid #ccc; /* 添加邊框讓每個項目更加明顯 */
+      .sidebar-menu li {
+        margin-bottom: 10px;
+      }
+      .sidebar-menu a {
+        display: block;
+        padding: 10px;
+        color: #333;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+      .sidebar-menu a:hover {
+        background-color: #e9ecef;
+      }
+      .sidebar-submenu {
+        list-style-type: none;
+        padding-left: 20px;
+        display: none;
+      }
+      .sidebar-submenu li {
+        margin-top: 5px;
+      }
+      .menu-toggle {
+        cursor: pointer;
+      }
+      .menu-toggle::after {
+        content: '\25BC';
+        float: right;
+        transition: transform 0.3s;
+      }
+      .menu-toggle.active::after {
+        transform: rotate(180deg);
       }
 
       
@@ -10958,59 +10979,24 @@ iframe{
           <!-- This is the left column, now using 2 out of 12 grid parts -->
           <!-- Left Side Content -->
           <div class="sidebar">
-            <ul class="ul-list">
+            <ul class="sidebar-menu">
+              <li><a href="#" onclick="changeIframe('{{ url_for('account_manage') }}')">帳號管理</a></li>
+              <li><a href="#" onclick="changeIframe('{{ url_for('calendar') }}')">學習月曆</a></li>
               <li>
-                <a
-                  href="#"
-                  onclick="changeIframe('{{ url_for('account_manage') }}')"
-                  >帳號管理</a
-                >
-              </li>
-              <li>
-                <a href="#" onclick="changeIframe('{{ url_for('calendar') }}')"
-                  >學習月曆</a
-                >
-              </li>
-              <li>
-                <div class="menu-toggle">學習歷程</div>
-                <ul class="dropdown-ul rounded-0 m-0">
-                  <li>
-                    <a
-                      href="#"
-                      onclick="changeIframe('{{ url_for('learning_history_conversation') }}')"
-                      >對話</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      onclick="changeIframe('{{ url_for('learning_history_vocabulary') }}')"
-                      >單字</a
-                    >
-                  </li>
+                <a href="#" class="menu-toggle">學習歷程</a>
+                <ul class="sidebar-submenu">
+                  <li><a href="#" onclick="changeIframe('{{ url_for('learning_history_conversation') }}')">對話</a></li>
+                  <li><a href="#" onclick="changeIframe('{{ url_for('learning_history_vocabulary') }}')">單字</a></li>
                 </ul>
               </li>
               <li>
-                <div class="menu-toggle2">學習筆記</div>
-                <ul class="dropdown-ul2">
-                  <li>
-                    <a
-                      href="#"
-                      onclick="changeIframe('{{ url_for('learning_notes_conversation') }}')"
-                      >對話</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      onclick="changeIframe('{{ url_for('learning_notes_vocabulary') }}')"
-                      >單字</a
-                    >
-                  </li>
+                <a href="#" class="menu-toggle">學習筆記</a>
+                <ul class="sidebar-submenu">
+                  <li><a href="#" onclick="changeIframe('{{ url_for('learning_notes_conversation') }}')">對話</a></li>
+                  <li><a href="#" onclick="changeIframe('{{ url_for('learning_notes_vocabulary') }}')">單字</a></li>
                 </ul>
               </li>
             </ul>
-            
           </div>
           <div class="main-content">
             <iframe
@@ -11082,42 +11068,21 @@ iframe{
     <script src="js/main.js"></script>
     <!-- Template Javascript -->
     <script>
-      document
-        .querySelector(".menu-toggle")
-        .addEventListener("click", function () {
-          var menu = document.querySelector(".dropdown-ul");
-          if (menu.classList.contains("active")) {
-            // 如果已經是active，移除active並隱藏所有li
-            menu.classList.remove("active");
-            menu.querySelectorAll("li").forEach(function (li) {
-              li.style.display = "none";
-            });
-          } else {
-            // 添加active並顯示所有li
-            menu.classList.add("active");
-            menu.querySelectorAll("li").forEach(function (li) {
-              li.style.display = "block";
-            });
-          }
+      document.addEventListener('DOMContentLoaded', function() {
+        const toggles = document.querySelectorAll('.menu-toggle');
+        toggles.forEach(toggle => {
+          toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            this.classList.toggle('active');
+            const submenu = this.nextElementSibling;
+            if (submenu.style.display === 'block') {
+              submenu.style.display = 'none';
+            } else {
+              submenu.style.display = 'block';
+            }
+          });
         });
-      document
-        .querySelector(".menu-toggle2")
-        .addEventListener("click", function () {
-          var menu = document.querySelector(".dropdown-ul2");
-          if (menu.classList.contains("active")) {
-            // 如果已經是active，移除active並隱藏所有li
-            menu.classList.remove("active");
-            menu.querySelectorAll("li").forEach(function (li) {
-              li.style.display = "none";
-            });
-          } else {
-            // 添加active並顯示所有li
-            menu.classList.add("active");
-            menu.querySelectorAll("li").forEach(function (li) {
-              li.style.display = "block";
-            });
-          }
-        });
+      });
       function changeIframe(url) {
         document.getElementById("contentFrame").src = url;
       }
@@ -11214,6 +11179,7 @@ iframe{
                 behavior: 'smooth'
             });
         });
+        
     </script>
   </body>
 </html>
