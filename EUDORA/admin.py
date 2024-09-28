@@ -58,7 +58,7 @@ def logout():
 @admin_bp.route('/')
 @admin_required
 def admin_index():
-    return render_template('admin_home.html')
+    return render_template('admin_index.html')
 
 
 # 管理教學內容
