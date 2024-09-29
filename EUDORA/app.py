@@ -1312,7 +1312,7 @@ def save_audio_by_text():
         text_similarity, diff_ops = compare_text(recognized_text_user, recognized_text_original)
 
         # 定义相似度阈值
-        audio_threshold = 0.1
+        audio_threshold = 0.09
         text_threshold = 0.99
 
         # 根据相似度结果确定消息
