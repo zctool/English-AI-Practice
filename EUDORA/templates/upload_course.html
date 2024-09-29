@@ -1,8 +1,3 @@
-{% extends 'teacher_home.html' %}
-
-{% block title %}新增課程{% endblock %}
-
-{% block content %}
 <h2>新增課程</h2>
 <form action="{{ url_for('teacher.upload_course') }}" method="post" enctype="multipart/form-data">
     <label for="course_name">課程名稱:</label>
@@ -38,4 +33,3 @@ function addSentence() {
     container.appendChild(newItem);
 }
 </script>
-{% endblock %}

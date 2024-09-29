@@ -1,23 +1,30 @@
-{% extends 'teacher_home.html' %}
+<!DOCTYPE html>
+<html lang="zh-Hant">
 
-{% block title %}編輯課程{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>編輯課程</title>
+</head>
 
-{% block content %}
-<h2>編輯課程</h2>
-<form action="{{ url_for('teacher.edit_course', course_id=course.id) }}" method="post">
-    <label for="course_name">課程名稱:</label>
-    <input type="text" id="course_name" name="course_name" value="{{ course.name }}" required>
+<body>
+    <h2>編輯課程</h2>
+    <form action="{{ url_for('teacher.edit_course', course_id=course.id) }}" method="post">
+        <label for="course_name">課程名稱:</label>
+        <input type="text" id="course_name" name="course_name" value="{{ course.name }}" required>
 
-    <label for="course_type">課程類型:</label>
-    <select id="course_type" name="course_type">
-        <option value="dialog" {% if course.type == 'dialog' %}selected{% endif %}>對話</option>
-        <option value="article" {% if course.type == 'article' %}selected{% endif %}>文章</option>
-    </select>
+        <label for="course_type">課程類型:</label>
+        <select id="course_type" name="course_type">
+            <option value="dialog" {% if course.type == 'dialog' %}selected{% endif %}>對話</option>
+            <option value="article" {% if course.type == 'article' %}selected{% endif %}>文章</option>
+        </select>
 
-    <label for="is_open">是否開啟:</label>
-    <input type="checkbox" id="is_open" name="is_open" {% if course.is_open %}checked{% endif %}>
+        <label for="is_open">是否開啟:</label>
+        <input type="checkbox" id="is_open" name="is_open" {% if course.is_open %}checked{% endif %}>
 
-    <button type="submit">保存更改</button>
-</form>
-<a href="{{ url_for('teacher.manage_courses') }}">返回</a>
-{% endblock %}
+        <button type="submit">保存更改</button>
+    </form>
+    <a href="{{ url_for('teacher.manage_courses') }}">返回</a>
+</body>
+
+</html>

@@ -1,123 +1,389 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}課程管理系統{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-<style>
-    body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-}
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #2c3e50;
+            --background-color: #f4f6f9;
+            --text-color: #34495e;
+            --button-color: #27ae60;
+            --footer-color: #34495e;
+            --footer-text-color: #ecf0f1;
+            --header-height: 60px;
+            --footer-height: 60px;
+            --sidebar-width: 240px;
+            --sidebar-collapsed-width: 60px;
+        }
 
-header {
-    background-color: #333;
-    color: white;
-    padding: 10px 0;
-    text-align: center;
-}
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: "Microsoft JhengHei", "Segoe UI", Tahoma, Geneva, Verdana,
+                sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
 
-header h1 {
-    margin: 0;
-}
+        body {
+            display: flex;
+            flex-direction: column;
+        }
 
-nav ul {
-    list-style: none;
-    padding: 0;
-}
+        .main-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
 
-nav ul li {
-    display: inline;
-    margin: 0 10px;
-}
+        /* Header Styles */
+        header {
+            height: var(--header-height);
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
 
-nav ul li a {
-    color: white;
-    text-decoration: none;
-}
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
 
-main {
-    padding: 20px;
-}
+        .login-btn {
+            background-color: var(--button-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
 
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-}
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--secondary-color);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            max-height: calc(100vh - var(--header-height));
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+        .sidebar h2 {
+            color: #fff;
+            margin: 20px 0;
+            font-size: 20px;
+            padding: 0 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
 
-table, th, td {
-    border: 1px solid #ddd;
-}
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
 
-th, td {
-    padding: 8px;
-    text-align: left;
-}
+        .sidebar ul li {
+            margin: 5px 10px;
+        }
 
-th {
-    background-color: #f2f2f2;
-}
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 30px;
+        }
 
-.messages {
-    margin-bottom: 20px;
-}
+        .sidebar ul li a:hover,
+        .sidebar ul li a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
 
-.messages p {
-    padding: 10px;
-    margin: 0;
-}
+        .sidebar ul li a .icon {
+            margin-right: 10px;
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
 
-.messages .success {
-    background-color: #4CAF50;
-    color: white;
-}
+        .sidebar ul li a .text {
+            flex-grow: 1;
+        }
 
-.messages .danger {
-    background-color: #f44336;
-    color: white;
-}
+        .dropdown-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
 
-</style>
+        .dropdown-content.show {
+            max-height: 500px;
+            /* Increase the max-height to show more items */
+        }
+
+        .dropdown-content a {
+            padding-left: 44px !important;
+        }
+
+        /* Content Styles */
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: var(--footer-color);
+            color: var(--footer-text-color);
+            padding: 10px 20px;
+            text-align: center;
+            height: var(--footer-height);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        footer .copyright {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        footer .links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        footer .links a {
+            color: var(--footer-text-color);
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 14px;
+            transition: opacity 0.3s ease;
+        }
+
+        footer .links a:hover {
+            opacity: 0.8;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 1024px) {
+            .sidebar {
+                width: var(--sidebar-collapsed-width);
+            }
+
+            .sidebar:hover {
+                width: var(--sidebar-width);
+            }
+
+            .sidebar h2 {
+                display: none;
+            }
+
+            .sidebar:hover h2 {
+                display: block;
+            }
+
+            .sidebar ul li a .text {
+                display: none;
+            }
+
+            .sidebar:hover ul li a .text {
+                display: inline;
+            }
+
+            .sidebar ul li a {
+                justify-content: center;
+            }
+
+            .sidebar:hover ul li a {
+                justify-content: flex-start;
+            }
+
+            .sidebar ul li a .icon {
+                margin-right: 0;
+            }
+
+            .sidebar:hover ul li a .icon {
+                margin-right: 10px;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .main-wrapper {
+                position: relative;
+            }
+
+            .sidebar {
+                position: absolute;
+                left: -var(--sidebar-collapsed-width);
+                top: 0;
+                bottom: 0;
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .content-wrapper {
+                margin-left: var(--sidebar-collapsed-width);
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .logo {
+                font-size: 18px;
+            }
+
+            .login-btn {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+
+            footer .links a {
+                margin: 5px 10px;
+            }
+        }
+    </style>
 </head>
+
 <body>
     <header>
-        <h1>課程管理系統</h1>
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('teacher.manage_courses') }}">管理課程</a></li>
-                <li><a href="{{ url_for('teacher.upload_course') }}">新增課程</a></li>
-                <li><a href="{{ url_for('teacher.logout') }}">登出</a></li>
-            </ul>
-        </nav>
+        <div class="logo">課程管理系統</div>
+        <button class="login-btn" onclick="location.href='{{ url_for('logout') }}'">
+            登出
+        </button>
     </header>
-    <main>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="messages">
-                    {% for category, message in messages %}
-                        <p class="{{ category }}">{{ message }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
 
-        {% block content %}{% endblock %}
-    </main>
-    <footer>
-        <p>&copy; 2024 課程管理系統</p>
-    </footer>
+    <div class="main-wrapper">
+        <div class="sidebar" id="sidebar">
+            <h2>管理控制台</h2>
+            <ul>
+                <li>
+                    <a onclick="loadPage('{{ url_for('teacher.manage_courses') }}')"><span class="icon">📋</span><span
+                        class="text">課程管理</span></a>
+                  </li>
+                  <li>
+                    <a onclick="loadPage('{{ url_for('teacher.upload_course') }}')"><span class="icon">➕</span><span
+                        class="text">新增課程</span></a>
+                  </li>
+            </ul>
+        </div>
+        <div class="content-wrapper">
+            <div class="content">
+                <iframe id="contentFrame" src="{{ url_for('teacher.manage_courses') }}" name="content" frameborder="0"></iframe>
+
+            </div>
+        </div>
+        
+    </div>
+
+        <!-- <nav>
+            <ul>
+                            <li><a href="{{ url_for('teacher.manage_courses') }}">管理課程</a></li>
+                            <li><a href="{{ url_for('teacher.upload_course') }}">新增課程</a></li>
+                        </ul>
+        </nav> -->
+        <main>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="messages">
+                {% for category, message in messages %}
+                <p class="{{ category }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+
+        <script>
+            function loadPage(url) {
+              document.getElementById("contentFrame").src = url;
+              setActivePage(url);
+              if (window.innerWidth <= 768) {
+                toggleSidebar();
+              }
+            }
+        
+            function toggleDropdown(id) {
+              var dropdowns = document.getElementsByClassName("dropdown-content");
+              for (var i = 0; i < dropdowns.length; i++) {
+                if (dropdowns[i].id !== id) {
+                  dropdowns[i].classList.remove("show");
+                }
+              }
+              var dropdown = document.getElementById(id);
+              dropdown.classList.toggle("show");
+            }
+        
+            function setActivePage(url) {
+              var links = document.querySelectorAll(".sidebar a");
+              links.forEach(function (link) {
+                link.classList.remove("active");
+              });
+              var activeLink = document.querySelector(
+                '.sidebar a[onclick*="' + url + '"]'
+              );
+              if (activeLink) {
+                activeLink.classList.add("active");
+              }
+            }
+        
+            function toggleSidebar() {
+              document.getElementById("sidebar").classList.toggle("active");
+            }
+        
+            // 初始化活動頁面
+            setActivePage("'{{ url_for('teacher.manage_courses') }}'");
+
+                
+          </script>
+        <footer>
+                        <div class="copyright">組別: 113201 指導老師 : 林俊杰老師</div>
+                        <div class="links">
+                          <a href="#">專題組員: 11236012 高穎萱 11236013 蔣杰森 11236022
+                            巫承翰 11236025
+                            葉于甄</a>
+                        </div>
+                      </footer>
 </body>
+
 </html>
