@@ -1231,7 +1231,7 @@ def recognize_speech(file_path):
 
 # 提取音频嵌入
 def extract_audio_embedding(file_path):
-    model = Model.from_pretrained("pyannote/embedding", use_auth_token="YOUR_HUGGINGFACE_TOKEN")
+    model = Model.from_pretrained("pyannote/embedding", use_auth_token="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")
     inference = Inference(model, window="whole")
     embedding = inference(file_path)
     return embedding
@@ -1377,4 +1377,4 @@ app.register_blueprint(teacher_bp, url_prefix='/teacher')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=80)
