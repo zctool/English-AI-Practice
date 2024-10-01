@@ -280,12 +280,36 @@
                 margin: 5px 10px;
             }
         }
+        header #branding h1 {
+            font-size: 1.5rem;
+            margin: 0;
+          }
+          header .highlight,
+          header .current a {
+            color: #87d1c3;   
+          }
+          }
+          header #branding {
+              display: flex;
+              align-items: center;
+            }
+        
+            header #branding h1 {
+              font-size: 1.5rem;
+              margin: 0;
+            }
+            header .highlight,
+            header .current a {
+              color: #87d1c3;
+            }
     </style>
 </head>
 
 <body>
     <header>
-        <div class="logo">課程管理系統</div>
+        <div id="branding">
+            <h1><span class="highlight">E</span>UDORA</h1>
+          </div>
         <button class="login-btn" onclick="location.href='{{ url_for('logout') }}'">
             登出
         </button>

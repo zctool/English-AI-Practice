@@ -204,6 +204,8 @@ header img {
   top: 70px; /* 考虑到header的高度 */
   bottom: 0;
   overflow-y: auto; /* 添加滚动条 */
+  justify-content: center;
+  align-items: center;
 }
 .content {
   flex-grow: 1;

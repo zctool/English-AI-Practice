@@ -1,28 +1,172 @@
-<h2>管理課程</h2>
-<table border="1">
-    <thead>
-        <tr>
-            <th>課程名稱</th>
-            <th>類型</th>
-            <th>是否開啟</th>
-            <th>操作</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for course in courses %}
-        <tr>
-            <td>{{ course.name }}</td>
-            <td>{{ '對話' if course.type == 'dialog' else '文章' }}</td>
-            <td>{{ '是' if course.is_open else '否' }}</td>
-            <td>
-                <a href="{{ url_for('teacher.edit_course', course_id=course.id) }}">編輯</a> |
-                <a href="{{ url_for('teacher.edit_course_content', course_id=course.id) }}">編輯內容</a> |
-                <form action="{{ url_for('teacher.manage_courses') }}" method="post" style="display:inline;">
-                    <input type="hidden" name="course_id" value="{{ course.id }}">
-                    <button type="submit" name="delete_course" onclick="return confirm('確定要刪除這個課程嗎？');">刪除</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理課程</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            border-radius: 8px;
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .btn {
+            display: inline-block;
+            padding: 6px 12px;
+            margin: 0 5px 5px 0;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .btn-edit {
+            background-color: #2ecc71;
+        }
+        .btn-edit:hover {
+            background-color: #27ae60;
+        }
+        .btn-delete {
+            background-color: #e74c3c;
+        }
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+        .status {
+            font-weight: bold;
+        }
+        .status-open {
+            color: #27ae60;
+        }
+        .status-closed {
+            color: #e74c3c;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr {
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+            }
+            td {
+                border: none;
+                position: relative;
+                padding-left: 50%;
+            }
+            td:before {
+                position: absolute;
+                top: 6px;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                content: attr(data-label);
+                font-weight: bold;
+            }
+            .btn {
+                display: inline-block;
+                margin-top: 5px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            td {
+                font-size: 0.9em;
+            }
+            .btn {
+                font-size: 12px;
+                padding: 5px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>管理課程</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>課程名稱</th>
+                    <th>類型</th>
+                    <th>是否開啟</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <td data-label="課程名稱">{{ course.name }}</td>
+                    <td data-label="類型">{{ '對話' if course.type == 'dialog' else '文章' }}</td>
+                    <td data-label="是否開啟"><span class="status {% if course.is_open %}status-open{% else %}status-closed{% endif %}">{{ '是' if course.is_open else '否' }}</span></td>
+                    <td data-label="操作">
+                        <a href="{{ url_for('teacher.edit_course', course_id=course.id) }}" class="btn btn-edit">編輯</a>
+                        <a href="{{ url_for('teacher.edit_course_content', course_id=course.id) }}" class="btn">編輯內容</a>
+                        <a href="#" class="btn btn-delete">刪除</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

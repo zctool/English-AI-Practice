@@ -5,12 +5,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>編輯課程內容</title>
+    <style>
+        .edit-course-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        input[type="text"]:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52,152,219,0.5);
+            outline: none;
+        }
+        input[type="file"] {
+            display: block;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        audio {
+            width: 100%;
+            max-width: 300px;
+            margin-top: 5px;
+        }
+        a {
+            text-decoration: none;
+            color: #e74c3c;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: #c0392b;
+        }
+        input[type="submit"], a[href*="manage_courses"], .btn-add {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+        input[type="submit"]:hover {
+            background-color: #27ae60;
+        }
+        a[href*="manage_courses"] {
+            background-color: #3498db;
+            margin-left: 10px;
+        }
+        a[href*="manage_courses"]:hover {
+            background-color: #2980b9;
+        }
+        .btn-add {
+            background-color: #f39c12;
+        }
+        .btn-add:hover {
+            background-color: #e67e22;
+        }
+        .add-sentence-row {
+            background-color: #ecf0f1;
+        }
+    </style>
 </head>
 
+
 <body>
+<div class="edit-course-content">
     <h2>編輯課程內容: {{ course.name }}</h2>
+
     <form action="{{ url_for('teacher.edit_course_content', course_id=course.id) }}" method="post" enctype="multipart/form-data">
-        <table border="1">
+        <table>
             <thead>
                 <tr>
                     <th>句子內容</th>
@@ -21,7 +121,7 @@
             <tbody>
                 {% for sentence in sentences %}
                 <tr>
-                    <td>
+                    <td> 
                         <input type="hidden" name="sentence_id" value="{{ sentence.id }}">
                         <input type="text" name="sentence" value="{{ sentence.content }}" required>
                     </td>
@@ -33,21 +133,23 @@
                             您的瀏覽器不支持音頻播放。
                         </audio>
                         {% endif %}
+                       
                     </td>
                     <td>
                         <a href="{{ url_for('teacher.delete_sentence', sentence_id=sentence.id) }}" onclick="return confirm('確定要刪除這個句子嗎？');">刪除</a>
                     </td>
                 </tr>
                 {% endfor %}
-                <tr>
-                    <td><input type="text" name="sentence" placeholder="新增句子內容"></td>
-                    <td><input type="file" name="audio"></td>
+                <tr class="add-sentence-row">
+                    <td><input type="text" name="sentence" placeholder="輸入新句子內容"></td>
+                    <td><input type="file" name="audio" ></td>
+                    <td><button type="submit" name="action" value="add_sentence" class="btn-add">新增句子</button></td>
                 </tr>
             </tbody>
         </table>
-        <button type="submit">保存更改</button>
-    </form>
-    <a href="{{ url_for('teacher.manage_courses') }}">返回</a>
-</body>
 
-</html>
+        <input type="submit" name="action" value="保存更改">
+        <a href="{{ url_for('teacher.manage_courses') }}">返回</a>
+    </form>
+</div>
+</body>

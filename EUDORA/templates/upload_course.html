@@ -1,35 +1,166 @@
-<h2>新增課程</h2>
-<form action="{{ url_for('teacher.upload_course') }}" method="post" enctype="multipart/form-data">
-    <label for="course_name">課程名稱:</label>
-    <input type="text" id="course_name" name="course_name" required>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新增課程</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: white;
+            padding: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            border-radius: 8px;
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 30px;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .radio-group {
+            margin-bottom: 20px;
+        }
+        .radio-group label {
+            display: inline;
+            margin-right: 20px;
+        }
+        #sentence_list {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .sentence_item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .sentence_item:last-child {
+            border-bottom: none;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #add_sentence {
+            background-color: #2ecc71;
+            margin-bottom: 20px;
+        }
+        #add_sentence:hover {
+            background-color: #27ae60;
+        }
+        #submit {
+            background-color: #e74c3c;
+            display: block;
+            width: 100%;
+        }
+        #submit:hover {
+            background-color: #c0392b;
+        }
 
-    <label for="course_type">課程類型:</label>
-    <select id="course_type" name="course_type">
-        <option value="dialog">對話</option>
-        <option value="article">文章</option>
-    </select>
+        @media screen and (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            input[type="text"], select, button {
+                font-size: 14px;
+            }
+             header #branding {
+          display: flex;
+          align-items: center;
+        }
+    
+       
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>新增課程</h2>
+        <form>
+            <label for="course_name">課程名稱:</label>
+            <input type="text" id="course_name" name="course_name" required>
+            
+            <label for="course_type">課程類型:</label>
+            <div class="radio-group">
+                <input type="radio" id="dialog" name="course_type" value="dialog" required>
+                <label for="dialog">對話</label>
+                <input type="radio" id="article" name="course_type" value="article">
+                <label for="article">文章</label>
+            </div>
+            
+            <label for="is_open">是否開啟:</label>
+            <select id="is_open" name="is_open">
+                <option value="yes">是</option>
+                <option value="no">否</option>
+            </select>
 
-    <label for="is_open">是否開啟:</label>
-    <input type="checkbox" id="is_open" name="is_open">
-
-    <h3>句子和音頻</h3>
-    <div id="sentence_list">
-        <div class="sentence_item">
-            <input type="text" name="sentence" placeholder="句子內容" required>
-            <input type="file" name="audio" required>
-        </div>
+            <h3>句子和音頻</h3>
+            <div id="sentence_list">
+                <div class="sentence_item">
+                    <!-- 這裡可以添加句子和音頻的輸入欄位 -->
+                </div>
+            </div>
+            
+            <button type="button" id="add_sentence">添加更多句子</button>
+            
+            <button type="submit" id="submit">上傳課程</button>
+        </form>
     </div>
-    <button type="button" onclick="addSentence()">添加更多句子</button>
 
-    <button type="submit">上傳課程</button>
-</form>
-
-<script>
-function addSentence() {
-    const container = document.getElementById('sentence_list');
-    const newItem = document.createElement('div');
-    newItem.classList.add('sentence_item');
-    newItem.innerHTML = '<input type="text" name="sentence" placeholder="句子內容" required><input type="file" name="audio" required>';
-    container.appendChild(newItem);
-}
-</script>
+    <script>
+        document.getElementById('add_sentence').addEventListener('click', function() {
+            var newItem = document.createElement('div');
+            newItem.className = 'sentence_item';
+            newItem.innerHTML = `
+                <input type="text" placeholder="輸入句子" style="width: 100%; margin-bottom: 10px;">
+                <input type="file" accept="audio/*" style="margin-bottom: 10px;">
+            `;
+            document.getElementById('sentence_list').appendChild(newItem);
+        });
+    </script>
+</body>
+</html>  
