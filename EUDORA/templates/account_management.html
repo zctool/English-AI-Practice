@@ -117,50 +117,92 @@
         height: 0;
         overflow: visible;
       }
-      .sidebar {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-      .sidebar-menu {
-        list-style-type: none;
-        padding: 0;
-      }
-      .sidebar-menu li {
-        margin-bottom: 10px;
-      }
-      .sidebar-menu a {
-        display: block;
-        padding: 10px;
-        color: #333;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: background-color 0.3s;
-      }
-      .sidebar-menu a:hover {
-        background-color: #e9ecef;
-      }
-      .sidebar-submenu {
-        list-style-type: none;
-        padding-left: 20px;
-        display: none;
-      }
-      .sidebar-submenu li {
-        margin-top: 5px;
-      }
-      .menu-toggle {
-        cursor: pointer;
-      }
-      .menu-toggle::after {
-        content: '\25BC';
-        float: right;
-        transition: transform 0.3s;
-      }
-      .menu-toggle.active::after {
-        transform: rotate(180deg);
-      }
+     
+     /* Sidebar container */
 
+
+.sidebar {
+  width: 250px;
+  background-color: #f0f4f8;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  max-height: 100vh;
+}
+.sidebar h2 {
+  color: #fff;
+  margin: 20px 0;
+  font-size: 20px;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+}
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar ul li {
+  margin: 5px 10px;
+}
+.sidebar ul li a {
+  text-decoration: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: 30px;
+}
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+  background-color: gray;
+}
+.sidebar ul li a .icon {
+  margin-right: 10px;
+  font-size: 20px;
+  width: 24px;
+  text-align: center;
+}
+.sidebar ul li a .text {
+  flex-grow: 1;
+  color:black;
+
+}
+.dropdown-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+.dropdown-content.show {
+  max-height: 500px; /* Increase the max-height to show more items */
+}
+.dropdown-content a {
+  padding-left: 44px !important;
+}
+/* Content Styles */
+.content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow: auto;
+}
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+      
       
       h1,
       h2,
@@ -236,12 +278,7 @@
 z-index:1;
       }
       
-      .sidebar {
-        width: 250px; /* 設定側邊欄的寬度 */
-        background-color: #8db6ce; /* 側邊欄背景色 */
-        border-right: 1px solid #dee2e6; /* 添加分隔线 */
-        padding: 20px;
-      }
+      
       
       .main-content {
         flex-grow: 1; /* 主內容區佔據剩餘的空間 */
@@ -287,7 +324,7 @@ z-index:1;
       }
 
       a {
-        color: #ffffff;
+        color: #000000;
         text-decoration: none;
         background-color: transparent;
       }
@@ -2081,7 +2118,56 @@ z-index:1;
           border: 0;
         }
       }
-
+      @media screen and (max-width: 1024px) {
+        .sidebar {
+          width: var(--sidebar-collapsed-width);
+        }
+        .sidebar:hover {
+          width: var(--sidebar-width);
+        }
+        .sidebar h2 {
+          display: none;
+        }
+        .sidebar:hover h2 {
+          display: block;
+        }
+        .sidebar ul li a .text {
+          display: none;
+        }
+        .sidebar:hover ul li a .text {
+          display: inline;
+        }
+        .sidebar ul li a {
+          justify-content: center;
+        }
+        .sidebar:hover ul li a {
+          justify-content: flex-start;
+        }
+        .sidebar ul li a .icon {
+          margin-right: 0;
+        }
+        .sidebar:hover ul li a .icon {
+          margin-right: 10px;
+        }
+      }
+      @media screen and (max-width: 768px) {
+        .main-wrapper {
+          position: relative;
+        }
+        .sidebar {
+          position: absolute;
+          left: -var(--sidebar-collapsed-width);
+          top: 0;
+          bottom: 0;
+          z-index: 1000;
+        }
+        .sidebar.active {
+          left: 0;
+        }
+        .content-wrapper {
+          margin-left: var(--sidebar-collapsed-width);
+        }
+      }
       @media (max-width: 1199.98px) {
         .table-responsive-xl {
           display: block;
@@ -4864,7 +4950,7 @@ z-index:1;
 
       .navbar-light .navbar-text a:hover,
       .navbar-light .navbar-text a:focus {
-        color: rgba(0, 0, 0, 0.9);
+        color: black;
       }
 
       .navbar-dark .navbar-brand {
@@ -10501,7 +10587,7 @@ z-index:1;
       width: 100%;
       top: 0;
       left: 0;
-      z-index: 1000;
+      z-index: 10000;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s ease-in-out;
     }
@@ -10653,6 +10739,7 @@ z-index:1;
         align-items: center;
         padding: 1rem 0;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        z-index:9999;
       }
 
       header nav ul.show {
@@ -10911,7 +10998,7 @@ iframe{
   border-radius:10px;
   
 }
-.dropdown-content {
+.dropdown-content2 {
   display: none;
   position: absolute;
   background-color: #f9f9f9;
@@ -10921,7 +11008,7 @@ iframe{
 }
 
 /* 下拉選單中的每個選項樣式 */
-.dropdown-content a {
+.dropdown-content2 a {
   color: black;
   padding: 12px 16px;
   text-decoration: none;
@@ -10929,14 +11016,15 @@ iframe{
 }
 
 /* 當滑過時顯示下拉選單 */
-.dropdown:hover .dropdown-content {
+.dropdown:hover .dropdown-content2 {
   display: block;
 }
 
 /* 滑過選單項目的效果 */
-.dropdown-content a:hover {
+.dropdown-content2 a:hover {
   background-color: #f1f1f1;
 }
+
     </style>
   </head>
 
@@ -10956,7 +11044,7 @@ iframe{
             <li class="current"><a href="{{ url_for('main') }}">首頁</a></li>
             <li class="dropdown">
               <a href="#courses" class="dropbtn">課程</a>
-              <div class="dropdown-content">
+              <div class="dropdown-content2">
                   <a href="{{ url_for('all_teachers') }}">所有老師</a>
                   <a href="{{ url_for('recommended_teachers') }}">推薦的老師</a>
                   <a href="{{ url_for('selected_teachers') }}">已選擇的老師</a>
@@ -10978,40 +11066,155 @@ iframe{
     <div class="layout-container">
           <!-- This is the left column, now using 2 out of 12 grid parts -->
           <!-- Left Side Content -->
-          <div class="sidebar">
-            <ul class="sidebar-menu">
-              <li><a href="#" onclick="changeIframe('{{ url_for('account_manage') }}')">帳號管理</a></li>
-              <li><a href="#" onclick="changeIframe('{{ url_for('calendar') }}')">學習月曆</a></li>
-              <li>
-                <a href="#" class="menu-toggle">學習歷程</a>
-                <ul class="sidebar-submenu">
-                  <li><a href="#" onclick="changeIframe('{{ url_for('learning_history_conversation') }}')">對話</a></li>
-                  <li><a href="#" onclick="changeIframe('{{ url_for('learning_history_vocabulary') }}')">單字</a></li>
-                </ul>
-              </li>
-              <li>
-                <a href="#" class="menu-toggle">學習筆記</a>
-                <ul class="sidebar-submenu">
-                  <li><a href="#" onclick="changeIframe('{{ url_for('learning_notes_conversation') }}')">對話</a></li>
-                  <li><a href="#" onclick="changeIframe('{{ url_for('learning_notes_vocabulary') }}')">單字</a></li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-          <div class="main-content">
-            <iframe
-              frameborder="0"
-              id="contentFrame"
-              src="{{ url_for('account_manage') }}"
-              width="100%"
-              height="100%"
-            ></iframe>
-          </div>
-        </div>
-
         
-      </div>
-    </div>
+            <div class="sidebar" id="sidebar">
+            
+              <ul>
+                <li>
+                  <a onclick="loadPage('{{ url_for('account_manage') }}')" 
+                    ><span class="icon">👨‍🏫</span><span class="text">帳號管理</span></a
+                  >
+                </li>
+                <li>
+                  <a onclick="loadPage('{{ url_for('calendar') }}')" 
+                    ><span class="icon">👨‍🏫</span><span class="text">學習月曆</span></a
+                  >
+                </li>
+                <li>
+                  <a onclick="toggleDropdown('history')" id="students-link"
+                    ><span class="icon"
+                      ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                        <defs>
+                          <linearGradient
+                            id="grad1"
+                            x1="0%"
+                            y1="0%"
+                            x2="100%"
+                            y2="100%"
+                          >
+                            <stop
+                              offset="0%"
+                              style="stop-color: #4a90e2; stop-opacity: 1"
+                            />
+                            <stop
+                              offset="100%"
+                              style="stop-color: #5ab0f2; stop-opacity: 1"
+                            />
+                          </linearGradient>
+                        </defs>
+                        <circle cx="100" cy="100" r="90" fill="url(#grad1)" />
+                        <path
+                          d="M100 20 L180 180 H20 Z"
+                          fill="#FFFFFF"
+                          opacity="0.1"
+                        />
+                        <path
+                          d="M100 60 Q80 60 70 75 Q60 90 60 110 L60 160 Q60 170 70 170 H130 Q140 170 140 160 L140 110 Q140 90 130 75 Q120 60 100 60 Z"
+                          fill="#FFFFFF"
+                        />
+                        <circle cx="100" cy="40" r="20" fill="#FFFFFF" />
+                        <path
+                          d="M85 170 L85 140 Q85 130 90 125 Q95 120 100 120 Q105 120 110 125 Q115 130 115 140 L115 170"
+                          fill="none"
+                          stroke="#4A90E2"
+                          stroke-width="6"
+                        />
+                        <rect
+                          x="70"
+                          y="180"
+                          width="60"
+                          height="10"
+                          fill="#FFFFFF"
+                          rx="5"
+                          ry="5"
+                        /></svg></span
+                    ><span class="text">學習歷程</span></a
+                  >
+                  <div id="history" class="dropdown-content">
+                    <a onclick="loadPage('{{ url_for('learning_history_conversation') }}')"
+                      ><span class="icon">📜</span
+                      ><span class="text">對話</span></a
+                    >
+                    <a onclick="loadPage('{{ url_for('learning_history_vocabulary') }}')"
+                      ><span class="icon">📈</span
+                      ><span class="text">單字</span></a
+                    >
+                  </div>
+                </li>
+                <li>
+                  <a onclick="toggleDropdown('notes')" id="students-link"
+                    ><span class="icon"
+                      ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                        <defs>
+                          <linearGradient
+                            id="grad1"
+                            x1="0%"
+                            y1="0%"
+                            x2="100%"
+                            y2="100%"
+                          >
+                            <stop
+                              offset="0%"
+                              style="stop-color: #4a90e2; stop-opacity: 1"
+                            />
+                            <stop
+                              offset="100%"
+                              style="stop-color: #5ab0f2; stop-opacity: 1"
+                            />
+                          </linearGradient>
+                        </defs>
+                        <circle cx="100" cy="100" r="90" fill="url(#grad1)" />
+                        <path
+                          d="M100 20 L180 180 H20 Z"
+                          fill="#FFFFFF"
+                          opacity="0.1"
+                        />
+                        <path
+                          d="M100 60 Q80 60 70 75 Q60 90 60 110 L60 160 Q60 170 70 170 H130 Q140 170 140 160 L140 110 Q140 90 130 75 Q120 60 100 60 Z"
+                          fill="#FFFFFF"
+                        />
+                        <circle cx="100" cy="40" r="20" fill="#FFFFFF" />
+                        <path
+                          d="M85 170 L85 140 Q85 130 90 125 Q95 120 100 120 Q105 120 110 125 Q115 130 115 140 L115 170"
+                          fill="none"
+                          stroke="#4A90E2"
+                          stroke-width="6"
+                        />
+                        <rect
+                          x="70"
+                          y="180"
+                          width="60"
+                          height="10"
+                          fill="#FFFFFF"
+                          rx="5"
+                          ry="5"
+                        /></svg></span
+                    ><span class="text">學習筆記
+                    </span></a
+                  >
+                  <div id="notes" class="dropdown-content">
+                    <a onclick="loadPage('{{ url_for('learning_notes_conversation') }}')"
+                      ><span class="icon">📜</span
+                      ><span class="text">對話</span></a
+                    >
+                    <a onclick="loadPage('{{ url_for('learning_notes_vocabulary') }}')"
+                      ><span class="icon">📈</span
+                      ><span class="text">單字</span></a
+                    >
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="content-wrapper">
+              <div class="content">
+                <iframe
+                  id="contentFrame"
+                  src="{{ url_for('account_manage') }}"
+                  name="content"
+                ></iframe>
+              </div>
+            </div>
+          </div>
 
     <button id="back-to-top" title="回到頂部">↑</button>
     <!-- Blog End -->
@@ -11068,118 +11271,44 @@ iframe{
     <script src="js/main.js"></script>
     <!-- Template Javascript -->
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const toggles = document.querySelectorAll('.menu-toggle');
-        toggles.forEach(toggle => {
-          toggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            this.classList.toggle('active');
-            const submenu = this.nextElementSibling;
-            if (submenu.style.display === 'block') {
-              submenu.style.display = 'none';
-            } else {
-              submenu.style.display = 'block';
-            }
-          });
-        });
-      });
-      function changeIframe(url) {
+      function loadPage(url) {
         document.getElementById("contentFrame").src = url;
+        setActivePage(url);
+        if (window.innerWidth <= 768) {
+          toggleSidebar();
+        }
       }
 
-      const header = document.getElementById('main-header');
-    const menuToggle = document.getElementById("menu-toggle");
-    const mainNav = document.getElementById("main-nav");
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-
-    const SCROLL_THRESHOLD = 100;
-
-    function updateHeader() {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY <= SCROLL_THRESHOLD) {
-        header.classList.remove('hidden');
-      } else if (currentScrollY > lastScrollY) {
-        header.classList.add('hidden');
-      } else {
-        header.classList.remove('hidden');
+      function toggleDropdown(id) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+          if (dropdowns[i].id !== id) {
+            dropdowns[i].classList.remove("show");
+          }
+        }
+        var dropdown = document.getElementById(id);
+        dropdown.classList.toggle("show");
       }
 
-      lastScrollY = currentScrollY;
-      ticking = false;
-    }
-
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        window.requestAnimationFrame(updateHeader);
-        ticking = true;
-      }
-    });
-
-    function smoothScroll(target, duration) {
-      var target = document.querySelector(target);
-      var targetPosition = target.getBoundingClientRect().top + window.pageYOffset;
-      var startPosition = window.pageYOffset;
-      var distance = targetPosition - startPosition;
-      var startTime = null;
-
-      function animation(currentTime) {
-        if (startTime === null) startTime = currentTime;
-        var timeElapsed = currentTime - startTime;
-        var run = ease(timeElapsed, startPosition, distance, duration);
-        window.scrollTo(0, run);
-        if (timeElapsed < duration) requestAnimationFrame(animation);
-      }
-
-      function ease(t, b, c, d) {
-        t /= d / 2;
-        if (t < 1) return c / 2 * t * t + b;
-        t--;
-        return -c / 2 * (t * (t - 2) - 1) + b;
-      }
-
-      requestAnimationFrame(animation);
-    }
-
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        smoothScroll(this.getAttribute('href'), 1000);
-      });
-    });
-
-    menuToggle.addEventListener('click', function () {
-      mainNav.classList.toggle('show');
-      this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'false' ? 'true' : 'false');
-    });
-
-    const navItems = mainNav.getElementsByTagName('a');
-    for (let item of navItems) {
-      item.addEventListener('click', function () {
-        mainNav.classList.remove('show');
-        menuToggle.setAttribute('aria-expanded', 'false');
-      });
-    }
-
-    // 當頁面滾動時，顯示或隱藏「回到頂部」按鈕
-    window.addEventListener('scroll', function () {
-            const backToTopButton = document.getElementById('back-to-top');
-            if (window.scrollY > 300) {
-                backToTopButton.style.display = 'block';
-            } else {
-                backToTopButton.style.display = 'none';
-            }
+      function setActivePage(url) {
+        var links = document.querySelectorAll(".sidebar a");
+        links.forEach(function (link) {
+          link.classList.remove("active");
         });
+        var activeLink = document.querySelector(
+          '.sidebar a[onclick*="' + url + '"]'
+        );
+        if (activeLink) {
+          activeLink.classList.add("active");
+        }
+      }
 
-        // 點擊「回到頂部」按鈕後，平滑滾動回到頁面頂部
-        document.getElementById('back-to-top').addEventListener('click', function () {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-        
+      function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("active");
+      }
+
+      // 初始化活動頁面
+      setActivePage("'{{ url_for('account_manage') }}'");
     </script>
   </body>
 </html>
