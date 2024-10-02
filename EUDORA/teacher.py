@@ -38,14 +38,59 @@ def teacher_index():
 
 
 ### 課程上傳功能 ###
+import torch
 from flask import flash, redirect, render_template, request, url_for, session
 import mysql.connector
-import os
 from werkzeug.utils import secure_filename
+from parler_tts import ParlerTTSForConditionalGeneration
+from transformers import AutoTokenizer
+import io
+import soundfile as sf
 
-# 課程上傳功能
-UPLOAD_FOLDER = 'static/uploads'  # 可選，用於保存文件的本地備份
+# 課程上傳功能相關配置
 ALLOWED_EXTENSIONS = {'mp3', 'wav'}
+
+device = "cpu"
+if torch.cuda.is_available():
+    device = "cuda"
+
+# 加載 TTS 模型和 Tokenizer
+model = ParlerTTSForConditionalGeneration.from_pretrained("parler-tts/parler_tts_mini_v0.1").to(device)
+tokenizer = AutoTokenizer.from_pretrained("parler-tts/parler_tts_mini_v0.1")
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def generate_audio(sentence):
+    """生成音頻並返回其二進制數據"""
+    description = "A male teacher with a slightly low-pitched voice, in a very confined sounding environment with clear audio quality. He uses the voice for teaching purposes."
+    
+    # 生成输入的 input_ids 和 attention_mask
+    encoded_input = tokenizer(description, return_tensors="pt", padding=True)
+    input_ids = encoded_input.input_ids.to(device)
+    attention_mask = encoded_input.attention_mask.to(device)
+
+    # 生成 prompt 的 input_ids 和 attention_mask
+    prompt_encoded_input = tokenizer(sentence, return_tensors="pt", padding=True)
+    prompt_input_ids = prompt_encoded_input.input_ids.to(device)
+    prompt_attention_mask = prompt_encoded_input.attention_mask.to(device)
+
+    # 生成音频时传递 attention_mask 和 prompt_attention_mask
+    generation = model.generate(
+        input_ids=input_ids, 
+        attention_mask=attention_mask,  # 传递主 input 的 attention_mask
+        prompt_input_ids=prompt_input_ids,
+        prompt_attention_mask=prompt_attention_mask  # 为 prompt 传递 attention_mask
+    ).to(torch.float32)
+
+    audio_arr = generation.cpu().numpy().squeeze()
+
+    # 将音频数据转为二进制数据
+    audio_bytes = io.BytesIO()
+    sf.write(audio_bytes, audio_arr, model.config.sampling_rate, format='wav')
+    audio_bytes.seek(0)  # 重置流的位置
+
+    return audio_bytes.read()
 
 @teacher_bp.route('/upload_course', methods=['GET', 'POST'])
 @teacher_required
@@ -54,15 +99,10 @@ def upload_course():
         course_name = request.form['course_name']
         course_type = request.form['course_type']
         sentences = request.form.getlist('sentence')
-        audios = request.files.getlist('audio')
         is_open = 'is_open' in request.form
 
-        if len(sentences) != len(audios):
-            flash('每句話都需要上傳對應的音頻。')
-            return redirect(request.url)
-
         try:
-            # 使用配置创建数据库连接
+            # 使用配置創建數據庫連接
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
 
@@ -78,19 +118,15 @@ def upload_course():
             course_id = cursor.lastrowid
 
             # 插入句子和音頻信息
-            for idx, audio in enumerate(audios):
-                if audio and allowed_file(audio.filename):
-                    filename = secure_filename(audio.filename)
-                    audio_data = audio.read()  # 读取文件的二进制数据
+            for idx, sentence in enumerate(sentences):
+                # 生成音頻並返回其二進制數據
+                audio_data = generate_audio(sentence)
 
-                    add_sentence = """
-                        INSERT INTO Sentence (content, course_id, audio_file)
-                        VALUES (%s, %s, %s)
-                    """
-                    cursor.execute(add_sentence, (sentences[idx], course_id, audio_data))
-                else:
-                    flash('音頻文件格式不支持。')
-                    return redirect(request.url)
+                add_sentence = """
+                    INSERT INTO Sentence (content, course_id, audio_file)
+                    VALUES (%s, %s, %s)
+                """
+                cursor.execute(add_sentence, (sentence, course_id, audio_data))
 
             connection.commit()
             flash('課程上傳成功。')
