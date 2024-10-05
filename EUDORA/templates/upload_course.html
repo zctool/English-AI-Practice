@@ -115,7 +115,7 @@
 <body>
     <div class="container">
         <h2>新增課程</h2>
-        <form method="post" enctype="multipart/form-data">
+        <form action="{{ url_for('teacher.upload_course') }}" method="post" enctype="multipart/form-data">
             <label for="course_name">課程名稱:</label>
             <input type="text" id="course_name" name="course_name" required>
             
@@ -137,6 +137,8 @@
             <div id="sentence_list">
                 <div class="sentence_item">
                     <input type="text" placeholder="輸入句子" name="sentence" style="width: 100%; margin-bottom: 10px;">
+                    <input type="file" name="audio" id="audioFileInput_0" accept="audio/*" required>
+                    <audio id="audioPreview_${itemCount}" controls style="display:none;"></audio>
                 </div>
             </div>
             
@@ -147,13 +149,42 @@
     </div>
 
     <script>
-        document.getElementById('add_sentence').addEventListener('click', function() {
-            var newItem = document.createElement('div');
-            newItem.className = 'sentence_item';
-            newItem.innerHTML = `
-                <input type="text" placeholder="輸入句子" name="sentence" style="width: 100%; margin-bottom: 10px;">
-            `;
-            document.getElementById('sentence_list').appendChild(newItem);
+        document.addEventListener('DOMContentLoaded', function() {
+            const sentenceList = document.getElementById('sentence_list');
+            const addButton = document.getElementById('add_sentence');
+
+            // 為初始的輸入欄位添加事件監聽器
+            addAudioPreviewListener(sentenceList.querySelector('.sentence_item'));
+
+            addButton.addEventListener('click', function() {
+                const newItem = document.createElement('div');
+                newItem.className = 'sentence_item';
+                newItem.innerHTML = `
+                    <input type="text" placeholder="輸入句子" name="sentence" style="width: 100%; margin-bottom: 10px;">
+                    <input type="file" name="audio" accept="audio/*" required>
+                    <audio controls style="display:none;"></audio>
+                `;
+                sentenceList.appendChild(newItem);
+
+                // 為新增的輸入欄位添加事件監聽器
+                addAudioPreviewListener(newItem);
+            });
+
+            function addAudioPreviewListener(item) {
+                const fileInput = item.querySelector('input[type="file"]');
+                const audioPreview = item.querySelector('audio');
+
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const fileURL = URL.createObjectURL(file);
+                        audioPreview.src = fileURL;
+                        audioPreview.style.display = 'block';
+                    } else {
+                        audioPreview.style.display = 'none';
+                    }
+                });
+            }
         });
     </script>
 </body>

@@ -161,7 +161,11 @@
                     <td data-label="操作">
                         <a href="{{ url_for('teacher.edit_course', course_id=course.id) }}" class="btn btn-edit">編輯</a>
                         <a href="{{ url_for('teacher.edit_course_content', course_id=course.id) }}" class="btn">編輯內容</a>
-                        <a href="#" class="btn btn-delete">刪除</a>
+                        <form action="{{ url_for('teacher.manage_courses') }}" method="post" style="display:inline;">
+                            <input type="hidden" name="course_id" value="{{ course.id }}">
+                            <button type="submit" name="delete_course" onclick="return confirm('確定要刪除這個課程嗎？');"class="btn btn-delete">刪除</button>
+                        </form>
+                    
                     </td>
                 </tr>
                 {% endfor %}
