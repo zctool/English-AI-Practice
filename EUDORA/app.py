@@ -3,6 +3,7 @@ import base64
 import datetime
 import random
 import time
+import tempfile
 from flask import Flask, redirect, url_for, session, request, jsonify, render_template
 from mysql.connector import pooling, Error
 import requests
@@ -1248,7 +1249,6 @@ def compare_text(text1, text2):
     return SequenceMatcher(None, words1, words2).ratio(), SequenceMatcher(None, words1, words2).get_opcodes()
 
 # 处理保存音频并进行比对的路由
-# 处理保存音频并进行比对的路由
 @app.route('/save_audio_by_text', methods=['POST'])
 def save_audio_by_text():
     try:
@@ -1312,7 +1312,7 @@ def save_audio_by_text():
         text_similarity, diff_ops = compare_text(recognized_text_user, recognized_text_original)
 
         # 定义相似度阈值
-        audio_threshold = 0.09
+        audio_threshold = 0.1
         text_threshold = 0.99
 
         # 根据相似度结果确定消息
@@ -1371,7 +1371,123 @@ def save_audio_by_text():
         print(f"Error saving audio: {e}")
         return jsonify({'success': False, 'message': '录音保存失败。'}), 500
 
+@app.route('/learning_progress', methods=['GET', 'POST'])
+def student_learning_progress():
+    user_email = session.get('email')
     
+    if not user_email:
+        return jsonify({'error': '未登录'}), 401
+
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 如果有传入句子 ID，获取该句子的学习记录
+    sentence_id = request.form.get('sentence_id')
+
+    # 获取该学生练习过的所有句子
+    cursor.execute("""
+        SELECT DISTINCT s.id, s.content
+        FROM UserRecordings r
+        JOIN Sentence s ON r.sentence_id = s.id
+        JOIN users u ON r.user_id = u.id
+        WHERE u.GoogleEmail = %s
+    """, (user_email,))
+    sentences = cursor.fetchall()
+
+    # 如果指定了句子，获取该句子的学习记录
+    if sentence_id:
+        query = """
+            SELECT s.content AS sentence_text, r.recording_date, 
+                   (r.similarity_score * 0.1 + r.text_similarity * 0.9) * 100 AS score
+            FROM UserRecordings r
+            JOIN Sentence s ON r.sentence_id = s.id
+            JOIN users u ON r.user_id = u.id
+            WHERE u.GoogleEmail = %s AND s.id = %s
+            ORDER BY r.recording_date
+        """
+        cursor.execute(query, (user_email, sentence_id))
+    else:
+        # 默认获取第一个句子的学习记录
+        query = """
+            SELECT s.content AS sentence_text, r.recording_date, 
+                   (r.similarity_score * 0.1 + r.text_similarity * 0.9) * 100 AS score
+            FROM UserRecordings r
+            JOIN Sentence s ON r.sentence_id = s.id
+            JOIN users u ON r.user_id = u.id
+            WHERE u.GoogleEmail = %s AND s.id = %s
+            ORDER BY r.recording_date
+        """
+        cursor.execute(query, (user_email, sentences[0]['id']))
+    
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    # 处理数据，转换为图表格式
+    data = {
+        'sentences': sentences,  # 所有句子的列表
+        'current_sentence': sentence_id if sentence_id else sentences[0]['id'],  # 当前选择的句子
+        'dates': [],
+        'scores': []
+    }
+
+    for row in results:
+        data['dates'].append(row['recording_date'].strftime('%Y-%m-%d'))
+        data['scores'].append(round(row['score'], 2))  # 分数以百分比显示，并保留两位小数
+
+    return render_template('student_learning_progress.html', data=data)
+
+@app.route('/student/practice_results', methods=['GET'])
+def practice_results():
+    user_email = session.get('email')
+
+    if not user_email:
+        return jsonify({'error': '未登录'}), 401
+
+    # 从数据库获取学生练习过的句子及其对应的录音结果
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    query = """
+        SELECT s.id AS sentence_id, s.content AS sentence_text, r.STT, r.accuracy, r.highlighted_text
+        FROM Sentence s
+        JOIN UserRecordings r ON s.id = r.sentence_id
+        JOIN users u ON r.user_id = u.id
+        WHERE u.GoogleEmail = %s
+        ORDER BY r.recording_date DESC
+    """
+    cursor.execute(query, (user_email,))
+    results = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+
+    return render_template('student_practice_results.html', results=results)
+
+@app.route('/search_similar_words', methods=['POST'])
+def search_similar_words():
+    word = request.form.get('word')
+    
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    query = """
+        SELECT s.id AS sentence_id, s.content AS sentence_text, c.id AS course_id, c.name AS course_name
+        FROM Sentence s
+        JOIN Course c ON s.course_id = c.id
+        WHERE s.content LIKE %s
+    """
+    cursor.execute(query, ('%' + word + '%',))
+    similar_sentences = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    if similar_sentences:
+        return jsonify({'success': True, 'sentences': similar_sentences})
+    else:
+        return jsonify({'success': False, 'message': '无类似的单词'})
+
 # 註冊 Blueprint
 app.register_blueprint(teacher_bp, url_prefix='/teacher')
 app.register_blueprint(admin_bp, url_prefix='/admin')
