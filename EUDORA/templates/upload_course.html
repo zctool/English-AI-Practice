@@ -110,6 +110,69 @@
                 font-size: 14px;
             }
         }
+        .modern-checkbox {
+            --checkbox-size: 18px;
+            --checkbox-border-color: #333;
+            --checkbox-border-width: 1px;
+            --checkbox-checked-color: #333;
+            --checkbox-check-color: white;
+            --checkbox-hover-border-color: #000;
+          
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+          }
+          
+          .modern-checkbox input {
+            display: none;
+          }
+          
+          .modern-checkbox__control {
+            width: var(--checkbox-size);
+            height: var(--checkbox-size);
+            border-radius: 50%;
+            border: var(--checkbox-border-width) solid var(--checkbox-border-color);
+            background-color: transparent;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .modern-checkbox input:checked + .modern-checkbox__control {
+            background-color: var(--checkbox-checked-color);
+          }
+          
+          .modern-checkbox__control::after {
+            content: "";
+            width: 25%;
+            height: 50%;
+            border: 1.5px solid var(--checkbox-check-color);
+            border-top: none;
+            border-left: none;
+            transform: rotate(45deg) scale(0);
+            transition: transform 0.3s ease;
+            position: absolute;
+            top: 20%;
+            left: 38%;
+          }
+          
+          .modern-checkbox input:checked + .modern-checkbox__control::after {
+            transform: rotate(45deg) scale(1);
+          }
+          
+          .modern-checkbox:hover .modern-checkbox__control {
+            border-color: var(--checkbox-hover-border-color);
+          }
+          
+          .modern-checkbox__label {
+            margin-left: 6px;
+            user-select: none;
+            font-size: 14px;
+          }
     </style>
 </head>
 <body>
@@ -127,17 +190,21 @@
                 <label for="article">文章</label>
             </div>
             
-            <label for="is_open">是否開啟:</label>
-            <select id="is_open" name="is_open">
-                <option value="yes">是</option>
-                <option value="no">否</option>
-            </select>
+         
+            <label class="modern-checkbox" style="display:inline">
+                <input type="checkbox" id="is_open">
+                <div class="modern-checkbox__control"></div>
+                <span class="modern-checkbox__label">是否開啟課程</span>
+              </label>
+           
+           
 
+            
             <h3>句子</h3>
             <div id="sentence_list">
                 <div class="sentence_item">
                     <input type="text" placeholder="輸入句子" name="sentence" style="width: 100%; margin-bottom: 10px;">
-                    <input type="file" name="audio" id="audioFileInput_0" accept="audio/*" required>
+                    <input type="file" name="audio" id="audioFileInput_0" accept="audio/*">
                     <audio id="audioPreview_${itemCount}" controls style="display:none;"></audio>
                 </div>
             </div>
@@ -161,7 +228,7 @@
                 newItem.className = 'sentence_item';
                 newItem.innerHTML = `
                     <input type="text" placeholder="輸入句子" name="sentence" style="width: 100%; margin-bottom: 10px;">
-                    <input type="file" name="audio" accept="audio/*" required>
+                    <input type="file" name="audio" accept="audio/*">
                     <audio controls style="display:none;"></audio>
                 `;
                 sentenceList.appendChild(newItem);
