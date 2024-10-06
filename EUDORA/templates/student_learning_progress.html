@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习进度</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+
+        select {
+            padding: 8px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+
+        #progressChart {
+            max-width: 100%;
+            margin: 20px 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>学习进度</h1>
+        
+        <!-- 表单用于选择句子 -->
+        <form method="POST" action="{{ url_for('student_learning_progress') }}">
+            <label for="sentence_id">选择句子：</label>
+            <select name="sentence_id" id="sentence_id" onchange="this.form.submit()">
+                {% for sentence in data.sentences %}
+                    <option value="{{ sentence.id }}" {% if sentence.id == data.current_sentence %}selected{% endif %}>{{ sentence.content }}</option>
+                {% endfor %}
+            </select>
+        </form>
+
+        <!-- 图表容器 -->
+        <div class="chart-container">
+            <canvas id="progressChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 引入 Chart.js 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // 获取从后端传递过来的日期和分数数据
+        const dates = {{ data.dates | tojson }};
+        const scores = {{ data.scores | tojson }};
+
+        // 获取 Canvas 元素用于绘制图表
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        
+        // 创建长条图，显示学习进度
+        new Chart(ctx, {
+            type: 'bar',  // 长条图
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: '得分百分比',
+                    data: scores,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+</body>
+</html>
