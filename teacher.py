@@ -38,14 +38,59 @@ def teacher_index():
 
 
 ### 課程上傳功能 ###
+import torch
 from flask import flash, redirect, render_template, request, url_for, session
 import mysql.connector
-import os
 from werkzeug.utils import secure_filename
+from parler_tts import ParlerTTSForConditionalGeneration
+from transformers import AutoTokenizer
+import io
+import soundfile as sf
 
-# 課程上傳功能
-UPLOAD_FOLDER = 'static/uploads'  # 可選，用於保存文件的本地備份
+# 課程上傳功能相關配置
 ALLOWED_EXTENSIONS = {'mp3', 'wav'}
+
+device = "cpu"
+if torch.cuda.is_available():
+    device = "cuda"
+
+# 加載 TTS 模型和 Tokenizer
+model = ParlerTTSForConditionalGeneration.from_pretrained("parler-tts/parler_tts_mini_v0.1").to(device)
+tokenizer = AutoTokenizer.from_pretrained("parler-tts/parler_tts_mini_v0.1")
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def generate_audio(sentence):
+    """生成音頻並返回其二進制數據"""
+    description = "A male teacher with a slightly low-pitched voice, in a very confined sounding environment with clear audio quality. He uses the voice for teaching purposes."
+    
+    # 生成输入的 input_ids 和 attention_mask
+    encoded_input = tokenizer(description, return_tensors="pt", padding=True)
+    input_ids = encoded_input.input_ids.to(device)
+    attention_mask = encoded_input.attention_mask.to(device)
+
+    # 生成 prompt 的 input_ids 和 attention_mask
+    prompt_encoded_input = tokenizer(sentence, return_tensors="pt", padding=True)
+    prompt_input_ids = prompt_encoded_input.input_ids.to(device)
+    prompt_attention_mask = prompt_encoded_input.attention_mask.to(device)
+
+    # 生成音频时传递 attention_mask 和 prompt_attention_mask
+    generation = model.generate(
+        input_ids=input_ids, 
+        attention_mask=attention_mask,  # 传递主 input 的 attention_mask
+        prompt_input_ids=prompt_input_ids,
+        prompt_attention_mask=prompt_attention_mask  # 为 prompt 传递 attention_mask
+    ).to(torch.float32)
+
+    audio_arr = generation.cpu().numpy().squeeze()
+
+    # 将音频数据转为二进制数据
+    audio_bytes = io.BytesIO()
+    sf.write(audio_bytes, audio_arr, model.config.sampling_rate, format='wav')
+    audio_bytes.seek(0)  # 重置流的位置
+
+    return audio_bytes.read()
 
 @teacher_bp.route('/upload_course', methods=['GET', 'POST'])
 @teacher_required
@@ -54,15 +99,10 @@ def upload_course():
         course_name = request.form['course_name']
         course_type = request.form['course_type']
         sentences = request.form.getlist('sentence')
-        audios = request.files.getlist('audio')
         is_open = 'is_open' in request.form
 
-        if len(sentences) != len(audios):
-            flash('每句話都需要上傳對應的音頻。')
-            return redirect(request.url)
-
         try:
-            # 使用配置创建数据库连接
+            # 使用配置創建數據庫連接
             connection = mysql.connector.connect(**config)
             cursor = connection.cursor()
 
@@ -78,19 +118,15 @@ def upload_course():
             course_id = cursor.lastrowid
 
             # 插入句子和音頻信息
-            for idx, audio in enumerate(audios):
-                if audio and allowed_file(audio.filename):
-                    filename = secure_filename(audio.filename)
-                    audio_data = audio.read()  # 读取文件的二进制数据
+            for idx, sentence in enumerate(sentences):
+                # 生成音頻並返回其二進制數據
+                audio_data = generate_audio(sentence)
 
-                    add_sentence = """
-                        INSERT INTO Sentence (content, course_id, audio_file)
-                        VALUES (%s, %s, %s)
-                    """
-                    cursor.execute(add_sentence, (sentences[idx], course_id, audio_data))
-                else:
-                    flash('音頻文件格式不支持。')
-                    return redirect(request.url)
+                add_sentence = """
+                    INSERT INTO Sentence (content, course_id, audio_file)
+                    VALUES (%s, %s, %s)
+                """
+                cursor.execute(add_sentence, (sentence, course_id, audio_data))
 
             connection.commit()
             flash('課程上傳成功。')
@@ -336,6 +372,95 @@ def delete_sentence(sentence_id):
 
     return redirect(request.referrer or url_for('teacher.manage_courses'))
 
+# 老师查看所有学生成绩
+@teacher_bp.route('/learning_progress', methods=['GET', 'POST']) 
+@teacher_required
+def teacher_learning_progress():
+    user_email = session.get('email')
+    
+    if not user_email:
+        return jsonify({'error': '未登录'}), 401
+
+    # 使用配置创建数据库连接
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor(dictionary=True)
+
+    # 获取老师教过的所有学生
+    cursor.execute("""
+        SELECT DISTINCT u.id, u.userName
+        FROM UserRecordings r
+        JOIN Sentence s ON r.sentence_id = s.id
+        JOIN users u ON r.user_id = u.id
+        JOIN Course c ON s.course_id = c.id
+        WHERE c.teacher_email = %s
+    """, (user_email,))
+    students = cursor.fetchall()
+
+    # 初始化数据结构，确保即使没有选择学生或句子时也有默认值
+    data = {
+        'students': students,
+        'current_student': None,
+        'sentences': [],
+        'current_sentence': None,
+        'dates': [],
+        'scores': [],
+        'student_name': None
+    }
+
+    # 获取当前选中的学生 ID 和句子 ID
+    student_id = request.form.get('student_id')
+    sentence_id = request.form.get('sentence_id')
+
+    # 如果选择了学生 ID，查询该学生的信息
+    if student_id:
+        # 获取该学生的名字
+        cursor.execute("SELECT userName FROM users WHERE id = %s", (student_id,))
+        student_name = cursor.fetchone()['userName']
+
+        # 获取该学生学过的句子，且这些句子属于该老师的课程
+        cursor.execute("""
+            SELECT DISTINCT s.id, s.content
+            FROM UserRecordings r
+            JOIN Sentence s ON r.sentence_id = s.id
+            JOIN Course c ON s.course_id = c.id
+            WHERE r.user_id = %s AND c.teacher_email = %s
+        """, (student_id, user_email))
+        sentences = cursor.fetchall()
+
+        # 如果没有选择句子，默认选择第一个句子
+        if not sentence_id and sentences:
+            sentence_id = sentences[0]['id']
+
+        # 获取该学生选择的句子的学习记录
+        if sentence_id:
+            cursor.execute("""
+                SELECT s.content AS sentence_text, r.recording_date, 
+                       (r.similarity_score * 0.1 + r.text_similarity * 0.9) * 100 AS score 
+                FROM UserRecordings r
+                JOIN Sentence s ON r.sentence_id = s.id
+                WHERE r.user_id = %s AND s.id = %s
+                ORDER BY r.recording_date
+            """, (student_id, sentence_id))
+            results = cursor.fetchall()
+
+            # 更新数据字典
+            data['current_student'] = student_id
+            data['sentences'] = sentences
+            data['current_sentence'] = sentence_id
+            data['student_name'] = student_name
+
+            # 将查询结果转换为图表数据
+            for row in results:
+                data['dates'].append(row['recording_date'].strftime('%Y-%m-%d'))
+                data['scores'].append({
+                    'score': round(row['score'], 2),
+                    'label': f"{student_name} - {round(row['score'], 2)}%"  # 包含学生名字和分数的标签
+                })
+
+    cursor.close()
+    connection.close()
+
+    return render_template('teacher_learning_progress.html', data=data)
 
 teacher_bp.add_url_rule('/edit_course_content/<int:course_id>', 'edit_course_content', edit_course_content)
 teacher_bp.add_url_rule('/get_audio/<int:sentence_id>', 'get_audio', get_audio)
