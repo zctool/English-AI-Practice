@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>學生學習成果</title>
+    <style>
+        .sentence {
+            margin-bottom: 20px;
+        }
+        .highlight {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>學生學習成果</h1>
+
+    <div id="practice-results">
+        {% for result in results %}
+            <div class="sentence">
+                <p>{{ result.sentence_text | safe }}</p>
+                <p>你的回答: {{ result.STT }}</p>
+                <p>正確率: {{ result.accuracy }}%</p>
+                <div>
+                    {% for word in result.highlighted_text %}
+                        <span class="highlight">{{ word }}</span>
+                        <button onclick="searchSimilar('{{ word }}')">查詢</button>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        function searchSimilar(word) {
+            fetch('/search_similar_words', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `word=${word}`
+            }).then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let sentences = data.sentences;
+                    sentences.forEach(sentence => {
+                        alert(`找到相似句子: ${sentence.sentence_text} (課程: ${sentence.course_name})`);
+                    });
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
