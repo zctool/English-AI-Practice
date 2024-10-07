@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>學習成果</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .result-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .result-card h3 {
+            color: #333;
+        }
+        .result-card p {
+            color: #555;
+        }
+        .audio-player {
+            margin-top: 10px;
+        }
+        .wrong-words {
+            margin-top: 10px;
+        }
+        .word-link {
+            color: #007BFF;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .diff-text {
+            margin-top: 10px;
+            color: #FF6347; /* 错误部分的颜色 */
+        }
+    </style>
+</head>
+<body>
+
+<h1>學習成果</h1>
+
+{% for result in results %}
+<div class="result-card">
+    <h3>句子: {{ result.sentence_text }}</h3>
+    <p>學生念出來的句子: {{ result.recognized_text_user }}</p>
+    <p>原始句子: {{ result.recognized_text_original }}</p>
+    <p>相似度得分: {{ result.similarity_score }}</p>
+    <p>文本相似度: {{ result.text_similarity }}%</p>
+
+    <!-- 播放錄音 -->
+    <div class="audio-player">
+        <audio controls>
+            <source src="data:audio/wav;base64,{{ result.audio_file_base64 }}" type="audio/wav">
+            你的瀏覽器不支援音頻播放。
+        </audio>
+    </div>
+
+    <!-- 差异文本 -->
+    <div class="diff-text">
+        <h4>文本差异：</h4>
+        {% if result.diff_ops %}
+            {% for op in result.diff_ops %}
+                <p>學生念: "{{ op.text1 }}"，原始句子: "{{ op.text2 }}"</p>
+            {% endfor %}
+        {% else %}
+            <p>沒有差異。</p>
+        {% endif %}
+    </div>
+
+    <!-- 錯誤單字及其鏈接 -->
+    <div class="wrong-words">
+        <h4>錯誤單字及跳轉：</h4>
+        {% for word, link in result.word_links.items() %}
+            {% if link %}
+                <p>單字 "{{ word }}" 在句子: <a href="{{ url_for('view_course_detail', course_id=link.course_id) }}">{{ link.sentence_text }}</a></p>
+            {% else %}
+                <p>單字 "{{ word }}" 未找到相似句子。</p>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+</body>
+</html>
