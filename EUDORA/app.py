@@ -1437,47 +1437,96 @@ def student_learning_progress():
 
     return render_template('student_learning_progress.html', data=data)
 
-@app.route('/student/practice_results', methods=['GET'])
-def practice_results():
+# 学生学习成果页面
+@app.route('/student_learning_results', methods=['GET'])
+def student_learning_results():
     user_email = session.get('email')
-
+    
     if not user_email:
         return jsonify({'error': '未登录'}), 401
 
-    # 从数据库获取学生练习过的句子及其对应的录音结果
+    # 获取数据库连接
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
-    
+
+    # 获取学生的学习记录，包括识别文本和差异
     query = """
-        SELECT s.id AS sentence_id, s.content AS sentence_text, r.STT, r.accuracy, r.highlighted_text
-        FROM Sentence s
-        JOIN UserRecordings r ON s.id = r.sentence_id
+        SELECT r.id, r.recognized_text_user, r.recognized_text_original, r.diff_ops, r.similarity_score, r.text_similarity, r.audio_file, s.content AS sentence_text
+        FROM UserRecordings r
+        JOIN Sentence s ON r.sentence_id = s.id
         JOIN users u ON r.user_id = u.id
         WHERE u.GoogleEmail = %s
         ORDER BY r.recording_date DESC
     """
     cursor.execute(query, (user_email,))
-    results = cursor.fetchall()
-    
+    learning_records = cursor.fetchall()
+
+    # 处理和解析 `diff_ops`
+    results = []
+    for record in learning_records:
+        try:
+            diff_ops = json.loads(record['diff_ops'])
+            validated_diff_ops = []
+            for op in diff_ops:
+                if 'text1' in op and 'text2' in op:
+                    validated_diff_ops.append(op)
+            record['diff_ops'] = validated_diff_ops
+        except Exception as e:
+            print(f"Invalid diff_op format: {record['diff_ops']} - {e}")
+            record['diff_ops'] = []  # 如果解析失败，设置为空列表
+        
+        # 将音频数据转换为 base64
+        record['audio_file_base64'] = base64.b64encode(record['audio_file']).decode('utf-8')
+        
+        # 文本相似度乘以 100 并保留两位小数
+        record['text_similarity'] = round(record['text_similarity'] * 100, 2)
+
+        # 查找第一个错误单词并查询与其匹配的内容
+        word_links = {}
+        first_wrong_word = None
+        for op in record['diff_ops']:
+            if 'text2' in op and op['text2'] and not first_wrong_word:  # 只取第一个错误单词
+                first_wrong_word = op['text2']
+                # 完全匹配原始句子的查询语句
+                cursor.execute("""
+                    SELECT s.id AS sentence_id, s.content AS sentence_text, c.id AS course_id
+                    FROM Sentence s
+                    JOIN Course c ON s.course_id = c.id
+                    WHERE s.content = %s AND c.is_open = TRUE
+                """, (first_wrong_word,))
+                word_sentences = cursor.fetchall()
+
+                if word_sentences:
+                    word_links[first_wrong_word] = word_sentences[0]  # 只取第一个匹配的句子
+                else:
+                    word_links[first_wrong_word] = None
+
+        record['word_links'] = word_links
+        results.append(record)
+
     cursor.close()
     conn.close()
 
-    return render_template('student_practice_results.html', results=results)
+    return render_template('student_learning_results.html', results=results)
 
+# 查找类似单词的句子
 @app.route('/search_similar_words', methods=['POST'])
 def search_similar_words():
     word = request.form.get('word')
-    
+
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
-    
+
+    # 使用正则表达式，精确匹配整个单词
     query = """
         SELECT s.id AS sentence_id, s.content AS sentence_text, c.id AS course_id, c.name AS course_name
         FROM Sentence s
         JOIN Course c ON s.course_id = c.id
-        WHERE s.content LIKE %s
+        WHERE s.content REGEXP %s
     """
-    cursor.execute(query, ('%' + word + '%',))
+    # \b 表示单词边界，确保是完全匹配
+    pattern = r'\\b' + word + r'\\b'
+    cursor.execute(query, (pattern,))
     similar_sentences = cursor.fetchall()
 
     cursor.close()
@@ -1486,7 +1535,7 @@ def search_similar_words():
     if similar_sentences:
         return jsonify({'success': True, 'sentences': similar_sentences})
     else:
-        return jsonify({'success': False, 'message': '无类似的单词'})
+        return jsonify({'success': False, 'message': '无类似的句子'})
 
 # 註冊 Blueprint
 app.register_blueprint(teacher_bp, url_prefix='/teacher')
