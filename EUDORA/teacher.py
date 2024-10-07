@@ -135,7 +135,7 @@ def upload_course():
             # 捕捉資料庫錯誤，並顯示錯誤信息
             connection.rollback()
             flash(f'資料庫錯誤: {err}', 'danger')
-            print(f"資料庫錯誤: {err}")  # 或者使用 logging 模組來記錄錯誤信息
+            print(f"資料庫錯誤: {err}")
 
         finally:
             if cursor:
@@ -149,18 +149,24 @@ def upload_course():
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-##查詢、刪除課程
+# 管理课程（查詢、刪除）
 @teacher_bp.route('/manage_courses', methods=['GET', 'POST'])
-@teacher_required
 def manage_courses():
     connection = None
     cursor = None
     try:
+        # 确保用户是已登录的教师
+        if 'email' not in session or session.get('role') != 'teacher':
+            abort(403)
+
+        # 建立数据库连接
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor(dictionary=True)
 
-        # 查詢老师所创建的所有课程
+        # 获取当前教师的 email
         teacher_email = session.get('email')
+
+        # 查询该教师所创建的所有课程
         query = "SELECT * FROM Course WHERE teacher_email = %s"
         cursor.execute(query, (teacher_email,))
         courses = cursor.fetchall()
@@ -186,7 +192,6 @@ def manage_courses():
             connection.close()
 
     return render_template('manage_courses.html', courses=courses)
-
 
 ##編輯課程
 
