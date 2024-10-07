@@ -1,60 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学生学习进度</title>
+    <title>學生學習進度</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
         }
         h1 {
-            text-align: center;
-            color: #333;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .select-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 10px 35px 10px 15px;
+            font-size: 16px;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        select:hover, select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.25);
+            outline: none;
+        }
+        .select-wrapper::after {
+            content: '\25BC';
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #6c757d;
         }
         .chart-container {
-            width: 80%;
-            margin: 0 auto;
+            margin-top: 30px;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 20px;
+            background-color: #fff;
         }
     </style>
 </head>
 <body>
-    <h1>学生学习进度: {{ data.student_name }}</h1>
-
-    <!-- 表单用于选择学生和句子 -->
+    <h1>學生學習進度: {{ data.student_name }}</h1>
     <form method="POST" id="filter-form">
-        <label for="student_id">选择学生:</label>
+    <div class="select-wrapper">
         <select name="student_id" id="student_id" onchange="document.getElementById('filter-form').submit()">
-            <option value="" disabled selected>选择学生</option>
+            <option value="" disabled selected>選擇學生</option>
             {% for student in data.students %}
-                <option value="{{ student.id }}" {% if data.current_student == student.id %} selected {% endif %}>
-                    {{ student.userName }}
-                </option>
-            {% endfor %}
+            <option value="{{ student.id }}" {% if data.current_student == student.id %} selected {% endif %}>
+                {{ student.userName }}
+            </option>
+        {% endfor %}
         </select>
+    </div>
 
-        <!-- 如果已经选择学生，则显示句子的下拉菜单 -->
-        {% if data.sentences %}
-            <label for="sentence_id">选择句子:</label>
-            <select name="sentence_id" id="sentence_id" onchange="document.getElementById('filter-form').submit()">
-                <option value="" disabled selected>选择句子</option>
-                {% for sentence in data.sentences %}
+    {% if data.sentences %}
+    <div class="select-wrapper">
+        <select name="sentence_id" id="sentence_id" onchange="document.getElementById('filter-form').submit()">
+            <option value="" disabled selected>選擇句子</option>
+            {% for sentence in data.sentences %}
                     <option value="{{ sentence.id }}" {% if data.current_sentence == sentence.id %} selected {% endif %}>
                         {{ sentence.content }}
                     </option>
                 {% endfor %}
-            </select>
-        {% endif %}
+        </select>
+    </div>
+    {% endif %}
     </form>
 
-    <!-- 图表显示区域 -->
     <div class="chart-container">
         <canvas id="progressChart"></canvas>
     </div>
-
     <script>
         const labels = {{ data.dates | tojson }};
         const scores = {{ data.scores | tojson }};
@@ -70,7 +106,7 @@
             data: {
                 labels: labels,
                 datasets: [{
-                    label: '{{ data.student_name }} 的学习进度',
+                    label: '{{ data.student_name }} 的學習進度',
                     data: dataPoints,
                     backgroundColor: 'rgba(75, 192, 192, 0.6)',
                     borderColor: 'rgba(75, 192, 192, 1)',

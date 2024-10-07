@@ -61,7 +61,7 @@
 
     <!-- 差异文本 -->
     <div class="diff-text">
-        <h4>文本差异：</h4>
+        <h4>文本差異：</h4>
         {% if result.diff_ops %}
             {% for op in result.diff_ops %}
                 <p>學生念: "{{ op.text1 }}"，原始句子: "{{ op.text2 }}"</p>

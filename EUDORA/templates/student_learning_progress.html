@@ -7,58 +7,74 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
-            margin: 0;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
+            line-height: 1.6;
             color: #333;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
         }
-
-        form {
-            text-align: center;
-            margin-bottom: 20px;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
         }
-
-        label {
-            font-size: 1.2em;
-            margin-right: 10px;
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 0;
         }
-
-        select {
-            padding: 8px;
-            font-size: 1.1em;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
-        }
-
-        #progressChart {
-            max-width: 100%;
-            margin: 20px 0;
-        }
-
-        .chart-container {
+        .select-wrapper {
             position: relative;
-            height: 400px;
+            display: inline-block;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 100%;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 12px 35px 12px 15px;
+            font-size: 16px;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        select:hover, select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.25);
+            outline: none;
+        }
+        .select-wrapper::after {
+            content: '\25BC';
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #6c757d;
+        }
+        .chart-container {
+            margin-top: 30px;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 20px;
+            background-color: #fff;
+            height: 400px; /* 增加圖表容器的高度 */
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>學習進度</h1>
-        
+        <div class="select-wrapper">
         <!-- 表单用于选择句子 -->
         <form method="POST" action="{{ url_for('student_learning_progress') }}">
             <label for="sentence_id">選擇句子：</label>
@@ -68,7 +84,7 @@
                 {% endfor %}
             </select>
         </form>
-
+    </div>
         <!-- 图表容器 -->
         <div class="chart-container">
             <canvas id="progressChart"></canvas>
