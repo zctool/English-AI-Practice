@@ -1,5 +1,5 @@
 import io
-from flask import Blueprint, jsonify, render_template, request, redirect, send_file, url_for, flash, g, session
+from flask import Blueprint, abort, jsonify, render_template, request, redirect, send_file, url_for, flash, g, session
 import mysql.connector
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -58,12 +58,36 @@ if torch.cuda.is_available():
 model = ParlerTTSForConditionalGeneration.from_pretrained("parler-tts/parler_tts_mini_v0.1").to(device)
 tokenizer = AutoTokenizer.from_pretrained("parler-tts/parler_tts_mini_v0.1")
 
+# 定義聲音描述類型
+VOICE_TYPES = {
+    "gentle_male": "A gentle male voice, slightly deep, calm and comforting.",
+    "gentle_female": "A gentle female voice, soothing, soft and clear.",
+    "energetic_male": "An energetic male voice, enthusiastic, bright and engaging.",
+    "energetic_female": "An energetic female voice, high-pitched, lively and dynamic.",
+    "warm_male": "A warm male voice, slightly raspy, with a comforting and friendly tone.",
+    "warm_female": "A warm female voice, with a kind, approachable and gentle tone.",
+    "professional_male": "A professional male voice, authoritative, confident and clear.",
+    "professional_female": "A professional female voice, clear, concise and firm.",
+    "whispering_male": "A whispering male voice, quiet, soft and mysterious.",
+    "whispering_female": "A whispering female voice, gentle, hushed and soothing.",
+    "bright_male": "A bright male voice, cheerful, positive and vibrant.",
+    "bright_female": "A bright female voice, uplifting, happy and spirited.",
+    "calm_male": "A calm male voice, steady, composed and relaxed.",
+    "calm_female": "A calm female voice, serene, peaceful and gentle.",
+    "excited_male": "An excited male voice, animated, enthusiastic and lively.",
+    "excited_female": "An excited female voice, highly expressive, upbeat and joyful.",
+    "deep_male": "A deep male voice, resonant, powerful and mature.",
+    "deep_female": "A deep female voice, rich, mature and captivating.",
+    "soft_male": "A soft male voice, delicate, gentle and smooth.",
+    "soft_female": "A soft female voice, tender, light and graceful."
+}
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def generate_audio(sentence):
+def generate_audio(sentence, voice_type):
     """生成音頻並返回其二進制數據"""
-    description = "A male teacher with a slightly low-pitched voice, in a very confined sounding environment with clear audio quality. He uses the voice for teaching purposes."
+    description = VOICE_TYPES.get(voice_type, "A gentle male voice, slightly deep, calm and comforting.")
     
     # 生成输入的 input_ids 和 attention_mask
     encoded_input = tokenizer(description, return_tensors="pt", padding=True)
@@ -99,6 +123,7 @@ def upload_course():
         course_name = request.form['course_name']
         course_type = request.form['course_type']
         sentences = request.form.getlist('sentence')
+        voice_types = request.form.getlist('voice_type')  # 獲取每句句子對應的聲音類型
         is_open = 'is_open' in request.form
 
         try:
@@ -118,9 +143,9 @@ def upload_course():
             course_id = cursor.lastrowid
 
             # 插入句子和音頻信息
-            for idx, sentence in enumerate(sentences):
+            for sentence, voice_type in zip(sentences, voice_types):
                 # 生成音頻並返回其二進制數據
-                audio_data = generate_audio(sentence)
+                audio_data = generate_audio(sentence, voice_type)
 
                 add_sentence = """
                     INSERT INTO Sentence (content, course_id, audio_file)
@@ -129,14 +154,11 @@ def upload_course():
                 cursor.execute(add_sentence, (sentence, course_id, audio_data))
 
             connection.commit()
-            flash('課程上傳成功。')
+            flash('課程上傳成功。', 'success')
 
         except mysql.connector.Error as err:
-            # 捕捉資料庫錯誤，並顯示錯誤信息
             connection.rollback()
             flash(f'資料庫錯誤: {err}', 'danger')
-            print(f"資料庫錯誤: {err}")
-
         finally:
             if cursor:
                 cursor.close()
@@ -144,7 +166,7 @@ def upload_course():
                 connection.close()
 
         return redirect(url_for('teacher.upload_course'))
-    return render_template('upload_course.html')
+    return render_template('upload_course.html', voice_types=VOICE_TYPES)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
