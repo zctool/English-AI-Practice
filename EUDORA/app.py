@@ -329,6 +329,7 @@ def vocabulary_detail(vocabulary_id):
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
     
+    # 查詢單字詳細信息
     cursor.execute("""
         SELECT id, vocabulary_en, vocabulary_tw, part_of_speech, ipa, example, vocabulary_voice, class
         FROM vocabulary
@@ -345,9 +346,10 @@ def vocabulary_detail(vocabulary_id):
     collect_record = cursor.fetchone()
     is_collected = collect_record is not None
     
+    # 將音頻轉為 base64 格式
     vocabulary['vocabulary_voice'] = base64.b64encode(vocabulary['vocabulary_voice']).decode('utf-8')
     
-    # 獲取用戶錄音相關信息
+    # 獲取用戶錄音比對結果
     cursor.execute("""
         SELECT STT, accuracy, highlighted_text
         FROM vocabularyUserVoice
@@ -357,8 +359,17 @@ def vocabulary_detail(vocabulary_id):
     """, (get_user_id(user_email), vocabulary_id))
     user_voice = cursor.fetchone()
     
+    # 如果有比對結果，格式化準確率
+    if user_voice:
+        user_voice['accuracy'] = f"{round(user_voice['accuracy'], 2):.2f}"
+
+    # 如果沒有比對結果，設置為空字典
+    if not user_voice:
+        user_voice = {'STT': '', 'accuracy': '', 'highlighted_text': ''}
+
     cursor.close()
     conn.close()
+
     return render_template('vocabulary_detail.html', vocabulary=vocabulary, is_collected=is_collected, user_voice=user_voice)
 
 # 切換單字收藏狀態
