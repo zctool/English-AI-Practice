@@ -31,10 +31,6 @@
             padding-bottom: 10px;
             text-align: center;
         }
-        h3 {
-            color: #2c3e50;
-            margin-top: 30px;
-        }
         form {
             margin-top: 20px;
         }
@@ -98,6 +94,54 @@
         #submit:hover {
             background-color: #c0392b;
         }
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .spinner {
+            width: 80px;
+            height: 80px;
+            border: 12px solid #f3f3f3;
+            border-top: 12px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #success-message {
+            display: none;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #27ae60;
+            padding: 15px;
+            border: 2px solid #27ae60;
+            background-color: #eafaf1;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        }
+        #error-message {
+            display: none;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #e74c3c;
+            padding: 15px;
+            border: 2px solid #e74c3c;
+            background-color: #fbeae9;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        }
 
         @media screen and (max-width: 600px) {
             .container {
@@ -110,75 +154,17 @@
                 font-size: 14px;
             }
         }
-        .modern-checkbox {
-            --checkbox-size: 18px;
-            --checkbox-border-color: #333;
-            --checkbox-border-width: 1px;
-            --checkbox-checked-color: #333;
-            --checkbox-check-color: white;
-            --checkbox-hover-border-color: #000;
-          
-            display: inline-flex;
-            align-items: center;
-            cursor: pointer;
-            font-family: Arial, sans-serif;
-          }
-          
-          .modern-checkbox input {
-            display: none;
-          }
-          
-          .modern-checkbox__control {
-            width: var(--checkbox-size);
-            height: var(--checkbox-size);
-            border-radius: 50%;
-            border: var(--checkbox-border-width) solid var(--checkbox-border-color);
-            background-color: transparent;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-          }
-          
-          .modern-checkbox input:checked + .modern-checkbox__control {
-            background-color: var(--checkbox-checked-color);
-          }
-          
-          .modern-checkbox__control::after {
-            content: "";
-            width: 25%;
-            height: 50%;
-            border: 1.5px solid var(--checkbox-check-color);
-            border-top: none;
-            border-left: none;
-            transform: rotate(45deg) scale(0);
-            transition: transform 0.3s ease;
-            position: absolute;
-            top: 20%;
-            left: 38%;
-          }
-          
-          .modern-checkbox input:checked + .modern-checkbox__control::after {
-            transform: rotate(45deg) scale(1);
-          }
-          
-          .modern-checkbox:hover .modern-checkbox__control {
-            border-color: var(--checkbox-hover-border-color);
-          }
-          
-          .modern-checkbox__label {
-            margin-left: 6px;
-            user-select: none;
-            font-size: 14px;
-          }
     </style>
 </head>
 <body>
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div style="color: #f3f3f3; font-size: 20px;">上傳中，請稍候...</div>
+    </div>
+
     <div class="container">
         <h2>新增課程</h2>
-        <form action="{{ url_for('teacher.upload_course') }}" method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" id="upload_form">
             <label for="course_name">課程名稱:</label>
             <input type="text" id="course_name" name="course_name" required>
             
@@ -190,22 +176,16 @@
                 <label for="article">文章</label>
             </div>
             
-         
-            <label class="modern-checkbox" style="display:inline">
-                <input type="checkbox" id="is_open">
-                <div class="modern-checkbox__control"></div>
-                <span class="modern-checkbox__label">是否開啟課程</span>
-              </label>
-           
-           
+            <label for="is_open">是否開啟:</label>
+            <select id="is_open" name="is_open">
+                <option value="yes">是</option>
+                <option value="no">否</option>
+            </select>
 
-            
             <h3>句子</h3>
             <div id="sentence_list">
                 <div class="sentence_item">
                     <input type="text" placeholder="輸入句子" name="sentence" style="width: 100%; margin-bottom: 10px;">
-                    <input type="file" name="audio" id="audioFileInput_0" accept="audio/*">
-                    <audio id="audioPreview_${itemCount}" controls style="display:none;"></audio>
                 </div>
             </div>
             
@@ -213,45 +193,52 @@
             
             <button type="submit" id="submit">上傳課程</button>
         </form>
+        
+        <p id="success-message">上傳完成！您的課程已成功上傳。</p>
+        <p id="error-message">上傳失敗，請重試。</p>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sentenceList = document.getElementById('sentence_list');
-            const addButton = document.getElementById('add_sentence');
+        document.getElementById('add_sentence').addEventListener('click', function() {
+            var newItem = document.createElement('div');
+            newItem.className = 'sentence_item';
+            newItem.innerHTML = `
+                <input type="text" placeholder="輸入句子" name="sentence" style="width: 100%; margin-bottom: 10px;">
+            `;
+            document.getElementById('sentence_list').appendChild(newItem);
+        });
 
-            // 為初始的輸入欄位添加事件監聽器
-            addAudioPreviewListener(sentenceList.querySelector('.sentence_item'));
+        document.getElementById('upload_form').addEventListener('submit', function(event) {
+            event.preventDefault(); // 阻止表單的默認提交行為
 
-            addButton.addEventListener('click', function() {
-                const newItem = document.createElement('div');
-                newItem.className = 'sentence_item';
-                newItem.innerHTML = `
-                    <input type="text" placeholder="輸入句子" name="sentence" style="width: 100%; margin-bottom: 10px;">
-                    <input type="file" name="audio" accept="audio/*">
-                    <audio controls style="display:none;"></audio>
-                `;
-                sentenceList.appendChild(newItem);
+            // 顯示 loading 畫面
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('submit').disabled = true;
 
-                // 為新增的輸入欄位添加事件監聽器
-                addAudioPreviewListener(newItem);
+            // 使用 Fetch API 來處理表單提交
+            var formData = new FormData(this);
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                // 隱藏 loading 畫面
+                document.getElementById('loading-overlay').style.display = 'none';
+                document.getElementById('submit').disabled = false;
+
+                if (response.ok) {
+                    document.getElementById('success-message').style.display = 'block';
+                    document.getElementById('error-message').style.display = 'none';
+                } else {
+                    document.getElementById('error-message').style.display = 'block';
+                    document.getElementById('success-message').style.display = 'none';
+                }
+            }).catch(error => {
+                // 隱藏 loading 畫面並顯示錯誤信息
+                document.getElementById('loading-overlay').style.display = 'none';
+                document.getElementById('submit').disabled = false;
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('success-message').style.display = 'none';
             });
-
-            function addAudioPreviewListener(item) {
-                const fileInput = item.querySelector('input[type="file"]');
-                const audioPreview = item.querySelector('audio');
-
-                fileInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const fileURL = URL.createObjectURL(file);
-                        audioPreview.src = fileURL;
-                        audioPreview.style.display = 'block';
-                    } else {
-                        audioPreview.style.display = 'none';
-                    }
-                });
-            }
         });
     </script>
 </body>
