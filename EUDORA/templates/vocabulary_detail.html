@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>單字詳情</title>
+  <title>KidKinder - Kindergarten Website Template</title>
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <meta content="Free HTML Templates" name="keywords" />
   <meta content="Free HTML Templates" name="description" />
@@ -492,56 +492,38 @@
   <!-- <div class="main-content"> -->
 
   <!-- <div class="quotes"> -->
-  <div class="container">
-    <h1>單字詳情</h1>
-    <div class="sentence">
-    <div data-id="{{ vocabulary.id }}">
-      <p>英文: {{ vocabulary.vocabulary_en }}</p>
-      <p>中文: {{ vocabulary.vocabulary_tw }}</p>
-      <p>詞性: {{ vocabulary.part_of_speech }}</p>
-      <p>音標: {{ vocabulary.ipa }}</p>
-      <p>例句: {{ vocabulary.example }}</p>
-      <p>難度: {{ vocabulary.class }}</p>
-      <div class="recording">
-        <button onclick="startRecording('{{ vocabulary.id }}', this)">
-          開始錄音
-        </button>
-        <button
-          onclick="stopRecording('{{ vocabulary.id }}', this)"
-          disabled
-        >
-          停止錄音
-        </button>
-        <audio
-          id="playback-{{ vocabulary.id }}"
-          controls
-          style="display: none; margin-left: 10px"
-        ></audio>
+    <div class="container">
+      <h1>單字詳情</h1>
+      <div class="sentence">
+          <div data-id="{{ vocabulary.id }}">
+              <p>英文: {{ vocabulary.vocabulary_en }}</p>
+              <p>中文: {{ vocabulary.vocabulary_tw }}</p>
+              <p>詞性: {{ vocabulary.part_of_speech }}</p>
+              <p>音標: {{ vocabulary.ipa }}</p>
+              <p>例句: {{ vocabulary.example }}</p>
+              <p>難度: {{ vocabulary.class }}</p>
+              <div class="recording">
+                  <button onclick="startRecording('{{ vocabulary.id }}', this)">開始錄音</button>
+                  <button onclick="stopRecording('{{ vocabulary.id }}', this)" disabled>停止錄音</button>
+                  <audio id="playback-{{ vocabulary.id }}" controls style="display: none; margin-left: 10px"></audio>
+              </div>
+              <audio controls>
+                  <source src="data:audio/wav;base64,{{ vocabulary.vocabulary_voice }}" type="audio/wav" />
+                  您的瀏覽器不支持音頻元素。
+              </audio>
+              <button class="star-button {{ 'filled' if is_collected else 'unfilled' }}" onclick="toggleCollect('{{ vocabulary.id }}', this)"></button>
+              <div class="stt-result">
+                <h3>比對結果</h3>
+                <p><strong>轉換文本:</strong> <span class="stt-text">{{ user_voice.STT }}</span></p>
+                <p><strong>準確率:</strong> <span class="accuracy">{{ user_voice.accuracy }}%</span></p>
+                <p><strong>差異標示:</strong></p>
+                <div class="highlighted-text">{{ user_voice.highlighted_text|safe }}</div>
+            </div>
+            
+          </div>
       </div>
-      <audio controls>
-        <source
-          src="data:audio/wav;base64,{{ vocabulary.vocabulary_voice }}"
-          type="audio/wav"
-        />
-        您的瀏覽器不支持音頻元素。
-      </audio>
-      <button
-        class="star-button {{ 'filled' if is_collected else 'unfilled' }}"
-        onclick="toggleCollect('{{ vocabulary.id }}', this)"
-      ></button>
-      <div class="stt-result">
-        <h3>STT Result</h3>
-        <p><strong>STT Text:</strong> <span class="stt-text"></span></p>
-        <p><strong>Accuracy:</strong> <span class="accuracy"></span></p>
-        <p><strong>Differences:</strong></p>
-        <div class="highlighted-text"></div>
-      </div>
-    </div>
+      <a href="{{ url_for('vocabulary_topics') }}" class="btn">返回單字主題</a>
   </div>
-    <a href="{{ url_for('vocabulary_topics') }}" class="btn"
-      >返回單字主題</a
-    >
-    </div>
   </div>
 
 <script>
