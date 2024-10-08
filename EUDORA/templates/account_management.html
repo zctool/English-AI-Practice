@@ -11135,67 +11135,7 @@ iframe{
                     >
                   </div>
                 </li>
-                <li>
-                  <a onclick="toggleDropdown('learning-history')" id="students-link"
-                    ><span class="icon"
-                      ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-                        <defs>
-                          <linearGradient
-                            id="grad1"
-                            x1="0%"
-                            y1="0%"
-                            x2="100%"
-                            y2="100%"
-                          >
-                            <stop
-                              offset="0%"
-                              style="stop-color: #4a90e2; stop-opacity: 1"
-                            />
-                            <stop
-                              offset="100%"
-                              style="stop-color: #5ab0f2; stop-opacity: 1"
-                            />
-                          </linearGradient>
-                        </defs>
-                        <circle cx="100" cy="100" r="90" fill="url(#grad1)" />
-                        <path
-                          d="M100 20 L180 180 H20 Z"
-                          fill="#FFFFFF"
-                          opacity="0.1"
-                        />
-                        <path
-                          d="M100 60 Q80 60 70 75 Q60 90 60 110 L60 160 Q60 170 70 170 H130 Q140 170 140 160 L140 110 Q140 90 130 75 Q120 60 100 60 Z"
-                          fill="#FFFFFF"
-                        />
-                        <circle cx="100" cy="40" r="20" fill="#FFFFFF" />
-                        <path
-                          d="M85 170 L85 140 Q85 130 90 125 Q95 120 100 120 Q105 120 110 125 Q115 130 115 140 L115 170"
-                          fill="none"
-                          stroke="#4A90E2"
-                          stroke-width="6"
-                        />
-                        <rect
-                          x="70"
-                          y="180"
-                          width="60"
-                          height="10"
-                          fill="#FFFFFF"
-                          rx="5"
-                          ry="5"
-                        /></svg></span
-                    ><span class="text">課程學習成果</span></a
-                  >
-                  <div id="learning-history" class="dropdown-content">
-                    <a onclick="loadPage('{{ url_for('student_learning_progress') }}')"
-                      ><span class="icon">📜</span
-                      ><span class="text">課程學習圖表</span></a
-                    >
-                    <a onclick="loadPage('{{ url_for('student_learning_results') }}')"
-                      ><span class="icon">📈</span
-                      ><span class="text">課程學習歷史</span></a
-                    >
-                  </div>
-                </li>
+                
                 <li>
                   <a onclick="toggleDropdown('notes')" id="students-link"
                     ><span class="icon"
@@ -11258,7 +11198,67 @@ iframe{
                     >
                   </div>
                 </li>
-                
+                <li>
+                  <a onclick="toggleDropdown('learning-history')" id="students-link"
+                    ><span class="icon"
+                      ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                        <defs>
+                          <linearGradient
+                            id="grad1"
+                            x1="0%"
+                            y1="0%"
+                            x2="100%"
+                            y2="100%"
+                          >
+                            <stop
+                              offset="0%"
+                              style="stop-color: #4a90e2; stop-opacity: 1"
+                            />
+                            <stop
+                              offset="100%"
+                              style="stop-color: #5ab0f2; stop-opacity: 1"
+                            />
+                          </linearGradient>
+                        </defs>
+                        <circle cx="100" cy="100" r="90" fill="url(#grad1)" />
+                        <path
+                          d="M100 20 L180 180 H20 Z"
+                          fill="#FFFFFF"
+                          opacity="0.1"
+                        />
+                        <path
+                          d="M100 60 Q80 60 70 75 Q60 90 60 110 L60 160 Q60 170 70 170 H130 Q140 170 140 160 L140 110 Q140 90 130 75 Q120 60 100 60 Z"
+                          fill="#FFFFFF"
+                        />
+                        <circle cx="100" cy="40" r="20" fill="#FFFFFF" />
+                        <path
+                          d="M85 170 L85 140 Q85 130 90 125 Q95 120 100 120 Q105 120 110 125 Q115 130 115 140 L115 170"
+                          fill="none"
+                          stroke="#4A90E2"
+                          stroke-width="6"
+                        />
+                        <rect
+                          x="70"
+                          y="180"
+                          width="60"
+                          height="10"
+                          fill="#FFFFFF"
+                          rx="5"
+                          ry="5"
+                        /></svg></span
+                    ><span class="text">課程學習成果</span></a
+                  >
+                  <div id="learning-history" class="dropdown-content">
+                    <a onclick="loadPage('{{ url_for('student_learning_progress') }}')"
+                      ><span class="icon">📈</span
+                      ><span class="text">課程學習圖表</span></a
+                    >
+                    <a onclick="loadPage('{{ url_for('student_learning_results') }}', this)" data-fullpage="true">
+                      <span class="icon">📜</span>
+                      <span class="text">課程學習歷史</span>
+                  </a>
+                  </div>
+                </li>
               </ul>
             </div>
             <div class="content-wrapper">
@@ -11285,7 +11285,7 @@ iframe{
           組別: 113201 指導老師 : 林俊杰老師
         </p>
         <p class="m-0 text-center text-white">
-          專題組員: 11236001 林奕辰 11236012 高穎萱 11236013 蔣杰森 11236022
+          專題組員: 11236012 高穎萱 11236013 蔣杰森 11236022
           巫承翰 11236025 葉于甄
         </p>
         <div class="row pt-5"></div>
@@ -11327,14 +11327,25 @@ iframe{
     <script src="js/main.js"></script>
     <!-- Template Javascript -->
     <script>
-      function loadPage(url) {
-        document.getElementById("contentFrame").src = url;
+      function loadPage(url, element) {
+        // 检查元素是否存在并且包含 data-fullpage 属性
+        if (element && element.getAttribute('data-fullpage')) {
+          // 如果有 data-fullpage 属性，改变整个页面的 URL
+          window.location.href = url;
+        } else {
+          // 否则在 iframe 中加载页面
+          document.getElementById("contentFrame").src = url;
+        }
+    
+        // 设置活动页面
         setActivePage(url);
+    
+        // 如果屏幕宽度小于等于 768px，则切换侧边栏
         if (window.innerWidth <= 768) {
           toggleSidebar();
         }
       }
-
+    
       function toggleDropdown(id) {
         var dropdowns = document.getElementsByClassName("dropdown-content");
         for (var i = 0; i < dropdowns.length; i++) {
@@ -11345,7 +11356,7 @@ iframe{
         var dropdown = document.getElementById(id);
         dropdown.classList.toggle("show");
       }
-
+    
       function setActivePage(url) {
         var links = document.querySelectorAll(".sidebar a");
         links.forEach(function (link) {
@@ -11358,14 +11369,14 @@ iframe{
           activeLink.classList.add("active");
         }
       }
-
+    
       function toggleSidebar() {
         document.getElementById("sidebar").classList.toggle("active");
       }
-
-      // 初始化活動頁面
-      setActivePage("'{{ url_for('account_manage') }}'");
-    </script>
+    
+      // 初始化活动页面
+      setActivePage("{{ url_for('account_manage') }}");
+    </script>    
   </body>
 </html>
 
