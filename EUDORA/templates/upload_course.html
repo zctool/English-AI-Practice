@@ -225,6 +225,39 @@
             user-select: none;
             font-size: 14px;
           }
+          .select-wrapper {
+            width:100vh;
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 10px 35px 10px 15px;
+            font-size: 16px;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        select:hover, select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.25);
+            outline: none;
+        }
+        .select-wrapper::after {
+            content: '\25BC';
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #6c757d;
+        }
     </style>
 </head>
 <body>
@@ -258,6 +291,7 @@
                 <div class="sentence_item">
                     <input type="text" placeholder="輸入句子" name="sentence" style="width: 100%; margin-bottom: 10px;" required>
                     <label for="voice_type">選擇聲音類型:</label>
+                    <div class="select-wrapper">
                     <select name="voice_type" class="voice-select" required>
                         <option value="gentle_male">溫柔的男子聲音</option>
                         <option value="gentle_female">溫柔的女子聲音</option>
@@ -280,6 +314,7 @@
                         <option value="soft_male">柔和的男子聲音</option>
                         <option value="soft_female">柔和的女子聲音</option>
                     </select>
+                </div>
                 </div>
             </div>
 
