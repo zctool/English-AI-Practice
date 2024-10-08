@@ -1492,19 +1492,19 @@ def student_learning_results():
         # 文本相似度乘以 100 并保留两位小数
         record['text_similarity'] = round(record['text_similarity'] * 100, 2)
 
-        # 查找第一个错误单词并查询与其匹配的内容
+        # 查找第一个错误单词并查询与其匹配的其他句子
         word_links = {}
         first_wrong_word = None
         for op in record['diff_ops']:
             if 'text2' in op and op['text2'] and not first_wrong_word:  # 只取第一个错误单词
                 first_wrong_word = op['text2']
-                # 完全匹配原始句子的查询语句
+                # 使用正则表达式匹配句子中包含错误单词的句子，并排除原始句子本身
                 cursor.execute("""
                     SELECT s.id AS sentence_id, s.content AS sentence_text, c.id AS course_id
                     FROM Sentence s
                     JOIN Course c ON s.course_id = c.id
-                    WHERE s.content = %s AND c.is_open = TRUE
-                """, (first_wrong_word,))
+                    WHERE s.content REGEXP %s AND s.content != %s AND c.is_open = TRUE
+                """, (r'\b' + first_wrong_word + r'\b', record['sentence_text']))
                 word_sentences = cursor.fetchall()
 
                 if word_sentences:
