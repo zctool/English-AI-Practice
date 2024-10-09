@@ -11757,6 +11757,56 @@
     .dropdown-content a:hover {
       background-color: #f1f1f1;
     } 
+
+    /* 音频播放器的样式调整 */
+audio {
+  width: 100%;
+  max-width: 300px; /* 最大宽度限制以保持一致性 */
+  margin: 10px 0;
+}
+
+
+/* 確保整個頁面在小螢幕上不會超出視口寬度 */
+body, html {
+  overflow-x: hidden;
+}
+
+/* 手機版的 .sidebar 和其內部元素調整 */
+@media (max-width: 600px) {
+  audio {
+    max-width: 100%;
+  }
+
+  .sidebar {
+    width: 100%; /* 確保側邊欄在小螢幕上佔滿整個寬度 */
+    padding: 0 10px; /* 減少左右邊距，防止超出視口 */
+    overflow-x: hidden; /* 防止側邊欄內部的元素導致水平滾動 */
+  }
+
+  .sidebar ul {
+    display: flex;
+    flex-direction: column; /* 強制縱向排列 */
+    align-items: center; /* 讓項目居中對齊 */
+    width: 100%; /* 確保列表佔滿可用寬度 */
+    padding: 0;
+    margin: 0;
+  }
+
+  .sidebar ul li {
+    width: 90%; /* 限制每個項目的寬度 */
+    margin: 0 auto; /* 居中顯示 */
+    padding: 10px 5px; /* 適度縮小內邊距 */
+    border-bottom: 1px solid #ccc; /* 添加底部分隔線 */
+    text-align: center; /* 讓文字居中 */
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 10px; /* 減少內邊距以適應小螢幕 */
+    width: 100%; /* 確保內容在小螢幕上佔滿寬度 */
+  }
+}
+
   </style>
 </head>
 
@@ -11815,7 +11865,7 @@
                 </div>
                 <p>{{ conversation.conversation_en }}</p>
                 <p>{{ conversation.conversation_tw }}</p>
-                <audio controls>
+                <audio class="responsive-audio" controls>
                   <source src="data:audio/wav;base64,{{ conversation.conversation_voice }}" type="audio/wav">
                   Your browser does not support the audio element.
                 </audio>
