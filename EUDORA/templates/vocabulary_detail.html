@@ -117,6 +117,10 @@
       h1 {
         font-size: 2em;
       }
+
+      audio {
+    max-width: 100%;
+  }
     }
 
     :root {
@@ -444,6 +448,13 @@
     .dropdown-content a:hover {
       background-color: #f1f1f1;
     }
+
+    /* 音频播放器的样式调整 */
+audio {
+  width: 100%;
+  max-width: 300px; /* 最大宽度限制以保持一致性 */
+  margin: 10px 0;
+}
   </style>
 </head>
 
@@ -507,7 +518,7 @@
                   <button onclick="stopRecording('{{ vocabulary.id }}', this)" disabled>停止錄音</button>
                   <audio id="playback-{{ vocabulary.id }}" controls style="display: none; margin-left: 10px"></audio>
               </div>
-              <audio controls>
+              <audio class="responsive-audio" controls>
                   <source src="data:audio/wav;base64,{{ vocabulary.vocabulary_voice }}" type="audio/wav" />
                   您的瀏覽器不支持音頻元素。
               </audio>
@@ -642,6 +653,85 @@
     };
     xhr.send(`vocabulary_id=${vocabId}`);
   }
+
+  const header = document.getElementById("main-header");
+    const menuToggle = document.getElementById("menu-toggle");
+    const mainNav = document.getElementById("main-nav");
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    const SCROLL_THRESHOLD = 100;
+
+    function updateHeader() {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY <= SCROLL_THRESHOLD) {
+        header.classList.remove("hidden");
+      } else if (currentScrollY > lastScrollY) {
+        header.classList.add("hidden");
+      } else {
+        header.classList.remove("hidden");
+      }
+
+      lastScrollY = currentScrollY;
+      ticking = false;
+    }
+
+    window.addEventListener("scroll", () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateHeader);
+        ticking = true;
+      }
+    });
+
+    function smoothScroll(target, duration) {
+      var target = document.querySelector(target);
+      var targetPosition =
+        target.getBoundingClientRect().top + window.pageYOffset;
+      var startPosition = window.pageYOffset;
+      var distance = targetPosition - startPosition;
+      var startTime = null;
+
+      function animation(currentTime) {
+        if (startTime === null) startTime = currentTime;
+        var timeElapsed = currentTime - startTime;
+        var run = ease(timeElapsed, startPosition, distance, duration);
+        window.scrollTo(0, run);
+        if (timeElapsed < duration) requestAnimationFrame(animation);
+      }
+
+      function ease(t, b, c, d) {
+        t /= d / 2;
+        if (t < 1) return (c / 2) * t * t + b;
+        t--;
+        return (-c / 2) * (t * (t - 2) - 1) + b;
+      }
+
+      requestAnimationFrame(animation);
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener("click", function (e) {
+        e.preventDefault();
+        smoothScroll(this.getAttribute("href"), 1000);
+      });
+    });
+
+    menuToggle.addEventListener("click", function () {
+      mainNav.classList.toggle("show");
+      this.setAttribute(
+        "aria-expanded",
+        this.getAttribute("aria-expanded") === "false" ? "true" : "false"
+      );
+    });
+
+    const navItems = mainNav.getElementsByTagName("a");
+    for (let item of navItems) {
+      item.addEventListener("click", function () {
+        mainNav.classList.remove("show");
+        menuToggle.setAttribute("aria-expanded", "false");
+      });
+    }
 </script>
   <footer
   style="
