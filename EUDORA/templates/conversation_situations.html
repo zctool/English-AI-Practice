@@ -466,6 +466,40 @@
     .dropdown-content a:hover {
       background-color: #f1f1f1;
     }
+
+    @media (max-width: 600px) {
+  .container {
+    padding: 10px; /* 減少容器內邊距，讓內容在小螢幕上顯得更緊湊 */
+    width: 95%; /* 確保容器在手機上不超出螢幕邊界 */
+  }
+
+  .vocabulary-list {
+    padding: 0;
+    margin: 0 auto; /* 讓列表在小螢幕上居中對齊 */
+    max-width: 100%; /* 確保列表在小螢幕上不會超出邊界 */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 讓項目在小螢幕上居中顯示 */
+  }
+
+  .sentence {
+    max-width: 90%; /* 限制項目在手機上的最大寬度，避免超出邊界 */
+    width: 300px;
+    margin: 10px 0; /* 增加項目的上下間距，讓每個項目有適當的間隔 */
+  }
+
+  header nav ul {
+    flex-direction: column; /* 讓目錄在手機上以縱向顯示 */
+    align-items: center; /* 讓目錄項目居中 */
+    padding: 0; /* 移除多餘的內邊距 */
+  }
+
+  header nav li {
+    width: 100%; /* 讓目錄項目在手機上全寬顯示 */
+    text-align: center; /* 文字居中 */
+  }
+}
+
   </style>
 </head>
 
