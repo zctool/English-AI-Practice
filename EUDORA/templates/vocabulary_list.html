@@ -88,6 +88,9 @@ h1 {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
   width: 600px;
+  
+  flex: 1 1; /* 讓每個單字項目根據螢幕寬度自動調整大小 */
+  max-width: 600px;
 }
 
 .sentence:hover {
@@ -98,6 +101,15 @@ h1 {
   color: #764ba2;
   margin-top: 0;
   font-size: 1.3em;
+}
+
+.vocabulary-list {
+  display: flex;
+  flex-wrap: wrap; /* 允許項目在小螢幕上換行 */
+  justify-content: center;
+  gap: 20px; /* 調整每個單字項目的間距 */
+  padding: 0;
+  list-style-type: none; /* 移除預設的圓點符號 */
 }
 
 .english {
@@ -118,6 +130,11 @@ h1 {
 
   h1 {
     font-size: 2em;
+  }
+
+  .sentence {
+    flex: 1 1 ; /* 在小螢幕上將單字項目設為全寬顯示 */
+    max-width: 300px;
   }
 }
 
