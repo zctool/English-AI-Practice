@@ -187,6 +187,19 @@
         #back-to-top:active {
             transform: scale(0.95);
         }
+        /* 音频播放器的样式调整 */
+audio {
+  width: 100%;
+  max-width: 300px; /* 最大宽度限制以保持一致性 */
+  margin: 10px 0;
+}
+
+@media (max-width: 600px) {
+  audio {
+    max-width: 100%;
+  }
+}
+
     </style>
 </head>
 
@@ -206,7 +219,7 @@
                         <p><strong>English:</strong> {{ record.vocabulary_en }}</p>
                         <p><strong>Chinese:</strong> {{ record.vocabulary_tw }}</p>
                         <p><strong>錄音</strong></p>
-                        <audio controls>
+                        <audio class="responsive-audio"  controls>
                             <source src="data:audio/webm;base64,{{ record.user_voice }}" type="audio/webm">
                             Your browser does not support the audio element.
                         </audio>
