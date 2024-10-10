@@ -83,7 +83,6 @@
             padding: 15px;
             box-sizing: border-box;
         }
-
         .history-item {
             border: 1px solid #ccc;
             padding: 10px;
@@ -244,6 +243,26 @@
         #back-to-top:active {
             transform: scale(0.95);
         }
+
+        /* 音频播放器的样式调整 */
+audio {
+  width: 100%;
+  max-width: 300px; /* 最大宽度限制以保持一致性 */
+  margin: 10px 0;
+}
+
+@media (max-width: 600px) {
+  audio {
+    max-width: 100%;
+  }
+  .content {
+            float: left;
+            width: 100%;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+}
+
     </style>
 </head>
 
@@ -264,7 +283,7 @@
                         <p>對話(英文): {{ conversation.conversation_en }}</p>
                         <p>對話(繁體中文): {{ conversation.conversation_tw }}</p>
                         <p>原文</p>
-                        <audio controls>
+                        <audio class="responsive-audio" controls>
                             <source src="data:audio/wav;base64,{{ conversation.conversation_voice }}"
                                 type="audio/wav" />
                             您的瀏覽器不支持音頻元素。
