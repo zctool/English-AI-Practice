@@ -27,7 +27,7 @@
         }
 
         h1 {
-            
+            color: #ffffff;
             text-align: center;
             font-size: 2.5em;
             margin-bottom: 20px;
@@ -77,6 +77,23 @@
             color: #ffd700;
         }
 
+        /* 展開/收起按鈕樣式，並將其移動到右側 */
+        .expand-btn {
+            float: right; /* 按钮位于右侧 */
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .expand-btn:hover {
+            background-color: #0056b3;
+        }
+
         /* 大屏幕上的样式 */
         @media (min-width: 601px) {
             .container {
@@ -108,11 +125,7 @@
             }
 
             .expand-btn {
-                display: block;
-                color: blue;
-                cursor: pointer;
-                text-align: right;
-                margin-top: 10px;
+                display: inline-block;
             }
 
             .accuracy,
@@ -127,9 +140,9 @@
     <div class="container">
         <h1>學習歷程-對話</h1>
         <form method="POST" action="{{ url_for('learning_history_conversation') }}">
-            <label for="date_filter">依日期搜尋:</label>
+            <label for="date_filter">Filter by Date:</label>
             <input type="date" id="date_filter" name="date_filter" value="{{ date_filter }}">
-            <button type="submit">搜尋</button>
+            <button type="submit">Filter</button>
         </form>
         <div class="history">
             <div class="sentence-container">
@@ -154,7 +167,8 @@
                             </audio>
                         </div>
 
-                        <div class="expand-btn" onclick="toggleHiddenContent(this)">點擊展開</div>
+                        <!-- 使用按鈕作為展開選單，並將按鈕放置右側 -->
+                        <button class="expand-btn" onclick="toggleHiddenContent(this)">點擊展開</button>
                         <div class="hidden-content">
                             <p><strong>原文</strong></p>
                             <audio class="responsive-audio" controls>

@@ -30,7 +30,7 @@
         h1 {
             text-align: center;
             margin: 0 0 20px;
-           
+            color: white;
         }
 
         ul {
@@ -58,19 +58,6 @@
             box-sizing: border-box;
         }
 
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .label {
-            font-weight: bold;
-            color: #333;
-            margin-top: 10px;
-        }
-
         audio {
             width: 100%;
             max-width: 300px;
@@ -90,7 +77,6 @@
             background: none;
             outline: none;
             color: #ffd700;
-            text-shadow: 0 0 0 #ffd700;
         }
 
         .star-button.filled::before {
@@ -103,6 +89,23 @@
             color: #ffd700;
         }
 
+        /* 展開/收起按鈕樣式，並將其移動到右側 */
+        .expand-btn {
+            float: right; /* 按钮位于右侧 */
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .expand-btn:hover {
+            background-color: #0056b3;
+        }
+
         /* 大屏幕上的样式 */
         @media (min-width: 601px) {
             .content {
@@ -110,7 +113,6 @@
             }
 
             .sentence {
-                width: 100%;
                 max-width: 100%;
             }
 
@@ -139,14 +141,9 @@
             }
 
             .expand-btn {
-                display: block;
-                color: blue;
-                cursor: pointer;
-                text-align: right;
-                margin-top: 10px;
+                display: inline-block;
             }
 
-            /* 在手机端调整 Accuracy 和 錄音 */
             .accuracy,
             .audio-section {
                 margin-bottom: 10px;
@@ -171,7 +168,7 @@
                         <p><strong>English:</strong> {{ record.vocabulary_en }}</p>
                         <p><strong>Chinese:</strong> {{ record.vocabulary_tw }}</p>
 
-                        <!-- 移动 Accuracy 和 錄音 到上方 -->
+                        <!-- 显示 Accuracy 和 錄音 -->
                         <p>
                             <strong>Accuracy:</strong>
                             <span class="accuracy">{{ record.accuracy is not none and (record.accuracy == 100.0 and
@@ -186,10 +183,11 @@
                             </audio>
                         </div>
 
-                        <div class="expand-btn" onclick="toggleHiddenContent(this)">點擊展開</div>
+                        <!-- 使用按鈕作為展開選單，並將按鈕放置右側 -->
+                        <button class="expand-btn" onclick="toggleHiddenContent(this)">點擊展開</button>
                         <div class="hidden-content">
                             <p><strong>原文</strong></p>
-                            <audio controls>
+                            <audio class="responsive-audio" controls>
                                 <source src="data:audio/webm;base64,{{ record.vocabulary_voice }}" type="audio/webm">
                                 Your browser does not support the audio element.
                             </audio>

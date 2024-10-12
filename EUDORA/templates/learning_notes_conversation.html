@@ -2,54 +2,11 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>學習筆記 - 對話收藏</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Notes - Conversation</title>
+
     <style>
-        .star-button {
-            font-size: 24px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            outline: none;
-            color: transparent;
-            text-shadow: 0 0 0 #ffd700;
-        }
-
-        .star-button.filled::before {
-            content: "★";
-            color: #ffd700;
-        }
-
-        .star-button.unfilled::before {
-            content: "☆";
-            color: #ffd700;
-        }
-
-        img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            padding-top: 10px;
-        }
-
-        ul {
-            padding: 0;
-            margin: 0;
-            list-style: none;
-            border: none;
-        }
-
-        audio {
-            width: 100%;
-            max-width: 300px;
-            margin: 10px 0;
-            height: 50px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            background-color: #f8f8f8;
-            padding-top: 5px;
-        }
-
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -64,26 +21,34 @@
         .content {
             background: #8db6ce;
             border-radius: 20px;
-            width: 90%;
-            max-width: 1200px;
             padding: 20px;
             box-sizing: border-box;
+            width: 90%;
+            max-width: 1200px;
         }
 
         h1 {
             text-align: center;
             margin: 0 0 20px;
+            color: white;
+        }
+
+        ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            border: none;
         }
 
         .sentence-container {
             display: flex;
             flex-direction: column;
             gap: 20px;
-            width: 100%; /* 确保容器宽度 */
+            width: 100%;
         }
 
         .sentence {
-            width: 100%; /* 确保句子区块占满容器宽度 */
+            width: 100%;
             background: white;
             border-radius: 15px;
             padding: 20px;
@@ -93,35 +58,58 @@
             box-sizing: border-box;
         }
 
-        .character {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 10px;
+        audio {
+            width: 100%;
+            max-width: 300px;
+            margin: 10px 0;
+            height: 50px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f8f8f8;
+            padding-top: 5px;
         }
 
-        .character img {
-            flex-shrink: 0;
+        /* 星星按钮样式 */
+        .star-button {
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            outline: none;
+            color: #ffd700;
         }
 
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .star-button.filled::before {
+            content: "★";
+            color: #ffd700;
+        }
+
+        .star-button.unfilled::before {
+            content: "☆";
+            color: #ffd700;
+        }
+
+        /* 展開/收起按鈕樣式，並將其移動到右側 */
+        .expand-btn {
+            float: right; /* 按钮位于右侧 */
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
             margin-top: 10px;
         }
 
-        .label {
-            font-weight: bold;
-            color: #333;
-            margin-top: 10px;
+        .expand-btn:hover {
+            background-color: #0056b3;
         }
 
         /* 大屏幕上的样式 */
         @media (min-width: 601px) {
             .content {
                 width: 80%;
-                max-width: 1200px;
             }
 
             .sentence {
@@ -153,66 +141,78 @@
             }
 
             .expand-btn {
-                display: block;
-                color: blue;
-                cursor: pointer;
-                text-align: right;
-                margin-top: 10px;
+                display: inline-block;
+            }
+
+            .accuracy,
+            .audio-section {
+                margin-bottom: 10px;
             }
         }
-
     </style>
 </head>
 
 <body>
     <div class="content">
-        <h1>學習筆記 - 對話收藏</h1>
-
-        <ul>
+        <h1>學習筆記-對話</h1>
+        <form method="POST" action="{{ url_for('learning_notes_conversation') }}">
+            <label for="date_filter">Filter by Date:</label>
+            <input type="date" id="date_filter" name="date_filter" value="{{ date_filter }}">
+            <button type="submit">Filter</button>
+        </form>
+        <div class="history">
             <div class="sentence-container">
-                {% for conversation in conversations %}
-                <li class="conversation">
-                    <div class="sentence">
-                        <div class="character">
-                            <img src="data:image/png;base64,{{ conversation.icon }}" alt="{{ conversation.character_name }}的圖標" />
-                            <strong>{{ conversation.character_name }}</strong>
-                        </div>
-                        <p>對話(英文): {{ conversation.conversation_en }}</p>
-                        <p>對話(繁體中文): {{ conversation.conversation_tw }}</p>
+                {% for record in conversations %}
+                <div class="sentence">
+                    <div class="record">
+                        <p><strong>English:</strong> {{ record.conversation_en }}</p>
+                        <p><strong>Chinese:</strong> {{ record.conversation_tw }}</p>
 
-                        <div class="label">原文:</div>
-                        <audio class="responsive-audio" controls>
-                            <source src="data:audio/wav;base64,{{ conversation.conversation_voice }}" type="audio/wav" />
-                            您的瀏覽器不支持音頻元素。
-                        </audio>
+                        <!-- 显示 Accuracy 和 錄音 -->
+                        <p>
+                            <strong>Accuracy:</strong>
+                            <span class="accuracy">{{ record.accuracy is not none and (record.accuracy == 100.0 and
+                                "completely" or record.accuracy|round(2)) or "N/A" }}%</span>
+                        </p>
 
-                        <div class="result-row">
-                            <button class="star-button {{ 'filled' if conversation.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ conversation.id }}', this)"></button>
-                            <span class="accuracy">正確率: {{ conversation.accuracy == 100.0 and "完全正確" or (conversation.accuracy|round(2) ~ '%') }}</span>
-                        </div>
-
-                        <div class="expand-btn" onclick="toggleHiddenContent(this)">點擊展開</div>
-                        <div class="hidden-content">
-                            {% if conversation.user_voice %}
-                            <div class="label">錄音:</div>
-                            <audio controls>
-                                <source src="data:audio/wav;base64,{{ conversation.user_voice }}" type="audio/wav" />
-                                您的瀏覽器不支持音頻元素。
+                        <div class="audio-section">
+                            <p><strong>錄音</strong></p>
+                            <audio class="responsive-audio" controls>
+                                <source src="data:audio/webm;base64,{{ record.user_voice }}" type="audio/webm">
+                                Your browser does not support the audio element.
                             </audio>
-                            {% endif %}
+                        </div>
+
+                        <!-- 使用按鈕作為展開選單，並將按鈕放置右側 -->
+                        <button class="expand-btn" onclick="toggleHiddenContent(this)">點擊展開</button>
+                        <div class="hidden-content">
+                            <p><strong>原文</strong></p>
+                            <audio class="responsive-audio" controls>
+                                <source src="data:audio/webm;base64,{{ record.conversation_voice }}" type="audio/webm">
+                                Your browser does not support the audio element.
+                            </audio>
+
                             <div class="stt-result">
                                 <h3>STT Result</h3>
-                                <p><strong>STT Text:</strong> <span class="stt-text">{{ conversation.STT }}</span></p>
+                                <p>
+                                    <strong>STT Text:</strong>
+                                    <span class="stt-text">{{ record.STT }}</span>
+                                </p>
                                 <p><strong>Differences:</strong></p>
-                                <div class="highlighted-text">{{ conversation.highlighted_text|safe }}</div>
+                                <div class="highlighted-text">
+                                    {{ record.highlighted_text|safe }}
+                                </div>
                             </div>
                         </div>
+
+                        <button class="star-button {{ 'filled' if record.is_collected else 'unfilled' }}"
+                            onclick="toggleCollect('{{ record.id }}', this)"></button>
                     </div>
-                </li>
+                </div>
                 {% endfor %}
                 <button id="back-to-top" title="回到頂部">↑</button>
             </div>
-        </ul>
+        </div>
     </div>
 
     <script>
