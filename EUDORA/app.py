@@ -1382,71 +1382,83 @@ def save_audio_by_text():
         print(f"Error saving audio: {e}")
         return jsonify({'success': False, 'message': '录音保存失败。'}), 500
 
-@app.route('/learning_progress', methods=['GET', 'POST'])
+@app.route('/learning_progress', methods=['GET'])
 def student_learning_progress():
     user_email = session.get('email')
-    
+
     if not user_email:
         return jsonify({'error': '未登录'}), 401
 
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 如果有传入句子 ID，获取该句子的学习记录
-    sentence_id = request.form.get('sentence_id')
-
-    # 获取该学生练习过的所有句子
+    # 查询学生学过的所有课程
     cursor.execute("""
-        SELECT DISTINCT s.id, s.content
+        SELECT DISTINCT c.id, c.name
         FROM UserRecordings r
         JOIN Sentence s ON r.sentence_id = s.id
+        JOIN Course c ON s.course_id = c.id
         JOIN users u ON r.user_id = u.id
         WHERE u.GoogleEmail = %s
     """, (user_email,))
-    sentences = cursor.fetchall()
+    courses = cursor.fetchall()
 
-    # 如果指定了句子，获取该句子的学习记录
-    if sentence_id:
-        query = """
-            SELECT s.content AS sentence_text, r.recording_date, 
-                   (r.similarity_score * 0.1 + r.text_similarity * 0.9) * 100 AS score
-            FROM UserRecordings r
-            JOIN Sentence s ON r.sentence_id = s.id
-            JOIN users u ON r.user_id = u.id
-            WHERE u.GoogleEmail = %s AND s.id = %s
-            ORDER BY r.recording_date
-        """
-        cursor.execute(query, (user_email, sentence_id))
-    else:
-        # 默认获取第一个句子的学习记录
-        query = """
-            SELECT s.content AS sentence_text, r.recording_date, 
-                   (r.similarity_score * 0.1 + r.text_similarity * 0.9) * 100 AS score
-            FROM UserRecordings r
-            JOIN Sentence s ON r.sentence_id = s.id
-            JOIN users u ON r.user_id = u.id
-            WHERE u.GoogleEmail = %s AND s.id = %s
-            ORDER BY r.recording_date
-        """
-        cursor.execute(query, (user_email, sentences[0]['id']))
-    
-    results = cursor.fetchall()
-    cursor.close()
-    conn.close()
-
-    # 处理数据，转换为图表格式
     data = {
-        'sentences': sentences,  # 所有句子的列表
-        'current_sentence': sentence_id if sentence_id else sentences[0]['id'],  # 当前选择的句子
+        'courses': courses,
+        'sentences': [],
+        'current_course': None,
+        'current_sentence': None,
         'dates': [],
         'scores': []
     }
 
-    for row in results:
-        data['dates'].append(row['recording_date'].strftime('%Y-%m-%d'))
-        data['scores'].append(round(row['score'], 2))  # 分数以百分比显示，并保留两位小数
+    cursor.close()
+    conn.close()
 
     return render_template('student_learning_progress.html', data=data)
+
+@app.route('/get_student_sentences/<int:course_id>', methods=['GET'])
+def get_student_sentences(course_id):
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 查询课程下的句子
+    cursor.execute("""
+        SELECT s.id, s.content
+        FROM Sentence s
+        WHERE s.course_id = %s
+    """, (course_id,))
+    sentences = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(sentences)
+
+
+@app.route('/get_student_progress/<int:sentence_id>', methods=['GET'])
+def get_student_progress(sentence_id):
+    conn = cnxpool.get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 查询句子的学习进度
+    cursor.execute("""
+        SELECT r.recording_date, (r.similarity_score * 0.1 + r.text_similarity * 0.9) * 100 AS score
+        FROM UserRecordings r
+        JOIN Sentence s ON r.sentence_id = s.id
+        WHERE r.sentence_id = %s
+        ORDER BY r.recording_date
+    """, (sentence_id,))
+    progress_data = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    # 返回圖表所需的数据
+    return jsonify([{
+        'recording_date': row['recording_date'].strftime('%Y-%m-%d'),
+        'score': round(row['score'], 2)
+    } for row in progress_data])
 
 # 学生学习成果页面
 @app.route('/student_learning_results', methods=['GET'])
@@ -1553,4 +1565,4 @@ app.register_blueprint(teacher_bp, url_prefix='/teacher')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=80)
