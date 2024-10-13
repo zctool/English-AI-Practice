@@ -76,7 +76,12 @@
         <h4>錯誤單字及跳轉：</h4>
         {% for word, link in result.word_links.items() %}
             {% if link %}
-                <p>單字 "{{ word }}" 在句子: <a href="{{ url_for('view_course_detail', course_id=link.course_id) }}">{{ link.sentence_text }}</a></p>
+                <!-- 使用 target="_top" 来确保点进链接后整个页面跳转 -->
+                <p>單字 "{{ word }}" 在句子: 
+                    <a href="{{ url_for('view_course_detail', course_id=link.course_id) }}" target="_top">
+                        {{ link.sentence_text }}
+                    </a>
+                </p>
             {% else %}
                 <p>單字 "{{ word }}" 未找到相似句子。</p>
             {% endif %}
