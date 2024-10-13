@@ -400,7 +400,8 @@ def delete_sentence(sentence_id):
     return redirect(request.referrer or url_for('teacher.manage_courses'))
 
 # 老师查看所有学生成绩
-@teacher_bp.route('/learning_progress', methods=['GET', 'POST']) 
+# Flask 后端部分
+@teacher_bp.route('/learning_progress', methods=['GET'])
 @teacher_required
 def teacher_learning_progress():
     user_email = session.get('email')
@@ -423,71 +424,78 @@ def teacher_learning_progress():
     """, (user_email,))
     students = cursor.fetchall()
 
-    # 初始化数据结构，确保即使没有选择学生或句子时也有默认值
-    data = {
-        'students': students,
-        'current_student': None,
-        'sentences': [],
-        'current_sentence': None,
-        'dates': [],
-        'scores': [],
-        'student_name': None
-    }
+    cursor.close()
+    connection.close()
 
-    # 获取当前选中的学生 ID 和句子 ID
-    student_id = request.form.get('student_id')
-    sentence_id = request.form.get('sentence_id')
+    return render_template('teacher_learning_progress.html', students=students)
 
-    # 如果选择了学生 ID，查询该学生的信息
-    if student_id:
-        # 获取该学生的名字
-        cursor.execute("SELECT userName FROM users WHERE id = %s", (student_id,))
-        student_name = cursor.fetchone()['userName']
+# 获取课程的端点
+@teacher_bp.route('/get_courses/<student_id>', methods=['GET'])
+@teacher_required
+def get_courses(student_id):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor(dictionary=True)
 
-        # 获取该学生学过的句子，且这些句子属于该老师的课程
-        cursor.execute("""
-            SELECT DISTINCT s.id, s.content
-            FROM UserRecordings r
-            JOIN Sentence s ON r.sentence_id = s.id
-            JOIN Course c ON s.course_id = c.id
-            WHERE r.user_id = %s AND c.teacher_email = %s
-        """, (student_id, user_email))
-        sentences = cursor.fetchall()
-
-        # 如果没有选择句子，默认选择第一个句子
-        if not sentence_id and sentences:
-            sentence_id = sentences[0]['id']
-
-        # 获取该学生选择的句子的学习记录
-        if sentence_id:
-            cursor.execute("""
-                SELECT s.content AS sentence_text, r.recording_date, 
-                       (r.similarity_score * 0.1 + r.text_similarity * 0.9) * 100 AS score 
-                FROM UserRecordings r
-                JOIN Sentence s ON r.sentence_id = s.id
-                WHERE r.user_id = %s AND s.id = %s
-                ORDER BY r.recording_date
-            """, (student_id, sentence_id))
-            results = cursor.fetchall()
-
-            # 更新数据字典
-            data['current_student'] = student_id
-            data['sentences'] = sentences
-            data['current_sentence'] = sentence_id
-            data['student_name'] = student_name
-
-            # 将查询结果转换为图表数据
-            for row in results:
-                data['dates'].append(row['recording_date'].strftime('%Y-%m-%d'))
-                data['scores'].append({
-                    'score': round(row['score'], 2),
-                    'label': f"{student_name} - {round(row['score'], 2)}%"  # 包含学生名字和分数的标签
-                })
+    # 查询学生的课程
+    cursor.execute("""
+        SELECT DISTINCT c.id, c.name
+        FROM UserRecordings r
+        JOIN Sentence s ON r.sentence_id = s.id
+        JOIN Course c ON s.course_id = c.id
+        WHERE r.user_id = %s
+    """, (student_id,))
+    courses = cursor.fetchall()
 
     cursor.close()
     connection.close()
 
-    return render_template('teacher_learning_progress.html', data=data)
+    return jsonify(courses)
+
+# 获取该学生学过的课程下的句子
+@teacher_bp.route('/get_sentences/<course_id>/<student_id>', methods=['GET'])
+@teacher_required
+def get_sentences(course_id, student_id):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor(dictionary=True)
+
+    # 查询学生学过的句子，这些句子属于课程
+    cursor.execute("""
+        SELECT DISTINCT s.id, s.content
+        FROM UserRecordings r
+        JOIN Sentence s ON r.sentence_id = s.id
+        JOIN Course c ON s.course_id = c.id
+        WHERE r.user_id = %s AND c.id = %s
+    """, (student_id, course_id))
+    sentences = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    return jsonify(sentences)
+
+# 获取学习进度的端点
+@teacher_bp.route('/get_learning_progress/<sentence_id>/<student_id>', methods=['GET'])
+@teacher_required
+def get_learning_progress(sentence_id, student_id):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor(dictionary=True)
+
+    # 获取学习进度
+    cursor.execute("""
+        SELECT s.content AS sentence_text, r.recording_date, 
+               (r.similarity_score * 0.1 + r.text_similarity * 0.9) * 100 AS score 
+        FROM UserRecordings r
+        JOIN Sentence s ON r.sentence_id = s.id
+        WHERE r.user_id = %s AND s.id = %s
+        ORDER BY r.recording_date
+    """, (student_id, sentence_id))
+    results = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    # 返回 JSON 数据
+    return jsonify(results)
 
 teacher_bp.add_url_rule('/edit_course_content/<int:course_id>', 'edit_course_content', edit_course_content)
 teacher_bp.add_url_rule('/get_audio/<int:sentence_id>', 'get_audio', get_audio)
