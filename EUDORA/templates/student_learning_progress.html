@@ -3,8 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学习进度</title>
+    <title>學生學習進度</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
+        /* 原本的CSS样式保持不变 */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .select-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        select {
+            appearance: none;
+            width: 100%;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 12px 35px 12px 15px;
+            font-size: 16px;
+            color: #495057;
+            cursor: pointer;
+        }
+        .chart-container {
+            margin-top: 30px;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 20px;
+            background-color: #fff;
+            height: 400px;
+        }
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
@@ -73,58 +123,92 @@
 </head>
 <body>
     <div class="container">
-        <h1>學習進度</h1>
+        <h1>學生學習進度</h1>
+
+        <!-- 選擇課程 -->
         <div class="select-wrapper">
-        <!-- 表单用于选择句子 -->
-        <form method="POST" action="{{ url_for('student_learning_progress') }}">
-            <label for="sentence_id">選擇句子：</label>
-            <select name="sentence_id" id="sentence_id" onchange="this.form.submit()">
-                {% for sentence in data.sentences %}
-                    <option value="{{ sentence.id }}" {% if sentence.id == data.current_sentence %}selected{% endif %}>{{ sentence.content }}</option>
+            <select id="course_select">
+                <option value="" disabled selected>選擇課程</option>
+                {% for course in data.courses %}
+                    <option value="{{ course.id }}">{{ course.name }}</option>
                 {% endfor %}
             </select>
-        </form>
-    </div>
-        <!-- 图表容器 -->
+        </div>
+
+        <!-- 選擇句子 -->
+        <div class="select-wrapper">
+            <select id="sentence_select" disabled>
+                <option value="" disabled selected>選擇句子</option>
+            </select>
+        </div>
+
+        <!-- 圖表顯示區域 -->
         <div class="chart-container">
             <canvas id="progressChart"></canvas>
         </div>
     </div>
 
-    <!-- 引入 Chart.js 库 -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <script>
-        // 获取从后端传递过来的日期和分数数据
-        const dates = {{ data.dates | tojson }};
-        const scores = {{ data.scores | tojson }};
+        let chartInstance = null;
 
-        // 获取 Canvas 元素用于绘制图表
-        const ctx = document.getElementById('progressChart').getContext('2d');
-        
-        // 创建长条图，显示学习进度
-        new Chart(ctx, {
-            type: 'bar',  // 长条图
-            data: {
-                labels: dates,
-                datasets: [{
-                    label: '得分百分比',
-                    data: scores,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                },
-                responsive: true,
-                maintainAspectRatio: false
-            }
+        $(document).ready(function() {
+            // 當選擇課程時，載入相應的句子
+            $('#course_select').on('change', function() {
+                const course_id = $(this).val();
+                if (course_id) {
+                    $.get('/get_student_sentences/' + course_id, function(sentences) {
+                        const sentenceSelect = $('#sentence_select');
+                        sentenceSelect.empty().append('<option value="" disabled selected>選擇句子</option>');
+
+                        $.each(sentences, function(index, sentence) {
+                            sentenceSelect.append('<option value="' + sentence.id + '">' + sentence.content + '</option>');
+                        });
+
+                        sentenceSelect.prop('disabled', false);  // 啟用句子選擇
+                    });
+                }
+            });
+
+            // 當選擇句子時，載入學習進度並更新圖表
+            $('#sentence_select').on('change', function() {
+                const sentence_id = $(this).val();
+                if (sentence_id) {
+                    $.get('/get_student_progress/' + sentence_id, function(data) {
+                        const labels = data.map(item => item.recording_date);
+                        const scores = data.map(item => item.score);
+
+                        // 如果已有圖表實例，先銷毀它
+                        if (chartInstance) {
+                            chartInstance.destroy();
+                        }
+
+                        // 生成新的圖表
+                        const ctx = document.getElementById('progressChart').getContext('2d');
+                        chartInstance = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: '得分百分比',
+                                    data: scores,
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 100
+                                    }
+                                }
+                            }
+                        });
+                    });
+                }
+            });
         });
     </script>
 </body>
