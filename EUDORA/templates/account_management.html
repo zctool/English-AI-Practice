@@ -11960,13 +11960,13 @@
           <li class="dropdown">
             <a href="#courses" class="dropbtn">課程</a>
             <div class="dropdown-content2">
-                <a href="{{ url_for('all_teachers') }}">所有老師</a>
-                <a href="{{ url_for('recommended_teachers') }}">推薦的老師</a>
-                <a href="{{ url_for('selected_teachers') }}">已選擇的老師</a>
+              <a href="{{ url_for('all_teachers') }}">所有老師</a>
+              <a href="{{ url_for('recommended_teachers') }}">推薦的老師</a>
+              <a href="{{ url_for('selected_teachers') }}">已選擇的老師</a>
             </div>
-        </li>
+          </li>
           <li><a href="{{ url_for('vocabulary_topics') }}">單字</a></li>
-          <li><a href="{{ url_for('conversation_topics') }}">句子</a></li>
+          <li><a href="{{ url_for('conversation_topics') }}">對話</a></li>
           <li><a href="{{ url_for('account_management') }}">個人資料</a></li>
           <li><a href="{{ url_for('logout') }}" class="logout-btn">登出</a></li>
         </ul>
@@ -11976,267 +11976,156 @@
   <!-- Navbar End -->
 
   <!-- Blog Start -->
- 
-   
-  <div class="layout-container">
-        <!-- This is the left column, now using 2 out of 12 grid parts -->
-        <!-- Left Side Content -->
-      
-          <div class="sidebar" id="sidebar">
-          
-            <ul>
-              <li>
-                <a onclick="loadPage('{{ url_for('account_manage') }}')" 
-                  ><span class="icon">👨‍🏫</span><span class="text">帳號管理</span></a
-                >
-              </li>
-              <li>
-                <a onclick="loadPage('{{ url_for('calendar') }}')" 
-                  ><span class="icon">👨‍🏫</span><span class="text">學習月曆</span></a
-                >
-              </li>
-              <li>
-                <a onclick="toggleDropdown('history')" id="students-link"
-                  ><span class="icon"
-                    ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-                      <defs>
-                        <linearGradient
-                          id="grad1"
-                          x1="0%"
-                          y1="0%"
-                          x2="100%"
-                          y2="100%"
-                        >
-                          <stop
-                            offset="0%"
-                            style="stop-color: #4a90e2; stop-opacity: 1"
-                          />
-                          <stop
-                            offset="100%"
-                            style="stop-color: #5ab0f2; stop-opacity: 1"
-                          />
-                        </linearGradient>
-                      </defs>
-                      <circle cx="100" cy="100" r="90" fill="url(#grad1)" />
-                      <path
-                        d="M100 20 L180 180 H20 Z"
-                        fill="#FFFFFF"
-                        opacity="0.1"
-                      />
-                      <path
-                        d="M100 60 Q80 60 70 75 Q60 90 60 110 L60 160 Q60 170 70 170 H130 Q140 170 140 160 L140 110 Q140 90 130 75 Q120 60 100 60 Z"
-                        fill="#FFFFFF"
-                      />
-                      <circle cx="100" cy="40" r="20" fill="#FFFFFF" />
-                      <path
-                        d="M85 170 L85 140 Q85 130 90 125 Q95 120 100 120 Q105 120 110 125 Q115 130 115 140 L115 170"
-                        fill="none"
-                        stroke="#4A90E2"
-                        stroke-width="6"
-                      />
-                      <rect
-                        x="70"
-                        y="180"
-                        width="60"
-                        height="10"
-                        fill="#FFFFFF"
-                        rx="5"
-                        ry="5"
-                      /></svg></span
-                  ><span class="text">學習歷程</span></a
-                >
-                <div id="history" class="dropdown-content">
-                  <a onclick="loadPage('{{ url_for('learning_history_conversation') }}')"
-                    ><span class="icon">📜</span
-                    ><span class="text">對話</span></a
-                  >
-                  <a onclick="loadPage('{{ url_for('learning_history_vocabulary') }}')"
-                    ><span class="icon">📈</span
-                    ><span class="text">單字</span></a
-                  >
-                </div>
-              </li>
-              
-              <li>
-                <a onclick="toggleDropdown('notes')" id="students-link"
-                  ><span class="icon"
-                    ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-                      <defs>
-                        <linearGradient
-                          id="grad1"
-                          x1="0%"
-                          y1="0%"
-                          x2="100%"
-                          y2="100%"
-                        >
-                          <stop
-                            offset="0%"
-                            style="stop-color: #4a90e2; stop-opacity: 1"
-                          />
-                          <stop
-                            offset="100%"
-                            style="stop-color: #5ab0f2; stop-opacity: 1"
-                          />
-                        </linearGradient>
-                      </defs>
-                      <circle cx="100" cy="100" r="90" fill="url(#grad1)" />
-                      <path
-                        d="M100 20 L180 180 H20 Z"
-                        fill="#FFFFFF"
-                        opacity="0.1"
-                      />
-                      <path
-                        d="M100 60 Q80 60 70 75 Q60 90 60 110 L60 160 Q60 170 70 170 H130 Q140 170 140 160 L140 110 Q140 90 130 75 Q120 60 100 60 Z"
-                        fill="#FFFFFF"
-                      />
-                      <circle cx="100" cy="40" r="20" fill="#FFFFFF" />
-                      <path
-                        d="M85 170 L85 140 Q85 130 90 125 Q95 120 100 120 Q105 120 110 125 Q115 130 115 140 L115 170"
-                        fill="none"
-                        stroke="#4A90E2"
-                        stroke-width="6"
-                      />
-                      <rect
-                        x="70"
-                        y="180"
-                        width="60"
-                        height="10"
-                        fill="#FFFFFF"
-                        rx="5"
-                        ry="5"
-                      /></svg></span
-                  ><span class="text">學習筆記
-                  </span></a
-                >
-                <div id="notes" class="dropdown-content">
-                  <a onclick="loadPage('{{ url_for('learning_notes_conversation') }}')"
-                    ><span class="icon">📜</span
-                    ><span class="text">對話</span></a
-                  >
-                  <a onclick="loadPage('{{ url_for('learning_notes_vocabulary') }}')"
-                    ><span class="icon">📈</span
-                    ><span class="text">單字</span></a
-                  >
-                </div>
-              </li>
-              <li>
 
-                <a onclick="toggleDropdown('learning-history')" id="students-link"
-                  ><span class="icon"
-                    ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-                      <defs>
-                        <linearGradient
-                          id="grad1"
-                          x1="0%"
-                          y1="0%"
-                          x2="100%"
-                          y2="100%"
-                        >
-                          <stop
-                            offset="0%"
-                            style="stop-color: #4a90e2; stop-opacity: 1"
-                          />
-                          <stop
-                            offset="100%"
-                            style="stop-color: #5ab0f2; stop-opacity: 1"
-                          />
-                        </linearGradient>
-                      </defs>
-                      <circle cx="100" cy="100" r="90" fill="url(#grad1)" />
-                      <path
-                        d="M100 20 L180 180 H20 Z"
-                        fill="#FFFFFF"
-                        opacity="0.1"
-                      />
-                      <path
-                        d="M100 60 Q80 60 70 75 Q60 90 60 110 L60 160 Q60 170 70 170 H130 Q140 170 140 160 L140 110 Q140 90 130 75 Q120 60 100 60 Z"
-                        fill="#FFFFFF"
-                      />
-                      <circle cx="100" cy="40" r="20" fill="#FFFFFF" />
-                      <path
-                        d="M85 170 L85 140 Q85 130 90 125 Q95 120 100 120 Q105 120 110 125 Q115 130 115 140 L115 170"
-                        fill="none"
-                        stroke="#4A90E2"
-                        stroke-width="6"
-                      />
-                      <rect
-                        x="70"
-                        y="180"
-                        width="60"
-                        height="10"
-                        fill="#FFFFFF"
-                        rx="5"
-                        ry="5"
-                      /></svg></span
-                  ><span class="text">課程學習成果</span></a
-                >
-                <div id="learning-history" class="dropdown-content">
-                  <a onclick="loadPage('{{ url_for('student_learning_progress') }}')"
-                    ><span class="icon">📈</span
-                    ><span class="text">課程學習圖表</span></a
-                  >
-                  <a onclick="loadPage('{{ url_for('student_learning_results') }}')"
-                    ><span class="icon">📜</span
-                    ><span class="text">課程學習歷史</span></a
-                  >
-                </div>
-              </li>
-              
-            </ul>
+
+  <div class="layout-container">
+    <!-- This is the left column, now using 2 out of 12 grid parts -->
+    <!-- Left Side Content -->
+
+    <!-- 漢堡圖示按鈕 -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar" id="sidebar">
+
+
+      <ul>
+        <li>
+          <a onclick="loadPage('{{ url_for('account_manage') }}')"><span class="icon">👨‍🏫</span><span
+              class="text">帳號管理</span></a>
+        </li>
+        <li>
+          <a onclick="loadPage('{{ url_for('calendar') }}')"><span class="icon">👨‍🏫</span><span
+              class="text">學習月曆</span></a>
+        </li>
+        <li>
+          <a onclick="toggleDropdown('history')" id="students-link"><span class="icon"><svg
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                <defs>
+                  <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color: #4a90e2; stop-opacity: 1" />
+                    <stop offset="100%" style="stop-color: #5ab0f2; stop-opacity: 1" />
+                  </linearGradient>
+                </defs>
+                <circle cx="100" cy="100" r="90" fill="url(#grad1)" />
+                <path d="M100 20 L180 180 H20 Z" fill="#FFFFFF" opacity="0.1" />
+                <path
+                  d="M100 60 Q80 60 70 75 Q60 90 60 110 L60 160 Q60 170 70 170 H130 Q140 170 140 160 L140 110 Q140 90 130 75 Q120 60 100 60 Z"
+                  fill="#FFFFFF" />
+                <circle cx="100" cy="40" r="20" fill="#FFFFFF" />
+                <path d="M85 170 L85 140 Q85 130 90 125 Q95 120 100 120 Q105 120 110 125 Q115 130 115 140 L115 170"
+                  fill="none" stroke="#4A90E2" stroke-width="6" />
+                <rect x="70" y="180" width="60" height="10" fill="#FFFFFF" rx="5" ry="5" />
+              </svg></span><span class="text">學習歷程</span></a>
+          <div id="history" class="dropdown-content">
+            <a onclick="loadPage('{{ url_for('learning_history_conversation') }}')"><span class="icon">📜</span><span
+                class="text">對話</span></a>
+            <a onclick="loadPage('{{ url_for('learning_history_vocabulary') }}')"><span class="icon">📈</span><span
+                class="text">單字</span></a>
           </div>
-          <div class="content-wrapper">
-            <div class="content">
-              <iframe
-                id="contentFrame"
-                src="{{ url_for('account_manage') }}"
-                name="content"
-              ></iframe>
-            </div>
+        </li>
+
+        <li>
+          <a onclick="toggleDropdown('notes')" id="students-link"><span class="icon"><svg
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                <defs>
+                  <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color: #4a90e2; stop-opacity: 1" />
+                    <stop offset="100%" style="stop-color: #5ab0f2; stop-opacity: 1" />
+                  </linearGradient>
+                </defs>
+                <circle cx="100" cy="100" r="90" fill="url(#grad1)" />
+                <path d="M100 20 L180 180 H20 Z" fill="#FFFFFF" opacity="0.1" />
+                <path
+                  d="M100 60 Q80 60 70 75 Q60 90 60 110 L60 160 Q60 170 70 170 H130 Q140 170 140 160 L140 110 Q140 90 130 75 Q120 60 100 60 Z"
+                  fill="#FFFFFF" />
+                <circle cx="100" cy="40" r="20" fill="#FFFFFF" />
+                <path d="M85 170 L85 140 Q85 130 90 125 Q95 120 100 120 Q105 120 110 125 Q115 130 115 140 L115 170"
+                  fill="none" stroke="#4A90E2" stroke-width="6" />
+                <rect x="70" y="180" width="60" height="10" fill="#FFFFFF" rx="5" ry="5" />
+              </svg></span><span class="text">學習筆記
+            </span></a>
+          <div id="notes" class="dropdown-content">
+            <a onclick="loadPage('{{ url_for('learning_notes_conversation') }}')"><span class="icon">📜</span><span
+                class="text">對話</span></a>
+            <a onclick="loadPage('{{ url_for('learning_notes_vocabulary') }}')"><span class="icon">📈</span><span
+                class="text">單字</span></a>
           </div>
-        </div>
+        </li>
+        <li>
+          <a onclick="toggleDropdown('learning-history')" id="students-link"><span class="icon"><svg
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                <defs>
+                  <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color: #4a90e2; stop-opacity: 1" />
+                    <stop offset="100%" style="stop-color: #5ab0f2; stop-opacity: 1" />
+                  </linearGradient>
+                </defs>
+                <circle cx="100" cy="100" r="90" fill="url(#grad1)" />
+                <path d="M100 20 L180 180 H20 Z" fill="#FFFFFF" opacity="0.1" />
+                <path
+                  d="M100 60 Q80 60 70 75 Q60 90 60 110 L60 160 Q60 170 70 170 H130 Q140 170 140 160 L140 110 Q140 90 130 75 Q120 60 100 60 Z"
+                  fill="#FFFFFF" />
+                <circle cx="100" cy="40" r="20" fill="#FFFFFF" />
+                <path d="M85 170 L85 140 Q85 130 90 125 Q95 120 100 120 Q105 120 110 125 Q115 130 115 140 L115 170"
+                  fill="none" stroke="#4A90E2" stroke-width="6" />
+                <rect x="70" y="180" width="60" height="10" fill="#FFFFFF" rx="5" ry="5" />
+              </svg></span><span class="text">課程學習成果</span></a>
+          <div id="learning-history" class="dropdown-content">
+            <a onclick="loadPage('{{ url_for('student_learning_progress') }}')"><span class="icon">📈</span><span
+                class="text">課程學習圖表</span></a>
+            <a onclick="loadPage('{{ url_for('student_learning_results') }}', this)" data-fullpage="true">
+              <span class="icon">📜</span>
+              <span class="text">課程學習歷史</span>
+            </a>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="content-wrapper">
+      <div class="content">
+        <iframe id="contentFrame" src="{{ url_for('account_manage') }}" name="content"></iframe>
+      </div>
+    </div>
+  </div>
 
   <button id="back-to-top" title="回到頂部">↑</button>
   <!-- Blog End -->
 
   <!-- Footer Start -->
   <!-- <div
-    class="container-fluid bg-secondary text-white mt-5 py-5 px-sm-3 px-md-5" 
-  >-->
-    <!-- footer  -->
-    <!-- <div class="container-fluid pt-5">
-      <p class="m-0 text-center text-white">
-        組別: 113201 指導老師 : 林俊杰老師
-      </p>
-      <p class="m-0 text-center text-white">
-        專題組員: 11236001 林奕辰 11236012 高穎萱 11236013 蔣杰森 11236022
-        巫承翰 11236025 葉于甄
-      </p>
-      <div class="row pt-5"></div>
-    </div>
-  </div> -->
+      class="container-fluid bg-secondary text-white mt-5 py-5 px-sm-3 px-md-5" 
+    >-->
+  <!-- footer  -->
+  <!-- <div class="container-fluid pt-5">
+        <p class="m-0 text-center text-white">
+          組別: 113201 指導老師 : 林俊杰老師
+        </p>
+        <p class="m-0 text-center text-white">
+          專題組員: 11236012 高穎萱 11236013 蔣杰森 11236022
+          巫承翰 11236025 葉于甄
+        </p>
+        <div class="row pt-5"></div>
+      </div>
+    </div> -->
   <!-- Footer End -->
 
   <!-- Back to Top -->
 
   <!-- Template Javascript -->
-  <footer
-  style="
-    background-color: #4e9ccf;
-    padding: 20px;
-    text-align: center;
-    border-top: 2px solid #87d1c3;
-  "
->
-  <p style="color: #fff; font-weight: bold; letter-spacing: 2px">
-    組別: 113201 指導老師 : 林俊杰老師
-  </p>
-  <p style="color: #ddd">
-    <a href="#" style="color: #ddd; text-decoration: none; margin: 0 10px"
-      >專題組員: 11236012 高穎萱 11236013 蔣杰森 11236022 巫承翰 11236025
-      葉于甄</a
-    >
-  </p>
-</footer>
+  <footer style="
+      background-color: #4e9ccf;
+      padding: 20px;
+      text-align: center;
+      border-top: 2px solid #87d1c3;
+    ">
+    <p style="color: #fff; font-weight: bold; letter-spacing: 2px">
+      組別: 113201 指導老師 : 林俊杰老師
+    </p>
+    <p style="color: #ddd">
+      <a href="#" style="color: #ddd; text-decoration: none; margin: 0 10px">專題組員: 11236012 高穎萱 11236013 蔣杰森 11236022
+        巫承翰 11236025
+        葉于甄</a>
+    </p>
+  </footer>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
   <script src="lib/easing/easing.min.js"></script>
@@ -12250,9 +12139,20 @@
   <script src="js/main.js"></script>
   <!-- Template Javascript -->
   <script>
-    function loadPage(url) {
-      document.getElementById("contentFrame").src = url;
+    function loadPage(url, element) {
+      // 检查元素是否存在并且包含 data-fullpage 属性
+      if (element && element.getAttribute('data-fullpage')) {
+        // 如果有 data-fullpage 属性，改变整个页面的 URL
+        window.location.href = url;
+      } else {
+        // 否则在 iframe 中加载页面
+        document.getElementById("contentFrame").src = url;
+      }
+
+      // 设置活动页面
       setActivePage(url);
+
+      // 如果屏幕宽度小于等于 768px，则切换侧边栏
       if (window.innerWidth <= 768) {
         toggleSidebar();
       }
@@ -12286,10 +12186,113 @@
       document.getElementById("sidebar").classList.toggle("active");
     }
 
-    // 初始化活動頁面
-    setActivePage("'{{ url_for('account_manage') }}'");
+    // 初始化活动页面
+    setActivePage("{{ url_for('account_manage') }}");
+
+    const header = document.getElementById("main-header");
+    const menuToggle = document.getElementById("menu-toggle");
+    const mainNav = document.getElementById("main-nav");
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    const SCROLL_THRESHOLD = 100;
+
+    function updateHeader() {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY <= SCROLL_THRESHOLD) {
+        header.classList.remove("hidden");
+      } else if (currentScrollY > lastScrollY) {
+        header.classList.add("hidden");
+      } else {
+        header.classList.remove("hidden");
+      }
+
+      lastScrollY = currentScrollY;
+      ticking = false;
+    }
+
+    window.addEventListener("scroll", () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateHeader);
+        ticking = true;
+      }
+    });
+
+    function smoothScroll(target, duration) {
+      var target = document.querySelector(target);
+      var targetPosition =
+        target.getBoundingClientRect().top + window.pageYOffset;
+      var startPosition = window.pageYOffset;
+      var distance = targetPosition - startPosition;
+      var startTime = null;
+
+      function animation(currentTime) {
+        if (startTime === null) startTime = currentTime;
+        var timeElapsed = currentTime - startTime;
+        var run = ease(timeElapsed, startPosition, distance, duration);
+        window.scrollTo(0, run);
+        if (timeElapsed < duration) requestAnimationFrame(animation);
+      }
+
+      function ease(t, b, c, d) {
+        t /= d / 2;
+        if (t < 1) return (c / 2) * t * t + b;
+        t--;
+        return (-c / 2) * (t * (t - 2) - 1) + b;
+      }
+
+      requestAnimationFrame(animation);
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener("click", function (e) {
+        e.preventDefault();
+        smoothScroll(this.getAttribute("href"), 1000);
+      });
+    });
+
+    menuToggle.addEventListener("click", function () {
+      mainNav.classList.toggle("show");
+      this.setAttribute(
+        "aria-expanded",
+        this.getAttribute("aria-expanded") === "false" ? "true" : "false"
+      );
+    });
+
+    const navItems = mainNav.getElementsByTagName("a");
+    for (let item of navItems) {
+      item.addEventListener("click", function () {
+        mainNav.classList.remove("show");
+        menuToggle.setAttribute("aria-expanded", "false");
+      });
+    }
+
+    // 切換側邊欄顯示狀態
+function toggleSidebar() {
+  var sidebar = document.querySelector('.sidebar');
+  sidebar.classList.toggle('active');
+}
+
+// 點擊頁面時自動隱藏側邊欄（除非點擊在側邊欄或漢堡圖示上）
+window.addEventListener('click', function (event) {
+  var sidebar = document.querySelector('.sidebar');
+  var toggleButton = document.querySelector('.sidebar-toggle');
+
+  // 確保點擊的不是側邊欄或漢堡圖示按鈕
+  if (!sidebar.contains(event.target) && !toggleButton.contains(event.target)) {
+    sidebar.classList.remove('active'); // 隱藏側邊欄
+  }
+});
+
+
+
+
+
+
   </script>
 </body>
+
 </html>
 
 <!-- Footer End -->
