@@ -14,10 +14,10 @@ admin_bp.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(16))
 
 # 創建資料庫連接池
 db_config = {
-    'user': 'case113201',
-    'password': '@Ntub_113201',
-    'host': '140.131.114.242',
-    'database': '113-NTUB',
+    'user': 'eudora',
+    'password': '',
+    'host': '20.18.40.160',
+    'database': '113-ntub',
     'pool_name': 'mypool',
     'pool_size': 5
 }

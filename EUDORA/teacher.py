@@ -11,10 +11,10 @@ teacher_bp.secret_key = 'your_secret_key'
 
 # MySQL 数据库连接配置
 config = {
-    'user': 'case113201',
-    'password': '@Ntub_113201',
-    'host': '140.131.114.242',
-    'database': '113-NTUB',
+    'user': 'eudora',
+    'password': '',
+    'host': '20.18.40.160',
+    'database': '113-ntub',
 }
 
 def teacher_required(f):
