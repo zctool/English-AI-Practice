@@ -479,6 +479,54 @@
         /* 最大宽度限制以保持一致性 */
         margin: 10px 0;
       }
+      .record-controls {
+        margin-top: 10px;
+      }
+  
+      .record-controls button {
+        padding: 8px 16px;
+        font-size: 1em;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+  
+      .startRecording {
+        background-color: #5DADE2;
+        color: white;
+      }
+  
+      .startRecording:disabled {
+        background-color: #a1d0e6;
+      }
+  
+      .stopRecording {
+        background-color: #E74C3C;
+        color: white;
+      }
+  
+      .stopRecording:disabled {
+        background-color: #f2a4a4;
+      }
+   .star-button {
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            outline: none;
+            color: transparent;
+            text-shadow: 0 0 0 #ffd700;
+        }
+        .star-button.filled::before {
+            content: '★';
+            color: #ffd700;
+        }
+        .star-button.unfilled::before {
+            content: '☆';
+            color: #ffd700;
+        }
+   
     </style>
   </head>
 
@@ -555,11 +603,11 @@
               />
               Your browser does not support the audio element.
             </audio>
-            <div class="recording">
-              <button onclick="startRecording('{{ conversation.id }}', this)">
+            <div class="record-controls">
+              <button class="startRecording"onclick="startRecording('{{ conversation.id }}', this)">
                 開始錄音
               </button>
-              <button
+              <button class="stopRecording"
                 onclick="stopRecording('{{ conversation.id }}', this)"
                 disabled
               >
@@ -571,7 +619,7 @@
                 style="display: none; margin-left: 10px"
               ></audio>
             </div>
-
+            <button class="star-button {{ 'filled' if conversation.is_collected else 'unfilled' }}" onclick="toggleCollect('{{ conversation.id }}', this)"></button>
             <!-- Updated expand button aligned to right -->
             <button class="expand-btn" onclick="toggleHiddenContent(this)">
               點擊展開
@@ -588,10 +636,7 @@
               </div>
             </div>
 
-            <button
-              class="star-button {{ 'filled' if conversation.is_collected else 'unfilled' }}"
-              onclick="toggleCollect('{{ conversation.id }}', this)"
-            ></button>
+           
           </div>
         </div>
         {% endfor %}
@@ -860,10 +905,7 @@
       dateElement.textContent = new Date().toLocaleDateString("zh-TW", options);
       function toggleHiddenContent(btn) {
         const hiddenContent = btn.nextElementSibling;
-        if (
-          hiddenContent.style.display === "none" ||
-          hiddenContent.style.display === ""
-        ) {
+        if (hiddenContent.style.display === "none" || hiddenContent.style.display === "") {
           hiddenContent.style.display = "block";
           btn.textContent = "點擊收起";
         } else {
@@ -871,6 +913,34 @@
           btn.textContent = "點擊展開";
         }
       }
+      
+      function adjustDisplayForScreenSize() {
+        const contents = document.querySelectorAll('.hidden-content');
+        const expandButtons = document.querySelectorAll('.expand-btn');
+        const width = window.innerWidth;
+      
+        contents.forEach((content, index) => {
+          if (width > 600) {
+            // 如果屏幕大于600px（电脑屏幕），确保内容显示
+            content.style.display = "block";
+            expandButtons[index].style.display = "none"; // 隐藏按钮
+          } else {
+            // 如果屏幕宽度小于600px（手机屏幕），内容根据当前状态显示或隐藏
+            content.style.display = "none";
+            expandButtons[index].style.display = "inline-block"; // 显示按钮
+            expandButtons[index].textContent = "點擊展開"; // 重置按钮文字
+          }
+        });
+      }
+      
+      // 监听窗口大小变化事件
+      window.addEventListener('resize', adjustDisplayForScreenSize);
+      
+      // 初始化时检查屏幕大小
+      window.onload = function() {
+        adjustDisplayForScreenSize();
+      };
+      
     </script>
     <footer
       style="
