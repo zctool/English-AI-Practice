@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>學生學習進度</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,8 +27,6 @@
         }
         select {
             appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
             background-color: #f8f9fa;
             border: 1px solid #ced4da;
             border-radius: 4px;
@@ -35,21 +34,6 @@
             font-size: 16px;
             color: #495057;
             cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        select:hover, select:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.25);
-            outline: none;
-        }
-        .select-wrapper::after {
-            content: '\25BC';
-            position: absolute;
-            top: 50%;
-            right: 15px;
-            transform: translateY(-50%);
-            pointer-events: none;
-            color: #6c757d;
         }
         .chart-container {
             margin-top: 30px;
@@ -61,83 +45,124 @@
     </style>
 </head>
 <body>
-    <h1>學生學習進度: {{ data.student_name }}</h1>
-    <form method="POST" id="filter-form">
+    <h1>學生學習進度</h1>
+
+    <!-- 选择学生 -->
     <div class="select-wrapper">
-        <select name="student_id" id="student_id" onchange="document.getElementById('filter-form').submit()">
+        <select name="student_id" id="student_select">
             <option value="" disabled selected>選擇學生</option>
-            {% for student in data.students %}
-            <option value="{{ student.id }}" {% if data.current_student == student.id %} selected {% endif %}>
-                {{ student.userName }}
-            </option>
-        {% endfor %}
+            {% for student in students %}
+                <option value="{{ student.id }}">{{ student.userName }}</option>
+            {% endfor %}
         </select>
     </div>
 
-    {% if data.sentences %}
+    <!-- 选择课程 -->
     <div class="select-wrapper">
-        <select name="sentence_id" id="sentence_id" onchange="document.getElementById('filter-form').submit()">
-            <option value="" disabled selected>選擇句子</option>
-            {% for sentence in data.sentences %}
-                    <option value="{{ sentence.id }}" {% if data.current_sentence == sentence.id %} selected {% endif %}>
-                        {{ sentence.content }}
-                    </option>
-                {% endfor %}
+        <select name="course_id" id="course_select" disabled>
+            <option value="" disabled selected>選擇課程</option>
         </select>
     </div>
-    {% endif %}
-    </form>
+
+    <!-- 选择句子 -->
+    <div class="select-wrapper">
+        <select name="sentence_id" id="sentence_select" disabled>
+            <option value="" disabled selected>選擇句子</option>
+        </select>
+    </div>
 
     <div class="chart-container">
         <canvas id="progressChart"></canvas>
     </div>
+
     <script>
-        const labels = {{ data.dates | tojson }};
-        const scores = {{ data.scores | tojson }};
+        $(document).ready(function() {
+            let chartInstance = null;
 
-        // 提取学生名字和分数
-        const dataPoints = scores.map(score => score.score);
-        const labelsWithNames = scores.map(score => score.label);
+            // 当选择学生时，加载该学生的课程
+            $('#student_select').on('change', function() {
+                var student_id = $(this).val();
+                if (student_id) {
+                    $.get('/teacher/get_courses/' + student_id, function(data) {
+                        $('#course_select').empty().append('<option value="" disabled selected>選擇課程</option>');
+                        $('#sentence_select').empty().prop('disabled', true).append('<option value="" disabled selected>選擇句子</option>');
 
-        // 绘制图表
-        const ctx = document.getElementById('progressChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',  // 将图表类型改为柱状图
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: '{{ data.student_name }} 的學習進度',
-                    data: dataPoints,
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                    hoverBackgroundColor: 'rgba(75, 192, 192, 0.8)',
-                    hoverBorderColor: 'rgba(75, 192, 192, 1)'
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: function(value) {
-                                return value + '%';  // Y轴显示百分比
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return labelsWithNames[tooltipItem.dataIndex];  // 显示带有学生名字的标签
-                            }
-                        }
-                    }
+                        $.each(data, function(index, course) {
+                            $('#course_select').append('<option value="' + course.id + '">' + course.name + '</option>');
+                        });
+                        $('#course_select').prop('disabled', false);
+                    });
                 }
-            }
+            });
+
+            // 当选择课程时，加载该学生学过的句子
+            $('#course_select').on('change', function() {
+                var course_id = $(this).val();
+                var student_id = $('#student_select').val();
+                if (course_id && student_id) {
+                    $.get('/teacher/get_sentences/' + course_id + '/' + student_id, function(data) {
+                        $('#sentence_select').empty().append('<option value="" disabled selected>選擇句子</option>');
+
+                        $.each(data, function(index, sentence) {
+                            $('#sentence_select').append('<option value="' + sentence.id + '">' + sentence.content + '</option>');
+                        });
+                        $('#sentence_select').prop('disabled', false);
+                    });
+                }
+            });
+
+            // 当选择句子时，加载学习进度并更新图表
+            $('#sentence_select').on('change', function() {
+                var sentence_id = $(this).val();
+                var student_id = $('#student_select').val();
+
+                if (sentence_id && student_id) {
+                    $.get('/teacher/get_learning_progress/' + sentence_id + '/' + student_id, function(data) {
+                        var labels = [];
+                        var scores = [];
+
+                        $.each(data, function(index, record) {
+                            labels.push(record.recording_date);
+                            scores.push(record.score);
+                        });
+
+                        // 如果已有图表实例，先销毁它
+                        if (chartInstance) {
+                            chartInstance.destroy();
+                        }
+
+                        // 生成新的图表
+                        var ctx = document.getElementById('progressChart').getContext('2d');
+                        chartInstance = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: '學習進度',
+                                    data: scores,
+                                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 100,
+                                        ticks: {
+                                            callback: function(value) {
+                                                return value + '%';  // 显示百分比
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                }
+            });
         });
     </script>
 </body>
