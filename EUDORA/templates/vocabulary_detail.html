@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>KidKinder - Kindergarten Website Template</title>
+  <title>單字詳情</title>
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <meta content="Free HTML Templates" name="keywords" />
   <meta content="Free HTML Templates" name="description" />
@@ -455,6 +455,65 @@ audio {
   max-width: 300px; /* 最大宽度限制以保持一致性 */
   margin: 10px 0;
 }
+.record-controls {
+  margin-top: 10px;
+}
+
+.record-controls button {
+  padding: 8px 16px;
+  font-size: 1em;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.startRecording {
+  background-color: #5DADE2;
+  color: white;
+}
+
+.startRecording:disabled {
+  background-color: #a1d0e6;
+}
+
+.stopRecording {
+  background-color: #E74C3C;
+  color: white;
+}
+
+.stopRecording:disabled {
+  background-color: #f2a4a4;
+}
+.expand-btn {
+  display: none;
+  float: right;
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.expand-btn:hover {
+  background-color: #0056b3;
+}
+
+.hidden-content {
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .hidden-content {
+    display: none;
+  }
+
+  .expand-btn {
+    display: inline-block;
+  }
+}
   </style>
 </head>
 
@@ -513,9 +572,9 @@ audio {
               <p>音標: {{ vocabulary.ipa }}</p>
               <p>例句: {{ vocabulary.example }}</p>
               <p>難度: {{ vocabulary.class }}</p>
-              <div class="recording">
-                  <button onclick="startRecording('{{ vocabulary.id }}', this)">開始錄音</button>
-                  <button onclick="stopRecording('{{ vocabulary.id }}', this)" disabled>停止錄音</button>
+              <div class="record-controls">
+                  <button class="startRecording"onclick="startRecording('{{ vocabulary.id }}', this)">開始錄音</button>
+                  <button class="stopRecording" onclick="stopRecording('{{ vocabulary.id }}', this)" disabled>停止錄音</button>
                   <audio id="playback-{{ vocabulary.id }}" controls style="display: none; margin-left: 10px"></audio>
               </div>
               <audio class="responsive-audio" controls>
@@ -523,6 +582,10 @@ audio {
                   您的瀏覽器不支持音頻元素。
               </audio>
               <button class="star-button {{ 'filled' if is_collected else 'unfilled' }}" onclick="toggleCollect('{{ vocabulary.id }}', this)"></button>
+              <button class="expand-btn" onclick="toggleHiddenContent(this)">
+                點擊展開
+              </button>
+              <div class="hidden-content">
               <div class="stt-result">
                 <h3>比對結果</h3>
                 <p><strong>轉換文本:</strong> <span class="stt-text">{{ user_voice.STT }}</span></p>
@@ -530,7 +593,7 @@ audio {
                 <p><strong>差異標示:</strong></p>
                 <div class="highlighted-text">{{ user_voice.highlighted_text|safe }}</div>
             </div>
-            
+          </div>
           </div>
       </div>
       <a href="{{ url_for('vocabulary_topics') }}" class="btn">返回單字主題</a>
@@ -732,6 +795,43 @@ audio {
         menuToggle.setAttribute("aria-expanded", "false");
       });
     }
+    function toggleHiddenContent(btn) {
+      const hiddenContent = btn.nextElementSibling;
+      if (hiddenContent.style.display === "none" || hiddenContent.style.display === "") {
+        hiddenContent.style.display = "block";
+        btn.textContent = "點擊收起";
+      } else {
+        hiddenContent.style.display = "none";
+        btn.textContent = "點擊展開";
+      }
+    }
+    
+    function adjustDisplayForScreenSize() {
+      const contents = document.querySelectorAll('.hidden-content');
+      const expandButtons = document.querySelectorAll('.expand-btn');
+      const width = window.innerWidth;
+    
+      contents.forEach((content, index) => {
+        if (width > 600) {
+          // 如果屏幕大于600px（电脑屏幕），确保内容显示
+          content.style.display = "block";
+          expandButtons[index].style.display = "none"; // 隐藏按钮
+        } else {
+          // 如果屏幕宽度小于600px（手机屏幕），内容根据当前状态显示或隐藏
+          content.style.display = "none";
+          expandButtons[index].style.display = "inline-block"; // 显示按钮
+          expandButtons[index].textContent = "點擊展開"; // 重置按钮文字
+        }
+      });
+    }
+    
+    // 监听窗口大小变化事件
+    window.addEventListener('resize', adjustDisplayForScreenSize);
+    
+    // 初始化时检查屏幕大小
+    window.onload = function() {
+      adjustDisplayForScreenSize();
+    };
 </script>
   <footer
   style="
