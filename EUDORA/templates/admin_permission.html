@@ -25,9 +25,9 @@
         <tbody>
             {% for user in users %}
             <tr>
-                <td>{{ user.userName }}</td>
-                <td>{{ user.GoogleEmail }}</td>
-                <td>
+                <td data-label="Name">{{ user.userName }}</td>
+                <td data-label="Email">{{ user.GoogleEmail }}</td>
+                <td data-label="Role">
                     <form method="post" action="{{ url_for('admin.update_user_role') }}">
                         <input type="hidden" name="user_id" value="{{ user.id }}">
                         <select name="role">
