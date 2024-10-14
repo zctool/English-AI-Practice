@@ -12069,14 +12069,16 @@
                   fill="none" stroke="#4A90E2" stroke-width="6" />
                 <rect x="70" y="180" width="60" height="10" fill="#FFFFFF" rx="5" ry="5" />
               </svg></span><span class="text">課程學習成果</span></a>
-          <div id="learning-history" class="dropdown-content">
-            <a onclick="loadPage('{{ url_for('student_learning_progress') }}')"><span class="icon">📈</span><span
-                class="text">課程學習圖表</span></a>
-            <a onclick="loadPage('{{ url_for('student_learning_results') }}', this)" data-fullpage="true">
-              <span class="icon">📜</span>
-              <span class="text">課程學習歷史</span>
-            </a>
-          </div>
+              <div id="learning-history" class="dropdown-content">
+                <a onclick="loadPage('{{ url_for('student_learning_progress') }}')"
+                  ><span class="icon">📈</span
+                  ><span class="text">課程學習圖表</span></a
+                >
+                <a onclick="loadPage('{{ url_for('student_learning_results') }}')"
+                  ><span class="icon">📜</span
+                  ><span class="text">課程學習歷史</span></a
+                >
+              </div>
         </li>
       </ul>
     </div>
