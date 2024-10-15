@@ -7,9 +7,9 @@ import tempfile
 from flask import Flask, redirect, url_for, session, request, jsonify, render_template
 from mysql.connector import pooling, Error
 import requests
-from ai_comparison import process_texts  # 导入你的文本处理模块
+from ai_comparison import process_texts  # 導入文件處理模型
 from teacher import teacher_bp
-from admin import admin_bp  # 导入管理者藍圖
+from admin import admin_bp  # 導入管理者藍圖
 import speech_recognition as sr
 from pyannote.audio import Model, Inference
 from scipy.spatial.distance import cosine
@@ -286,7 +286,7 @@ def vocabulary_topics():
     """)
     topics = cursor.fetchall()
     
-    # 添加调试信息
+    # 添加調試信息
     print("Topics fetched from database:", topics)
     
     for topic in topics:
@@ -295,7 +295,7 @@ def vocabulary_topics():
     cursor.close()
     conn.close()
     
-    # 再次添加调试信息
+    # 再次添加調試信息
     print("Topics after encoding:", topics)
     
     return render_template('vocabulary_topics.html', topics=topics)
@@ -423,7 +423,7 @@ def conversation_topics():
     """)
     topics = cursor.fetchall()
     
-    # 对于每个主题，获取其难度等级
+    # 根據每個主題，獲取其難易度
     for topic in topics:
         cursor.execute("""
             SELECT DISTINCT class 
@@ -859,7 +859,7 @@ def learning_notes_conversation():
         conversation['conversation_voice'] = base64.b64encode(conversation['conversation_voice']).decode('utf-8')
         if conversation['user_voice'] is not None:
             conversation['user_voice'] = base64.b64encode(conversation['user_voice']).decode('utf-8')
-        # 确保 accuracy 不为空
+        # 確保 accuracy 不是空值
         if conversation['accuracy'] is None:
             conversation['accuracy'] = 0.0
     
@@ -897,7 +897,7 @@ def learning_notes_vocabulary():
         vocabulary['vocabulary_voice'] = base64.b64encode(vocabulary['vocabulary_voice']).decode('utf-8')
         if vocabulary['user_voice'] is not None:
             vocabulary['user_voice'] = base64.b64encode(vocabulary['user_voice']).decode('utf-8')
-        # 确保 accuracy 不为空
+        # 確保 accuracy 不是空值
         if vocabulary['accuracy'] is None:
             vocabulary['accuracy'] = 0.0
     
@@ -1203,7 +1203,7 @@ def view_course_detail(course_id):
         cursor.execute("SELECT content AS text, audio_file FROM Sentence WHERE course_id = %s", (course_id,))
         course['sentences'] = cursor.fetchall()
         
-        # 将音频文件转换成 base64 格式
+        # 將音頻文件轉換成 base64 格式
         for sentence in course['sentences']:
             sentence['audio_file'] = base64.b64encode(sentence['audio_file']).decode('utf-8')
             
@@ -1212,7 +1212,7 @@ def view_course_detail(course_id):
         cursor.execute("SELECT content AS text, audio_file FROM Sentence WHERE course_id = %s", (course_id,))
         course['content'] = cursor.fetchall()
         
-        # 将音频文件转换成 base64 格式
+        # 將音頻文件轉換成 base64 格式
         for paragraph in course['content']:
             paragraph['audio_file'] = base64.b64encode(paragraph['audio_file']).decode('utf-8')
     
@@ -1220,7 +1220,7 @@ def view_course_detail(course_id):
     conn.close()
     return render_template('course_detail.html', course=course)
 
-# 音频保存为 wav 格式
+# 音頻保存為 wav 格式
 def save_audio_as_wav(file_data, output_path):
     try:
         audio = AudioSegment.from_file(io.BytesIO(file_data))
@@ -1229,7 +1229,7 @@ def save_audio_as_wav(file_data, output_path):
     except Exception as e:
         print(f"Error saving audio: {e}")
 
-# 音频识别
+# 音頻識別
 def recognize_speech(file_path):
     recognizer = sr.Recognizer()
     with sr.AudioFile(file_path) as source:
@@ -1241,36 +1241,36 @@ def recognize_speech(file_path):
     except sr.RequestError as e:
         return ""
 
-# 提取音频嵌入
+# 提取音頻嵌入
 def extract_audio_embedding(file_path):
     model = Model.from_pretrained("pyannote/embedding", use_auth_token="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")
     inference = Inference(model, window="whole")
     embedding = inference(file_path)
     return embedding
 
-# 比较音频嵌入
+# 比較音頻嵌入
 def compare_audio_embeddings(embedding1, embedding2):
     similarity = 1 - cosine(embedding1, embedding2)
     return similarity
 
-# 比较文本
+# 比較文本
 def compare_text(text1, text2):
     words1 = text1.split()
     words2 = text2.split()
     return SequenceMatcher(None, words1, words2).ratio(), SequenceMatcher(None, words1, words2).get_opcodes()
 
-# 处理保存音频并进行比对的路由
+# 處理保存音頻並進行比對的路由
 @app.route('/save_audio_by_text', methods=['POST'])
 def save_audio_by_text():
     try:
-        # 获取上传的音频文件和句子内容
+        # 獲取上傳的音頻文件和句子内容
         audio_file = request.files['audio_data'].read()
         text_content = request.form.get('text_content')
 
         if not text_content:
             return jsonify({'success': False, 'message': '句子内容为空，无法保存录音。'}), 400
 
-        # 从数据库中根据文本获取句子和原始音频文件
+        # 從資料庫中根據文本獲取句子和原始音頻文件
         conn = cnxpool.get_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT id, audio_file FROM Sentence WHERE content = %s", (text_content,))
@@ -1282,7 +1282,7 @@ def save_audio_by_text():
         sentence_id = sentence['id']
         original_audio = sentence['audio_file']
 
-        # 获取用户 email 并确定用户 ID
+        #獲取用户 email 並確定用户 ID
         user_email = session.get('email')
         if not user_email:
             return jsonify({'success': False, 'message': '用户未登录，无法保存录音。'}), 401
@@ -1290,13 +1290,13 @@ def save_audio_by_text():
         user_id = get_user_id(user_email)
         recording_date = datetime.datetime.now().date()
 
-        # 检查是否已有同一天的录音记录
+        # 檢查是否已有同一天的錄音紀錄
         cursor.execute("""
             SELECT id FROM UserRecordings WHERE user_id = %s AND sentence_id = %s AND recording_date = %s
         """, (user_id, sentence_id, recording_date))
         existing_recording = cursor.fetchone()
 
-        # 确定临时文件夹路径
+        # 確定臨時資料夾路徑
         tmp_dir = '/tmp/audio_files'
         if not os.path.exists(tmp_dir):
             os.makedirs(tmp_dir)
@@ -1304,29 +1304,29 @@ def save_audio_by_text():
         user_audio_path = os.path.join(tmp_dir, 'user_audio.wav')
         original_audio_path = os.path.join(tmp_dir, 'original_audio.wav')
 
-        # 保存用户音频为 wav 文件
+        # 保存用户音頻為 wav 文件
         save_audio_as_wav(audio_file, user_audio_path)
 
-        # 保存原始音频为 wav 文件
+        # 保存原始音頻為 wav 文件
         save_audio_as_wav(original_audio, original_audio_path)
 
-        # 提取音频嵌入并进行对比
+        # 提取音頻嵌入並進行比對
         embedding1 = extract_audio_embedding(user_audio_path)
         embedding2 = extract_audio_embedding(original_audio_path)
 
         similarity_score = compare_audio_embeddings(embedding1, embedding2)
 
-        # 进行语音识别以进行文本比对
+        # 進行語音識別並進行比對
         recognized_text_user = recognize_speech(user_audio_path)
         recognized_text_original = recognize_speech(original_audio_path)
 
         text_similarity, diff_ops = compare_text(recognized_text_user, recognized_text_original)
 
-        # 定义相似度阈值
+        # 定義相似度闊值
         audio_threshold = 0.1
         text_threshold = 0.99
 
-        # 根据相似度结果确定消息
+        # 根據相似度结果确定消息
         feedback_message = ""
         if similarity_score < audio_threshold and text_similarity < text_threshold:
             feedback_message = "大錯特錯，給我重念"
@@ -1335,7 +1335,7 @@ def save_audio_by_text():
         elif similarity_score > audio_threshold and text_similarity > text_threshold:
             feedback_message = "你好棒，念的很好"
 
-        # 生成文本差异的结果
+        # 生成文本差異的结果
         result = {
             'success': True,
             'similarity_score': similarity_score,
@@ -1355,7 +1355,7 @@ def save_audio_by_text():
                             'text2': ' '.join(recognized_text_original.split()[j1:j2])
                         })
 
-        # 更新或插入用户录音记录并存储比对结果
+        # 更新或插入用户錄音紀錄並儲存比對结果
         if existing_recording:
             cursor.execute("""
                 UPDATE UserRecordings 
@@ -1375,7 +1375,7 @@ def save_audio_by_text():
         cursor.close()
         conn.close()
 
-        # 返回比对结果
+        # 返回比對结果
         return jsonify(result)
 
     except Exception as e:
@@ -1392,7 +1392,7 @@ def student_learning_progress():
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 查询学生学过的所有课程
+    # 查詢學學過的所有課程
     cursor.execute("""
         SELECT DISTINCT c.id, c.name
         FROM UserRecordings r
@@ -1422,7 +1422,7 @@ def get_student_sentences(course_id):
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 查询课程下的句子
+    # 查詢課程下的句子
     cursor.execute("""
         SELECT s.id, s.content
         FROM Sentence s
@@ -1441,7 +1441,7 @@ def get_student_progress(sentence_id):
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 查询句子的学习进度
+    # 查詢句子的學習進度
     cursor.execute("""
         SELECT r.recording_date, (r.similarity_score * 0.1 + r.text_similarity * 0.9) * 100 AS score
         FROM UserRecordings r
@@ -1454,13 +1454,13 @@ def get_student_progress(sentence_id):
     cursor.close()
     conn.close()
 
-    # 返回圖表所需的数据
+    # 返回圖表所需的數據
     return jsonify([{
         'recording_date': row['recording_date'].strftime('%Y-%m-%d'),
         'score': round(row['score'], 2)
     } for row in progress_data])
 
-# 学生学习成果页面
+# 學生學習成果頁面
 @app.route('/student_learning_results', methods=['GET'])
 def student_learning_results():
     user_email = session.get('email')
@@ -1468,11 +1468,11 @@ def student_learning_results():
     if not user_email:
         return jsonify({'error': '未登录'}), 401
 
-    # 获取数据库连接
+    # 獲取資料庫數據
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 获取学生的学习记录，包括识别文本和差异
+    # 獲取學生的學習紀錄，包括識別文本的差異
     query = """
         SELECT r.id, r.recognized_text_user, r.recognized_text_original, r.diff_ops, r.similarity_score, r.text_similarity, r.audio_file, s.content AS sentence_text
         FROM UserRecordings r
@@ -1484,7 +1484,7 @@ def student_learning_results():
     cursor.execute(query, (user_email,))
     learning_records = cursor.fetchall()
 
-    # 处理和解析 `diff_ops`
+    # 處理和解析 `diff_ops`
     results = []
     for record in learning_records:
         try:
@@ -1498,19 +1498,19 @@ def student_learning_results():
             print(f"Invalid diff_op format: {record['diff_ops']} - {e}")
             record['diff_ops'] = []  # 如果解析失败，设置为空列表
         
-        # 将音频数据转换为 base64
+        # 將音頻數據轉為 base64
         record['audio_file_base64'] = base64.b64encode(record['audio_file']).decode('utf-8')
         
-        # 文本相似度乘以 100 并保留两位小数
+        # 文本相似度乘以 100 並保留兩位小數
         record['text_similarity'] = round(record['text_similarity'] * 100, 2)
 
-        # 查找第一个错误单词并查询与其匹配的其他句子
+        # 查找第一个錯誤單字並查詢與其匹配的其他句子
         word_links = {}
         first_wrong_word = None
         for op in record['diff_ops']:
-            if 'text2' in op and op['text2'] and not first_wrong_word:  # 只取第一个错误单词
+            if 'text2' in op and op['text2'] and not first_wrong_word:  # 只取第一个錯誤單字
                 first_wrong_word = op['text2']
-                # 使用正则表达式匹配句子中包含错误单词的句子，并排除原始句子本身
+                # 使用正則表達式匹配句子中包含錯誤單字的句子，并排除原始句子本身
                 cursor.execute("""
                     SELECT s.id AS sentence_id, s.content AS sentence_text, c.id AS course_id
                     FROM Sentence s
@@ -1532,7 +1532,7 @@ def student_learning_results():
 
     return render_template('student_learning_results.html', results=results)
 
-# 查找类似单词的句子
+# 查找類似單字的句子
 @app.route('/search_similar_words', methods=['POST'])
 def search_similar_words():
     word = request.form.get('word')
@@ -1540,14 +1540,14 @@ def search_similar_words():
     conn = cnxpool.get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 使用正则表达式，精确匹配整个单词
+    # 使用正則表達式，精確匹配整个單字
     query = """
         SELECT s.id AS sentence_id, s.content AS sentence_text, c.id AS course_id, c.name AS course_name
         FROM Sentence s
         JOIN Course c ON s.course_id = c.id
         WHERE s.content REGEXP %s
     """
-    # \b 表示单词边界，确保是完全匹配
+    # \b 表示單字邊界，確保是完全匹配
     pattern = r'\\b' + word + r'\\b'
     cursor.execute(query, (pattern,))
     similar_sentences = cursor.fetchall()

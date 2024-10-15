@@ -9,7 +9,7 @@ import os
 teacher_bp = Blueprint('teacher', __name__, url_prefix='/teacher')
 teacher_bp.secret_key = 'your_secret_key'
 
-# MySQL 数据库连接配置
+# MySQL 數據庫連接配置
 config = {
     'user': 'eudora',
     'password': '',
@@ -89,7 +89,7 @@ def generate_audio(sentence, voice_type):
     """生成音頻並返回其二進制數據"""
     description = VOICE_TYPES.get(voice_type, "A gentle male voice, slightly deep, calm and comforting.")
     
-    # 生成输入的 input_ids 和 attention_mask
+    # 生成輸入的 input_ids 和 attention_mask
     encoded_input = tokenizer(description, return_tensors="pt", padding=True)
     input_ids = encoded_input.input_ids.to(device)
     attention_mask = encoded_input.attention_mask.to(device)
@@ -99,17 +99,17 @@ def generate_audio(sentence, voice_type):
     prompt_input_ids = prompt_encoded_input.input_ids.to(device)
     prompt_attention_mask = prompt_encoded_input.attention_mask.to(device)
 
-    # 生成音频时传递 attention_mask 和 prompt_attention_mask
+    # 生成音頻時傳遞 attention_mask 和 prompt_attention_mask
     generation = model.generate(
         input_ids=input_ids, 
-        attention_mask=attention_mask,  # 传递主 input 的 attention_mask
+        attention_mask=attention_mask,  # 傳遞主 input 的 attention_mask
         prompt_input_ids=prompt_input_ids,
-        prompt_attention_mask=prompt_attention_mask  # 为 prompt 传递 attention_mask
+        prompt_attention_mask=prompt_attention_mask  # 為 prompt 傳遞 attention_mask
     ).to(torch.float32)
 
     audio_arr = generation.cpu().numpy().squeeze()
 
-    # 将音频数据转为二进制数据
+    # 將音頻數據轉為二進制
     audio_bytes = io.BytesIO()
     sf.write(audio_bytes, audio_arr, model.config.sampling_rate, format='wav')
     audio_bytes.seek(0)  # 重置流的位置
@@ -177,23 +177,23 @@ def manage_courses():
     connection = None
     cursor = None
     try:
-        # 确保用户是已登录的教师
+        # 確保使用者是已登入的老師
         if 'email' not in session or session.get('role') != 'teacher':
             abort(403)
 
-        # 建立数据库连接
+        # 建立資料庫連接
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor(dictionary=True)
 
-        # 获取当前教师的 email
+        # 取得當前老師 email
         teacher_email = session.get('email')
 
-        # 查询该教师所创建的所有课程
+        # 查詢該老師上傳的所有课程
         query = "SELECT * FROM Course WHERE teacher_email = %s"
         cursor.execute(query, (teacher_email,))
         courses = cursor.fetchall()
 
-        # 处理课程删除请求
+        # 處理課程上傳請求
         if request.method == 'POST':
             if 'delete_course' in request.form:
                 course_id = request.form['course_id']
@@ -399,21 +399,22 @@ def delete_sentence(sentence_id):
 
     return redirect(request.referrer or url_for('teacher.manage_courses'))
 
-# 老师查看所有学生成绩
-# Flask 后端部分
+# Flask 後端部分
+
+# 老師查看所有學生成績
 @teacher_bp.route('/learning_progress', methods=['GET'])
 @teacher_required
 def teacher_learning_progress():
     user_email = session.get('email')
     
     if not user_email:
-        return jsonify({'error': '未登录'}), 401
+        return jsonify({'error': '未登入'}), 401
 
-    # 使用配置创建数据库连接
+    # 使用配置創建資料庫連接
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor(dictionary=True)
 
-    # 获取老师教过的所有学生
+    # 查詢老師教過的所有學生
     cursor.execute("""
         SELECT DISTINCT u.id, u.userName
         FROM UserRecordings r
@@ -429,21 +430,27 @@ def teacher_learning_progress():
 
     return render_template('teacher_learning_progress.html', students=students)
 
-# 获取课程的端点
+
+# 查詢老師發布的課程（僅顯示與老師相關的課程）
 @teacher_bp.route('/get_courses/<student_id>', methods=['GET'])
 @teacher_required
 def get_courses(student_id):
+    teacher_email = session.get('email')
+    
+    if not teacher_email:
+        return jsonify({'error': '未登入'}), 401
+
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor(dictionary=True)
 
-    # 查询学生的课程
+    # 查詢該學生學習過且由當前老師發布的課程
     cursor.execute("""
         SELECT DISTINCT c.id, c.name
         FROM UserRecordings r
         JOIN Sentence s ON r.sentence_id = s.id
         JOIN Course c ON s.course_id = c.id
-        WHERE r.user_id = %s
-    """, (student_id,))
+        WHERE r.user_id = %s AND c.teacher_email = %s
+    """, (student_id, teacher_email))
     courses = cursor.fetchall()
 
     cursor.close()
@@ -451,21 +458,27 @@ def get_courses(student_id):
 
     return jsonify(courses)
 
-# 获取该学生学过的课程下的句子
+
+# 查詢特定課程下學生學習的句子（僅與當前老師相關的課程）
 @teacher_bp.route('/get_sentences/<course_id>/<student_id>', methods=['GET'])
 @teacher_required
 def get_sentences(course_id, student_id):
+    teacher_email = session.get('email')
+    
+    if not teacher_email:
+        return jsonify({'error': '未登入'}), 401
+
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor(dictionary=True)
 
-    # 查询学生学过的句子，这些句子属于课程
+    # 查詢學生學習過的句子，這些句子屬於當前老師的課程
     cursor.execute("""
         SELECT DISTINCT s.id, s.content
         FROM UserRecordings r
         JOIN Sentence s ON r.sentence_id = s.id
         JOIN Course c ON s.course_id = c.id
-        WHERE r.user_id = %s AND c.id = %s
-    """, (student_id, course_id))
+        WHERE r.user_id = %s AND c.id = %s AND c.teacher_email = %s
+    """, (student_id, course_id, teacher_email))
     sentences = cursor.fetchall()
 
     cursor.close()
@@ -473,29 +486,36 @@ def get_sentences(course_id, student_id):
 
     return jsonify(sentences)
 
-# 获取学习进度的端点
+
+# 查詢學生在某一特定句子的學習進度
 @teacher_bp.route('/get_learning_progress/<sentence_id>/<student_id>', methods=['GET'])
 @teacher_required
 def get_learning_progress(sentence_id, student_id):
+    teacher_email = session.get('email')
+    
+    if not teacher_email:
+        return jsonify({'error': '未登入'}), 401
+
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor(dictionary=True)
 
-    # 获取学习进度
+    # 查詢學生在某一句子的學習進度
     cursor.execute("""
         SELECT s.content AS sentence_text, r.recording_date, 
                (r.similarity_score * 0.1 + r.text_similarity * 0.9) * 100 AS score 
         FROM UserRecordings r
         JOIN Sentence s ON r.sentence_id = s.id
-        WHERE r.user_id = %s AND s.id = %s
+        JOIN Course c ON s.course_id = c.id
+        WHERE r.user_id = %s AND s.id = %s AND c.teacher_email = %s
         ORDER BY r.recording_date
-    """, (student_id, sentence_id))
+    """, (student_id, sentence_id, teacher_email))
     results = cursor.fetchall()
 
     cursor.close()
     connection.close()
 
-    # 返回 JSON 数据
     return jsonify(results)
+
 
 teacher_bp.add_url_rule('/edit_course_content/<int:course_id>', 'edit_course_content', edit_course_content)
 teacher_bp.add_url_rule('/get_audio/<int:sentence_id>', 'get_audio', get_audio)

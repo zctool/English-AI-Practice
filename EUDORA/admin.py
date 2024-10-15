@@ -542,7 +542,7 @@ def add_conversation():
             close_db_connection(cursor, connection)
         return render_template('add_conversation.html', topics=topics)
 
-# 查看和编辑对话主题
+# 查看和編輯對話主題
 @admin_bp.route('/admin_conversation_topics')
 @admin_required
 def admin_conversation_topics():
@@ -560,7 +560,7 @@ def admin_conversation_topics():
         close_db_connection(cursor, connection)
     return render_template('admin_conversation_topics.html', topics=topics)
 
-# 编辑对话主题
+# 編輯對話主題
 @admin_bp.route('/edit_conversation_topic/<int:topic_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_conversation_topic(topic_id):
@@ -608,7 +608,7 @@ def edit_conversation_topic(topic_id):
             close_db_connection(cursor, connection)
         return render_template('edit_conversation_topic.html', topic=topic, icon=icon, topic_id=topic_id)
 
-# 删除对话主题
+# 刪除對話主題
 @admin_bp.route('/delete_conversation_topic/<int:topic_id>')
 @admin_required
 def delete_conversation_topic(topic_id):
@@ -637,7 +637,7 @@ def delete_conversation_topic(topic_id):
         close_db_connection(cursor, connection)
     return redirect(url_for('admin.admin_conversation_topics'))
 
-# 查看和编辑对话
+# 查看和編輯對話
 @admin_bp.route('/conversations')
 @admin_required
 def conversations():
@@ -661,7 +661,7 @@ def conversations():
         close_db_connection(cursor, connection)
     return render_template('conversations.html', conversations=conversations)
 
-# 编辑对话
+# 編輯對話
 @admin_bp.route('/edit_conversation/<int:conversation_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_conversation(conversation_id):
@@ -724,7 +724,7 @@ def edit_conversation(conversation_id):
             close_db_connection(cursor, connection)
         return render_template('edit_conversation.html', conversation=conversation, situations=situations, characters=characters)
 
-# 删除对话
+# 刪除對話
 @admin_bp.route('/delete_conversation/<int:conversation_id>')
 @admin_required
 def delete_conversation(conversation_id):
@@ -744,7 +744,7 @@ def delete_conversation(conversation_id):
         close_db_connection(cursor, connection)
     return redirect(url_for('admin.conversations'))
 
-# 查看和编辑对话情境
+# 查看和編輯對話情境
 @admin_bp.route('/admin_conversation_situations')
 @admin_required
 def admin_conversation_situations():
@@ -766,7 +766,7 @@ def admin_conversation_situations():
         close_db_connection(cursor, connection)
     return render_template('admin_conversation_situations.html', situations=situations)
 
-# 编辑对话情境
+# 編輯對話情境
 @admin_bp.route('/edit_conversation_situation/<int:situation_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_conversation_situation(situation_id):
@@ -810,7 +810,7 @@ def edit_conversation_situation(situation_id):
             close_db_connection(cursor, connection)
         return render_template('edit_conversation_situation.html', situation=situation, topics=topics, situation_id=situation_id)
 
-# 删除对话情境
+# 刪除對話情境
 @admin_bp.route('/delete_conversation_situation/<int:situation_id>')
 @admin_required
 def delete_conversation_situation(situation_id):
@@ -819,9 +819,9 @@ def delete_conversation_situation(situation_id):
     try:
         connection = get_db_connection()
         cursor = connection.cursor()
-        # 删除相关的角色
+        # 刪除相關的角色
         cursor.execute("DELETE FROM characters WHERE situation_id = %s", (situation_id,))
-        # 删除情境
+        # 刪除情境
         cursor.execute("DELETE FROM conversationSituation WHERE id = %s", (situation_id,))
         connection.commit()
         flash('Conversation Situation deleted successfully!', 'success')
@@ -833,7 +833,7 @@ def delete_conversation_situation(situation_id):
         close_db_connection(cursor, connection)
     return redirect(url_for('admin.admin_conversation_situations'))
 
-# 查看和编辑人物
+# 查看和編輯人物
 @admin_bp.route('/characters/<int:situation_id>')
 @admin_required
 def characters(situation_id):
@@ -851,7 +851,7 @@ def characters(situation_id):
         close_db_connection(cursor, connection)
     return render_template('characters.html', characters=characters, situation_id=situation_id)
 
-# 编辑人物
+# 編輯人物
 @admin_bp.route('/edit_character/<int:character_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_character(character_id):
@@ -895,7 +895,7 @@ def edit_character(character_id):
             close_db_connection(cursor, connection)
         return render_template('edit_character.html', character=character, situation_id=request.args.get('situation_id'))
 
-# 删除人物
+# 刪除人物
 @admin_bp.route('/delete_character/<int:character_id>/<int:situation_id>')
 @admin_required
 def delete_character(character_id, situation_id):
@@ -937,7 +937,7 @@ def icon(situation_id):
     finally:
         close_db_connection(cursor, connection)
 
-# 管理员权限页面
+# 管理員權限
 @admin_bp.route('/admin_permission', methods=['GET', 'POST'])
 @admin_required
 def admin_permission():
@@ -996,7 +996,7 @@ def update_user_role():
 
     return redirect(url_for('admin.admin_permission'))
 
-# 删除用户
+# 刪除用户
 @admin_bp.route('/delete_user', methods=['POST'])
 @admin_required
 def delete_user():
