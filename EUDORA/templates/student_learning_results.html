@@ -35,7 +35,7 @@
         }
         .diff-text {
             margin-top: 10px;
-            color: #FF6347; /* 错误部分的颜色 */
+            color: #FF6347; /* 錯誤部分的顏色 */
         }
     </style>
 </head>
@@ -59,7 +59,7 @@
         </audio>
     </div>
 
-    <!-- 差异文本 -->
+    <!-- 差異文本 -->
     <div class="diff-text">
         <h4>文本差異：</h4>
         {% if result.diff_ops %}
@@ -76,7 +76,7 @@
         <h4>錯誤單字及跳轉：</h4>
         {% for word, link in result.word_links.items() %}
             {% if link %}
-                <!-- 使用 target="_top" 来确保点进链接后整个页面跳转 -->
+                <!-- 使用 target="_top" 來確保點進鏈接後整個頁面跳轉 -->
                 <p>單字 "{{ word }}" 在句子: 
                     <a href="{{ url_for('view_course_detail', course_id=link.course_id) }}" target="_top">
                         {{ link.sentence_text }}

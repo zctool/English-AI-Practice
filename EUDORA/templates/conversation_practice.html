@@ -140,7 +140,7 @@
     .sidebar ul li {
       padding: 10px;
       /* 增加一點內距讓文本不會貼太近邊緣 */
-      /* 給列表項目一個背景色，更容易看出布局 */
+      /* 給列表項目一個背景色，更容易看出佈局 */
       border-bottom: 1px solid #ccc;
       /* 添加邊框讓每個項目更加明顯 */
     }
@@ -221,10 +221,10 @@
 
     .sidebar {
       background-color: #f8f9fa;
-      /* 浅灰色背景 */
+      /* 淺灰色背景 */
       padding: 20px;
       border-right: 1px solid #dee2e6;
-      /* 添加分隔线 */
+      /* 添加分隔線 */
     }
 
     .main-content {
@@ -234,13 +234,13 @@
 
     .nav-link {
       color: #007bff;
-      /* 蓝色链接 */
+      /* 藍色鏈接 */
       transition: color 0.2s;
     }
 
     .nav-link:hover {
       color: #0056b3;
-      /* 深蓝色悬浮效果 */
+      /* 深藍色懸浮效果 */
     }
 
     .profile-picture img {
@@ -11190,7 +11190,7 @@
       background: #f9f9f9;
       margin: 0;
       display: none;
-      /* 默认不显示 */
+      /* 默認不顯示 */
 
     }
 
@@ -11221,7 +11221,7 @@
       background: #f9f9f9;
       margin: 0;
       display: block;
-      /* 默认不显示 */
+      /* 默認不顯示 */
 
     }
 
@@ -11758,10 +11758,10 @@
       background-color: #f1f1f1;
     } 
 
-    /* 音频播放器的样式调整 */
+    /* 音頻播放器的樣式調整 */
 audio {
   width: 100%;
-  max-width: 300px; /* 最大宽度限制以保持一致性 */
+  max-width: 300px; /* 最大寬度限制以保持一致性 */
   margin: 10px 0;
 }
 
@@ -11983,8 +11983,8 @@ body, html {
   </p>
   <p style="color: #ddd">
     <a href="#" style="color: #ddd; text-decoration: none; margin: 0 10px"
-      >專題組員: 11236012 高穎萱 11236013 蔣杰森 11236022 巫承翰 11236025
-      葉于甄</a
+      >專題組員: 11236012 高穎萱 11236013 蔣傑森 11236022 巫承翰 11236025
+      葉於甄</a
     >
   </p>
 </footer>
@@ -12000,7 +12000,7 @@ body, html {
   <!-- footer  -->
   <!-- <div class="container-fluid pt-5">
         <p class="m-0 text-center text-white">組別: 113201 指導老師 : 林俊杰老師</p>
-        <p class="m-0 text-center text-white">專題組員: 11236001 林奕辰 11236012 高穎萱 11236013 蔣杰森 11236022 巫承翰 11236025 葉于甄</p>
+        <p class="m-0 text-center text-white">專題組員: 11236001 林奕辰 11236012 高穎萱 11236013 蔣傑森 11236022 巫承翰 11236025 葉於甄</p>
       </div>
                </div> -->
   <!-- Footer End -->
@@ -12231,22 +12231,22 @@ body, html {
     
       contents.forEach((content, index) => {
         if (width > 600) {
-          // 如果屏幕大于600px（电脑屏幕），确保内容显示
+          // 如果屏幕大於600px（電腦屏幕），確保內容顯示
           content.style.display = "block";
-          expandButtons[index].style.display = "none"; // 隐藏按钮
+          expandButtons[index].style.display = "none"; // 隱藏按鈕
         } else {
-          // 如果屏幕宽度小于600px（手机屏幕），内容根据当前状态显示或隐藏
+          // 如果屏幕寬度小於600px（手機屏幕），內容根據當前狀態顯示或隱藏
           content.style.display = "none";
-          expandButtons[index].style.display = "inline-block"; // 显示按钮
-          expandButtons[index].textContent = "點擊展開"; // 重置按钮文字
+          expandButtons[index].style.display = "inline-block"; // 顯示按鈕
+          expandButtons[index].textContent = "點擊展開"; // 重置按鈕文字
         }
       });
     }
     
-    // 监听窗口大小变化事件
+    // 監聽窗口大小變化事件
     window.addEventListener('resize', adjustDisplayForScreenSize);
     
-    // 初始化时检查屏幕大小
+    // 初始化時檢查屏幕大小
     window.onload = function() {
       adjustDisplayForScreenSize();
     };

@@ -143,7 +143,7 @@
           max-width: 100%;
         }
   
-        /* 在手机端隐藏默认信息，使用按钮展开 */
+        /* 在手機端隱藏默認信息，使用按鈕展開 */
         .hidden-content {
           display: none;
         }
@@ -472,11 +472,11 @@
         background-color: #f1f1f1;
       }
 
-      /* 音频播放器的样式调整 */
+      /* 音頻播放器的樣式調整 */
       audio {
         width: 100%;
         max-width: 300px;
-        /* 最大宽度限制以保持一致性 */
+        /* 最大寬度限制以保持一致性 */
         margin: 10px 0;
       }
       .record-controls {
@@ -655,7 +655,7 @@
     <!-- footer  -->
     <!-- <div class="container-fluid pt-5">
         <p class="m-0 text-center text-white">組別: 113201 指導老師 : 林俊杰老師</p>
-        <p class="m-0 text-center text-white">專題組員: 11236001 林奕辰 11236012 高穎萱 11236013 蔣杰森 11236022 巫承翰 11236025 葉于甄</p>
+        <p class="m-0 text-center text-white">專題組員: 11236001 林奕辰 11236012 高穎萱 11236013 蔣傑森 11236022 巫承翰 11236025 葉於甄</p>
       </div>
     </div> -->
     <!-- Footer End -->
@@ -921,22 +921,22 @@
       
         contents.forEach((content, index) => {
           if (width > 600) {
-            // 如果屏幕大于600px（电脑屏幕），确保内容显示
+            // 如果屏幕大於600px（電腦屏幕），確保內容顯示
             content.style.display = "block";
-            expandButtons[index].style.display = "none"; // 隐藏按钮
+            expandButtons[index].style.display = "none"; // 隱藏按鈕
           } else {
-            // 如果屏幕宽度小于600px（手机屏幕），内容根据当前状态显示或隐藏
+            // 如果屏幕寬度小於600px（手機屏幕），內容根據當前狀態顯示或隱藏
             content.style.display = "none";
-            expandButtons[index].style.display = "inline-block"; // 显示按钮
-            expandButtons[index].textContent = "點擊展開"; // 重置按钮文字
+            expandButtons[index].style.display = "inline-block"; // 顯示按鈕
+            expandButtons[index].textContent = "點擊展開"; // 重置按鈕文字
           }
         });
       }
       
-      // 监听窗口大小变化事件
+      // 監聽窗口大小變化事件
       window.addEventListener('resize', adjustDisplayForScreenSize);
       
-      // 初始化时检查屏幕大小
+      // 初始化時檢查屏幕大小
       window.onload = function() {
         adjustDisplayForScreenSize();
       };
@@ -955,8 +955,8 @@
       </p>
       <p style="color: #ddd">
         <a href="#" style="color: #ddd; text-decoration: none; margin: 0 10px"
-          >專題組員: 11236012 高穎萱 11236013 蔣杰森 11236022 巫承翰 11236025
-          葉于甄</a
+          >專題組員: 11236012 高穎萱 11236013 蔣傑森 11236022 巫承翰 11236025
+          葉於甄</a
         >
       </p>
     </footer>

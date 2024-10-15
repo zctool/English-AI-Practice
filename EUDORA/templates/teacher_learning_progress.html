@@ -47,7 +47,7 @@
 <body>
     <h1>學生學習進度</h1>
 
-    <!-- 选择学生 -->
+    <!-- 選擇學生 -->
     <div class="select-wrapper">
         <select name="student_id" id="student_select">
             <option value="" disabled selected>選擇學生</option>
@@ -57,14 +57,14 @@
         </select>
     </div>
 
-    <!-- 选择课程 -->
+    <!-- 選擇課程 -->
     <div class="select-wrapper">
         <select name="course_id" id="course_select" disabled>
             <option value="" disabled selected>選擇課程</option>
         </select>
     </div>
 
-    <!-- 选择句子 -->
+    <!-- 選擇句子 -->
     <div class="select-wrapper">
         <select name="sentence_id" id="sentence_select" disabled>
             <option value="" disabled selected>選擇句子</option>
@@ -79,7 +79,7 @@
         $(document).ready(function() {
             let chartInstance = null;
 
-            // 当选择学生时，加载该学生的课程
+            // 當選擇學生時，加載該學生的課程
             $('#student_select').on('change', function() {
                 var student_id = $(this).val();
                 if (student_id) {
@@ -95,7 +95,7 @@
                 }
             });
 
-            // 当选择课程时，加载该学生学过的句子
+            // 當選擇課程時，加載該學生學過的句子
             $('#course_select').on('change', function() {
                 var course_id = $(this).val();
                 var student_id = $('#student_select').val();
@@ -111,7 +111,7 @@
                 }
             });
 
-            // 当选择句子时，加载学习进度并更新图表
+            // 當選擇句子時，加載學習進度並更新圖表
             $('#sentence_select').on('change', function() {
                 var sentence_id = $(this).val();
                 var student_id = $('#student_select').val();
@@ -126,12 +126,12 @@
                             scores.push(record.score);
                         });
 
-                        // 如果已有图表实例，先销毁它
+                        // 如果已有圖表實例，先銷燬它
                         if (chartInstance) {
                             chartInstance.destroy();
                         }
 
-                        // 生成新的图表
+                        // 生成新的圖表
                         var ctx = document.getElementById('progressChart').getContext('2d');
                         chartInstance = new Chart(ctx, {
                             type: 'bar',
@@ -153,7 +153,7 @@
                                         max: 100,
                                         ticks: {
                                             callback: function(value) {
-                                                return value + '%';  // 显示百分比
+                                                return value + '%';  // 顯示百分比
                                             }
                                         }
                                     }

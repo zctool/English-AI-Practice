@@ -303,13 +303,13 @@
 
     .nav-link {
       color: #007bff;
-      /* 蓝色链接 */
+      /* 藍色鏈接 */
       transition: color 0.2s;
     }
 
     .nav-link:hover {
       color: #0056b3;
-      /* 深蓝色悬浮效果 */
+      /* 深藍色懸浮效果 */
     }
 
     .profile-picture img {
@@ -11316,7 +11316,7 @@
       background: #8db6ce;
       margin: 0;
       display: none;
-      /* 默认不显示 */
+      /* 默認不顯示 */
       cursor: pointer;
     }
 
@@ -11348,7 +11348,7 @@
       background: #8db6ce;
       margin: 0;
       display: block;
-      /* 默认不显示 */
+      /* 默認不顯示 */
       cursor: pointer;
     }
 
@@ -12102,8 +12102,8 @@
           組別: 113201 指導老師 : 林俊杰老師
         </p>
         <p class="m-0 text-center text-white">
-          專題組員: 11236012 高穎萱 11236013 蔣杰森 11236022
-          巫承翰 11236025 葉于甄
+          專題組員: 11236012 高穎萱 11236013 蔣傑森 11236022
+          巫承翰 11236025 葉於甄
         </p>
         <div class="row pt-5"></div>
       </div>
@@ -12123,9 +12123,9 @@
       組別: 113201 指導老師 : 林俊杰老師
     </p>
     <p style="color: #ddd">
-      <a href="#" style="color: #ddd; text-decoration: none; margin: 0 10px">專題組員: 11236012 高穎萱 11236013 蔣杰森 11236022
+      <a href="#" style="color: #ddd; text-decoration: none; margin: 0 10px">專題組員: 11236012 高穎萱 11236013 蔣傑森 11236022
         巫承翰 11236025
-        葉于甄</a>
+        葉於甄</a>
     </p>
   </footer>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -12142,19 +12142,19 @@
   <!-- Template Javascript -->
   <script>
     function loadPage(url, element) {
-      // 检查元素是否存在并且包含 data-fullpage 属性
+      // 檢查元素是否存在並且包含 data-fullpage 屬性
       if (element && element.getAttribute('data-fullpage')) {
-        // 如果有 data-fullpage 属性，改变整个页面的 URL
+        // 如果有 data-fullpage 屬性，改變整個頁面的 URL
         window.location.href = url;
       } else {
-        // 否则在 iframe 中加载页面
+        // 否則在 iframe 中加載頁面
         document.getElementById("contentFrame").src = url;
       }
 
-      // 设置活动页面
+      // 設置活動頁面
       setActivePage(url);
 
-      // 如果屏幕宽度小于等于 768px，则切换侧边栏
+      // 如果屏幕寬度小於等於 768px，則切換側邊欄
       if (window.innerWidth <= 768) {
         toggleSidebar();
       }
@@ -12188,7 +12188,7 @@
       document.getElementById("sidebar").classList.toggle("active");
     }
 
-    // 初始化活动页面
+    // 初始化活動頁面
     setActivePage("{{ url_for('account_manage') }}");
 
     const header = document.getElementById("main-header");

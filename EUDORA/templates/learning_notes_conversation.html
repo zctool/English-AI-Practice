@@ -69,7 +69,7 @@
             padding-top: 5px;
         }
 
-        /* 星星按钮样式 */
+        /* 星星按鈕樣式 */
         .star-button {
             font-size: 24px;
             cursor: pointer;
@@ -91,7 +91,7 @@
 
         /* 展開/收起按鈕樣式，並將其移動到右側 */
         .expand-btn {
-            float: right; /* 按钮位于右侧 */
+            float: right; /* 按鈕位於右側 */
             padding: 10px 15px;
             background-color: #007bff;
             color: white;
@@ -106,7 +106,7 @@
             background-color: #0056b3;
         }
 
-        /* 大屏幕上的样式 */
+        /* 大屏幕上的樣式 */
         @media (min-width: 601px) {
             .content {
                 width: 80%;
@@ -125,7 +125,7 @@
             }
         }
 
-        /* 小屏幕上的样式 */
+        /* 小屏幕上的樣式 */
         @media (max-width: 600px) {
             .content {
                 width: 100%;
@@ -168,7 +168,7 @@
                         <p><strong>English:</strong> {{ record.conversation_en }}</p>
                         <p><strong>Chinese:</strong> {{ record.conversation_tw }}</p>
 
-                        <!-- 显示 Accuracy 和 錄音 -->
+                        <!-- 顯示 Accuracy 和 錄音 -->
                         <p>
                             <strong>Accuracy:</strong>
                             <span class="accuracy">{{ record.accuracy is not none and (record.accuracy == 100.0 and
