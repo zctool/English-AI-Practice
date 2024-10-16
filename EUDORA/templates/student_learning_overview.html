@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>學習完整度概覽</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .recommendation {
+            width: 80%;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #e9f5ff;
+            border-radius: 8px;
+            border: 1px solid #d4e9f9;
+        }
+        .recommendation h3 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .recommendation p {
+            margin: 5px 0;
+            padding-left: 15px;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* RWD */
+        @media (max-width: 768px) {
+            .chart-container, .recommendation {
+                width: 100%;
+                padding: 10px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>學習完整度概覽</h1>
+    <div class="chart-container">
+        <canvas id="completionChart"></canvas>
+    </div>
+    <div id="recommendations">
+        <!-- 動態生成推薦內容 -->
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 渲染圖表
+            const sentenceResults = {{ sentence_results|tojson }};
+            const labels = sentenceResults.map(item => item.sentence_text);
+            const data = sentenceResults.map(item => item.completion);
+            const ctx = document.getElementById('completionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '句子完整度 (%)',
+                        data: data,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 10
+                            }
+                        }
+                    },
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return `完整度: ${tooltipItem.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 動態添加推薦內容
+            const recommendations = {{ recommendations|tojson }};
+            const recContainer = document.getElementById('recommendations');
+            
+            recommendations.forEach(rec => {
+                const div = document.createElement('div');
+                div.className = 'recommendation';
+                div.innerHTML = `<h3>與「${rec.sentence.sentence_text}」相似的內容</h3>`;
+                rec.suggestions.forEach(suggest => {
+                    div.innerHTML += `
+                        <p>
+                            句子：「${suggest.sentence_text}」 
+                            (<a href="/view_course_detail/${suggest.course_id}" target="_blank">前往課程: ${suggest.course_name}</a>)
+                        </p>`;
+                });
+                recContainer.appendChild(div);
+            });
+        });
+    </script>
+</body>
+</html>
