@@ -1560,6 +1560,55 @@ def search_similar_words():
     else:
         return jsonify({'success': False, 'message': '无类似的句子'})
 
+@app.route('/learning_overview', methods=['GET'])
+def learning_overview():
+    user_email = session.get('email')
+    
+    if not user_email:
+        return jsonify({'error': '未登录'}), 401
+
+    # 建立資料庫連接
+    connection = cnxpool.get_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    # 查詢學生所有最終句子的練習結果，計算完整度（例如，相似度得分的平均值）
+    cursor.execute("""
+        SELECT s.id AS sentence_id, s.content AS sentence_text, 
+               AVG((r.similarity_score * 0.1 + r.text_similarity * 0.9) * 100) AS completion
+        FROM UserRecordings r
+        JOIN Sentence s ON r.sentence_id = s.id
+        JOIN users u ON r.user_id = u.id
+        WHERE u.GoogleEmail = %s
+        GROUP BY s.id
+    """, (user_email,))
+    sentence_results = cursor.fetchall()
+
+    # 找出念不好的句子（例如完整度低於 70%）
+    poorly_practiced = [res for res in sentence_results if res['completion'] < 70]
+
+    # 基於念不好的句子，推薦相似單字和對話/課程
+    recommendations = []
+    for sentence in poorly_practiced:
+        cursor.execute("""
+            SELECT s.id AS sentence_id, s.content AS sentence_text, c.id AS course_id, c.name AS course_name
+            FROM Sentence s
+            JOIN Course c ON s.course_id = c.id
+            WHERE MATCH(s.content) AGAINST(%s IN NATURAL LANGUAGE MODE) 
+            AND c.is_open = TRUE 
+            AND s.id != %s  -- 排除本身的句子
+            LIMIT 3
+        """, (sentence['sentence_text'], sentence['sentence_id']))
+        similar_sentences = cursor.fetchall()
+        if similar_sentences:
+            recommendations.append({'sentence': sentence, 'suggestions': similar_sentences})
+
+    cursor.close()
+    connection.close()
+
+    return render_template('student_learning_overview.html', 
+                           sentence_results=sentence_results, 
+                           recommendations=recommendations)
+
 # 註冊 Blueprint
 app.register_blueprint(teacher_bp, url_prefix='/teacher')
 app.register_blueprint(admin_bp, url_prefix='/admin')
