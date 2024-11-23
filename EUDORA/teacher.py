@@ -11,10 +11,13 @@ teacher_bp.secret_key = 'your_secret_key'
 
 # MySQL 數據庫連接配置
 config = {
-    'user': 'eudora',
-    'password': '',
-    'host': '20.18.40.160',
-    'database': '113-ntub',
+   
+    'user': 'case113201',
+    'password': '@Ntub_113201',
+    'host': '140.131.114.242',
+    'database': '113-NTUB',
+    'pool_name': 'mypool',
+    'pool_size': 5
 }
 
 def teacher_required(f):

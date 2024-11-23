@@ -165,12 +165,12 @@
                 {% for record in conversations %}
                 <div class="sentence">
                     <div class="record">
-                        <p><strong>English:</strong> {{ record.conversation_en }}</p>
-                        <p><strong>Chinese:</strong> {{ record.conversation_tw }}</p>
+                        <p><strong>英文:</strong> {{ record.conversation_en }}</p>
+                        <p><strong>中文:</strong> {{ record.conversation_tw }}</p>
 
                         <!-- 顯示 Accuracy 和 錄音 -->
                         <p>
-                            <strong>Accuracy:</strong>
+                            <strong>正確率:</strong>
                             <span class="accuracy">{{ record.accuracy is not none and (record.accuracy == 100.0 and
                                 "completely" or record.accuracy|round(2)) or "N/A" }}%</span>
                         </p>
@@ -179,7 +179,7 @@
                             <p><strong>錄音</strong></p>
                             <audio class="responsive-audio" controls>
                                 <source src="data:audio/webm;base64,{{ record.user_voice }}" type="audio/webm">
-                                Your browser does not support the audio element.
+                               你的瀏覽器不支援音頻播放。
                             </audio>
                         </div>
 
@@ -193,12 +193,12 @@
                             </audio>
 
                             <div class="stt-result">
-                                <h3>STT Result</h3>
+                                <h3>比對結果</h3>
                                 <p>
-                                    <strong>STT Text:</strong>
+                                    <strong>你的文字:</strong>
                                     <span class="stt-text">{{ record.STT }}</span>
                                 </p>
-                                <p><strong>Differences:</strong></p>
+                                <p><strong>差異:</strong></p>
                                 <div class="highlighted-text">
                                     {{ record.highlighted_text|safe }}
                                 </div>

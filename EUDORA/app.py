@@ -24,10 +24,10 @@ app.secret_key = os.urandom(24)
 
 # 創建資料庫連接池
 db_config = {
-    'user': 'eudora',
-    'password': '',
-    'host': '20.18.40.160',
-    'database': '113-ntub',
+    'user': 'case113201',
+    'password': '@Ntub_113201',
+    'host': '140.131.114.242',
+    'database': '113-NTUB',
     'pool_name': 'mypool',
     'pool_size': 5
 }
@@ -1614,4 +1614,4 @@ app.register_blueprint(teacher_bp, url_prefix='/teacher')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=81)
+    app.run(debug=True, host='0.0.0.0', port=5000)

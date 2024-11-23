@@ -11897,7 +11897,7 @@ body, html {
         <ul id="main-nav">
           <li class="current"><a href="{{ url_for('main') }}">首頁</a></li>
           <li class="dropdown">
-            <a href="#courses" class="dropbtn">課程</a>
+            <a href="#courses" class="dropbtn">老師課程</a>
             <div class="dropdown-content">
                 <a href="{{ url_for('all_teachers') }}">所有老師</a>
                 <a href="{{ url_for('recommended_teachers') }}">推薦的老師</a>
@@ -11925,7 +11925,7 @@ body, html {
 
       <div class="container">
 
-        <h1>Conversation Practice</h1>
+        <h1>對話練習</h1>
         <div class="conversations">
           <div class="sentence-container">
             {% for conversation in conversations %}
@@ -11939,7 +11939,7 @@ body, html {
                 <p>{{ conversation.conversation_tw }}</p>
                 <audio class="responsive-audio" controls>
                   <source src="data:audio/wav;base64,{{ conversation.conversation_voice }}" type="audio/wav">
-                  Your browser does not support the audio element.
+                 你的瀏覽器不支援音檔
                 </audio>
                 <div class="record-controls">
                   <button class="startRecording" onclick="startRecording('{{ conversation.id }}', this)">開始錄音</button>
@@ -11953,10 +11953,10 @@ body, html {
                 </button>
                 <div class="hidden-content">
                 <div class="stt-result">
-                  <h3>STT Result</h3>
-                  <p><strong>STT Text:</strong> <span class="stt-text"></span></p>
-                  <p><strong>Accuracy:</strong> <span class="accuracy"></span></p>
-                  <p><strong>Differences:</strong></p>
+                  <h3>比對結果</h3>
+                  <p><strong>你的文字:</strong> <span class="stt-text"></span></p>
+                  <p><strong>正確率:</strong> <span class="accuracy"></span></p>
+                  <p><strong>差異:</strong></p>
                   <div class="highlighted-text"></div>
                   <p>---------------------------------------</p>
                 </div>

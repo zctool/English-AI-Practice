@@ -156,21 +156,21 @@
     <div class="content">
         <h1>學習歷程-對話</h1>
         <form method="POST" action="{{ url_for('learning_history_conversation') }}">
-            <label for="date_filter">Filter by Date:</label>
+            <label for="date_filter">依日期搜尋:</label>
             <input type="date" id="date_filter" name="date_filter" value="{{ date_filter }}">
-            <button type="submit">Filter</button>
+            <button type="submit">搜尋</button>
         </form>
         <div class="history">
             <div class="sentence-container">
                 {% for record in learning_history %}
                 <div class="sentence">
                     <div class="record">
-                        <p><strong>English:</strong> {{ record.conversation_en }}</p>
-                        <p><strong>Chinese:</strong> {{ record.conversation_tw }}</p>
+                        <p><strong>英文:</strong> {{ record.conversation_en }}</p>
+                        <p><strong>中文:</strong> {{ record.conversation_tw }}</p>
 
                         <!-- 顯示 Accuracy 和 錄音 -->
                         <p>
-                            <strong>Accuracy:</strong>
+                            <strong>正確率:</strong>
                             <span class="accuracy">{{ record.accuracy == 100.0 and "completely" or
                                 record.accuracy|round(2) }}%</span>
                         </p>
@@ -179,7 +179,7 @@
                             <p><strong>錄音</strong></p>
                             <audio controls>
                                 <source src="data:audio/webm;base64,{{ record.user_voice }}" type="audio/webm">
-                                Your browser does not support the audio element.
+                                你的瀏覽器不支援音頻播放。
                             </audio>
                         </div>
 
@@ -189,16 +189,16 @@
                             <p><strong>原文</strong></p>
                             <audio class="responsive-audio" controls>
                                 <source src="data:audio/webm;base64,{{ record.conversation_voice }}" type="audio/webm">
-                                Your browser does not support the audio element.
+                                你的瀏覽器不支援音頻播放。
                             </audio>
 
                             <div class="stt-result">
-                                <h3>STT Result</h3>
+                                <h3>比對結果</h3>
                                 <p>
-                                    <strong>STT Text:</strong>
+                                    <strong>你的文字:</strong>
                                     <span class="stt-text">{{ record.STT }}</span>
                                 </p>
-                                <p><strong>Differences:</strong></p>
+                                <p><strong>差異:</strong></p>
                                 <div class="highlighted-text">
                                     {{ record.highlighted_text|safe }}
                                 </div>
