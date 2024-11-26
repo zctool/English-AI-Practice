@@ -268,6 +268,11 @@ def edit_course(course_id):
     return render_template('edit_course.html', course=course)
 
 ##編輯課文內容
+import base64
+import base64
+import io
+from flask import flash, redirect, render_template, request, url_for, send_file
+import mysql.connector
 
 @teacher_bp.route('/edit_course_content/<int:course_id>', methods=['GET', 'POST'])
 @teacher_required
@@ -278,56 +283,47 @@ def edit_course_content(course_id):
         connection = mysql.connector.connect(**config)
         cursor = connection.cursor(dictionary=True)
 
-        # 獲取課程信息
-        teacher_email = session.get('email')
-        query = "SELECT * FROM Course WHERE id = %s AND teacher_email = %s"
-        cursor.execute(query, (course_id, teacher_email))
+        # 獲取課程和句子信息
+        query = "SELECT * FROM Course WHERE id = %s"
+        cursor.execute(query, (course_id,))
         course = cursor.fetchone()
 
         if not course:
-            flash('未找到課程或您無權編輯該課程', 'danger')
+            flash('未找到課程', 'danger')
             return redirect(url_for('teacher.manage_courses'))
 
-        # 獲取課程內的句子和音頻信息
         query = "SELECT * FROM Sentence WHERE course_id = %s"
         cursor.execute(query, (course_id,))
         sentences = cursor.fetchall()
 
         if request.method == 'POST':
-            # 更新句子和音頻信息
+            # 提取所有提交的數據
             sentence_ids = request.form.getlist('sentence_id')
             new_sentences = request.form.getlist('sentence')
-            new_audios = request.files.getlist('audio')
+            new_audios = request.files.getlist('audio')  # 上传的音频文件
+            recorded_audios = request.form.getlist('recorded_audio')  # Base64 编码的录音数据
 
             for idx, sentence_id in enumerate(sentence_ids):
-                if sentence_id:
-                    # 更新已存在的句子
-                    update_sentence = """
-                        UPDATE Sentence
-                        SET content = %s
-                        WHERE id = %s AND course_id = %s
+                # 更新句子內容
+                update_sentence = """
+                    UPDATE Sentence SET content = %s WHERE id = %s
+                """
+                cursor.execute(update_sentence, (new_sentences[idx], sentence_id))
+
+                # 判斷音檔來源並處理
+                audio_data = None
+                if new_audios[idx]:  # 上傳的音頻文件存在
+                    audio_data = new_audios[idx].read()  # 讀取音頻文件
+                elif idx < len(recorded_audios) and recorded_audios[idx]:  # Base64 錄音數據存在
+                    audio_data = base64.b64decode(recorded_audios[idx])  # 解碼 Base64 錄音數據
+
+                if audio_data:  # 如果有音頻數據，更新數據庫
+                    update_audio = """
+                        UPDATE Sentence SET audio_file = %s WHERE id = %s
                     """
-                    cursor.execute(update_sentence, (new_sentences[idx], sentence_id, course_id))
+                    cursor.execute(update_audio, (audio_data, sentence_id))
 
-                    # 如果有新音頻，則更新音頻文件
-                    if new_audios[idx]:
-                        audio_data = new_audios[idx].read()
-                        update_audio = """
-                            UPDATE Sentence
-                            SET audio_file = %s
-                            WHERE id = %s AND course_id = %s
-                        """
-                        cursor.execute(update_audio, (audio_data, sentence_id, course_id))
-
-                else:
-                    # 插入新句子
-                    audio_data = new_audios[idx].read() if new_audios[idx] else None
-                    insert_sentence = """
-                        INSERT INTO Sentence (content, course_id, audio_file)
-                        VALUES (%s, %s, %s)
-                    """
-                    cursor.execute(insert_sentence, (new_sentences[idx], course_id, audio_data))
-
+            # 提交更改到數據庫
             connection.commit()
             flash('課程內容更新成功', 'success')
             return redirect(url_for('teacher.edit_course_content', course_id=course_id))
@@ -344,7 +340,6 @@ def edit_course_content(course_id):
 
     return render_template('edit_course_content.html', course=course, sentences=sentences)
 
-##獲取音檔
 
 @teacher_bp.route('/get_audio/<int:sentence_id>')
 @teacher_required
@@ -363,11 +358,57 @@ def get_audio(sentence_id):
             flash('未找到音頻文件', 'danger')
             return '', 404
 
-        return send_file(io.BytesIO(sentence['audio_file']), mimetype='audio/mp3')
+        return send_file(io.BytesIO(sentence['audio_file']), mimetype='audio/mpeg')
 
     except mysql.connector.Error as err:
         flash(f'資料庫錯誤: {err}', 'danger')
         return '', 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+from flask import jsonify
+
+@teacher_bp.route('/update_audio/<int:sentence_id>', methods=['POST'])
+@teacher_required
+def update_audio(sentence_id):
+    connection = None
+    cursor = None
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor(dictionary=True)
+
+        # 取得句子資料
+        query = "SELECT * FROM Sentence WHERE id = %s"
+        cursor.execute(query, (sentence_id,))
+        sentence = cursor.fetchone()
+
+        if not sentence:
+            return jsonify({'status': 'error', 'message': '未找到句子'}), 404
+
+        # 處理音檔更新
+        audio_file = None
+        new_audio = request.files.get('audio')  # 上傳的音檔
+        recorded_audio = request.form.get('recorded_audio')  # Base64 編碼的錄音資料
+
+        if new_audio:
+            audio_file = new_audio.read()
+        elif recorded_audio:
+            audio_file = base64.b64decode(recorded_audio)
+
+        if audio_file:
+            update_audio_query = "UPDATE Sentence SET audio_file = %s WHERE id = %s"
+            cursor.execute(update_audio_query, (audio_file, sentence_id))
+            connection.commit()
+
+        # 返回更新後的音檔 URL
+        audio_url = url_for('teacher.get_audio', sentence_id=sentence_id)
+        return jsonify({'status': 'success', 'audio_url': audio_url})
+
+    except mysql.connector.Error as err:
+        return jsonify({'status': 'error', 'message': str(err)}), 500
     finally:
         if cursor:
             cursor.close()
