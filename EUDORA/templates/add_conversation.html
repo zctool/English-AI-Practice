@@ -6,43 +6,43 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Add Conversation</h1>
+    <h1>新增對話</h1>
     <form method="post" enctype="multipart/form-data">
-        <label for="topic_id">Topic:</label>
+        <label for="topic_id">主題：</label>
         <select id="topic_id" name="topic_id" required onchange="loadDifficultyClasses(this.value)">
-            <option value="">Select a topic</option>
+            <option value="">選擇主題</option>
             {% for topic in topics %}
             <option value="{{ topic[0] }}">{{ topic[1] }}</option>
             {% endfor %}
         </select><br>
         
-        <label for="class">Difficulty Class:</label>
+        <label for="class">難度：</label>
         <select id="class" name="class" required onchange="loadSituations(this.value)">
-            <option value="">Select a difficulty class</option>
+            <option value=""></option>
         </select><br>
         
-        <label for="situation_id">Situation:</label>
+        <label for="situation_id">情境：</label>
         <select id="situation_id" name="situation_id" required>
-            <option value="">Select a situation</option>
+            <option value="">選擇情境</option>
         </select><br>
         
-        <label for="character_id">Character:</label>
+        <label for="character_id">角色：</label>
         <select id="character_id" name="character_id" required>
-            <option value="">Select a character</option>
+            <option value="">選擇角色</option>
         </select><br>
         
-        <label for="conversation_en">Conversation (English):</label>
+        <label for="conversation_en">對話(英文):</label>
         <input type="text" id="conversation_en" name="conversation_en" required><br>
         
-        <label for="conversation_tw">Conversation (Chinese):</label>
+        <label for="conversation_tw">對話(中文):</label>
         <input type="text" id="conversation_tw" name="conversation_tw" required><br>
         
-        <label for="conversation_voice">Upload Voice (MP3):</label>
+        <label for="conversation_voice">上傳音檔 (MP3):</label>
         <input type="file" id="conversation_voice" name="conversation_voice" accept=".mp3"><br>
         
-        <input type="submit" value="Add Conversation">
+        <input type="submit" value="新增對話">
     </form>
-    <a href="{{ url_for('admin.conversations') }}">Back to Conversations</a>
+  
 </body>
 </html>
 

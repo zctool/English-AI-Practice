@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Vocabulary Topic</title>
+    <title>編輯單字主題c</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Edit Vocabulary Topic</h1>
+    <h1>編輯單字主題</h1>
     <form action="{{ url_for('admin.edit_vocabulary_topic', topic_id=topic_id) }}" method="post" enctype="multipart/form-data">
-        <label for="name">Topic Name:</label>
+        <label for="name">主題:</label>
         <input type="text" id="name" name="name" value="{{ topic[0] }}" required><br>
-        <label for="icon">Upload New Icon (JPG, PNG):</label>
+        <label for="icon">上傳新圖示(JPG, PNG):</label>
         <input type="file" id="icon" name="icon" accept="image/jpeg, image/png"><br>
-        <button type="submit">Update Topic</button>
+        <button type="submit">更新主題</button>
     </form>
-    <a href="{{ url_for('admin.admin_vocabulary_topics') }}">Back to Vocabulary Topics</a>
+    <a href="{{ url_for('admin.admin_vocabulary_topics') }}">返回單字主題</a>
 </body>
 </html>

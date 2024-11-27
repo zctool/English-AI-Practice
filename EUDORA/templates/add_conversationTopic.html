@@ -9,15 +9,15 @@
     />
   </head>
   <body>
-    <h1>Add Conversation Topic</h1>
+    <h1>新增對話主題</h1>
     <form method="post" enctype="multipart/form-data">
-      <label for="name">Topic Name:</label>
+      <label for="name">主題名稱：</label>
       <input type="text" id="name" name="name" required /><br />
 
-      <label for="icon">Upload Icon (JPG, PNG):</label>
+      <label for="icon">上傳圖示 (JPG, PNG):</label>
       <input type="file" id="icon" name="icon" accept=".jpg, .jpeg, .png" required /><br /><br />
 
-      <input type="submit" value="Add Topic" class="submit-button"/>
+      <input type="submit" value="新增主題" class="submit-button"/>
     </form>
 
     {% with messages = get_flashed_messages(with_categories=true) %}

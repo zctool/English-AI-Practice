@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Conversation Topics</title>
+    <title>對話主題</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Conversation Topics</h1>
+    <h1>對話主題</h1>
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Topic Name</th>
-                <th>Actions</th>
+                <th>主題</th>
+                <th>操作</th>
             </tr>
         </thead>
         <tbody>
@@ -21,8 +21,8 @@
                 <td>{{ topic[0] }}</td>
                 <td>{{ topic[1] }}</td>
                 <td>
-                    <a href="{{ url_for('admin.edit_conversation_topic', topic_id=topic[0], situation_id=situation_id) }}" class="edit-btn">Edit</a>
-                    <a href="{{ url_for('admin.delete_conversation_topic', topic_id=topic[0], situation_id=situation_id) }}" onclick="return confirm('Are you sure you want to delete this topic?');" class="delete-btn">Delete</a>
+                    <a href="{{ url_for('admin.edit_conversation_topic', topic_id=topic[0], situation_id=situation_id) }}" class="edit-btn">編輯</a>
+                    <a href="{{ url_for('admin.delete_conversation_topic', topic_id=topic[0], situation_id=situation_id) }}" onclick="return confirm('Are you sure you want to delete this topic?');" class="delete-btn">刪除</a>
                 </td>
             </tr>
             {% endfor %}

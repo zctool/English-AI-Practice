@@ -9,38 +9,38 @@
     />
   </head>
   <body>
-    <h1>Add Conversation Situation</h1>
+    <h1>新增對話情境</h1>
     <form
       method="post"
       enctype="multipart/form-data"
       onsubmit="return form_stop()"
     >
-      <label for="situation">Situation:</label>
+      <label for="situation">情境:</label>
       <input type="text" id="situation" name="situation" required /><br />
 
-      <label for="topic_id">Topic:</label>
+      <label for="topic_id">主題:</label>
       <select id="topic_id" name="topic_id" required>
         {% for topic in topics %}
         <option value="{{ topic[0] }}">{{ topic[1] }}</option>
         {% endfor %}</select
       ><br /><br />
 
-      <label for="class">Difficulty Class:</label>
+      <label for="class">難度:</label>
       <select id="class" name="class" required>
-        <option value="Easy">Easy</option>
-        <option value="Normal">Normal</option>
-        <option value="Hard">Hard</option></select
+        <option value="Easy">簡單</option>
+        <option value="Normal">正常</option>
+        <option value="Hard">困難</option></select
       ><br /><br />
 
       <div id="characterContainer"></div>
       <div class="button-container">
         <div class="left-buttons">
           <button type="button" onclick="addCharacterField()" class="btn20">
-            Add Character
+            新增角色
           </button>
         </div>
         <div class="right-button">
-          <button type="submit" class="submit-button">Add Situation</button>
+          <button type="submit" class="submit-button">新增情境</button>
         </div>
       </div>
     </form>

@@ -6,14 +6,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Conversation Situations</h1>
+    <h1>對話情境</h1>
     <table>
         <thead>
             <tr>
                 <th style:padding="10px">ID</th>
-                <th>Situation</th>
-                <th>Topic Name</th>
-                <th>Actions</th>
+                <th>情境</th>
+                <th>主題</th>
+                <th>操作</th>
             </tr>
         </thead>
         <tbody>
@@ -23,9 +23,9 @@
                 <td>{{ situation[1] }}</td>
                 <td>{{ situation[2] }}</td>
                 <td><nobr>
-                    <a href="{{ url_for('admin.edit_conversation_situation', situation_id=situation[0]) }}" class="edit-btn">Edit</a>
-                    <a href="{{ url_for('admin.delete_conversation_situation', situation_id=situation[0]) }}" onclick="return confirm('Are you sure you want to delete this situation?');" class="delete-btn">Delete</a>
-                    <a href="{{ url_for('admin.characters', situation_id=situation[0]) }}" class="view-btn">Characters</a>
+                    <a href="{{ url_for('admin.edit_conversation_situation', situation_id=situation[0]) }}" class="edit-btn">編輯</a>
+                    <a href="{{ url_for('admin.delete_conversation_situation', situation_id=situation[0]) }}" onclick="return confirm('Are you sure you want to delete this situation?');" class="delete-btn">刪除</a>
+                    <a href="{{ url_for('admin.characters', situation_id=situation[0]) }}" class="view-btn">角色</a>
                 </nobr></td>
             </tr>
             {% endfor %}

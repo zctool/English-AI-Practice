@@ -6,21 +6,21 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Edit Conversation Situation</h1>
+    <h1>編輯對話情境</h1>
     <form method="post" enctype="multipart/form-data">
-        <label for="situation">Situation:</label>
+        <label for="situation">情境</label>
         <input type="text" id="situation" name="situation" value="{{ situation[0] }}" required><br>
 
-        <label for="topic_id">Topic:</label>
+        <label for="topic_id">主題</label>
         <select id="topic_id" name="topic_id" required>
             {% for topic in topics %}
             <option value="{{ topic[0] }}" {% if topic[0] == situation[1] %}selected{% endif %}>{{ topic[1] }}</option>
             {% endfor %}
         </select><br>
 
-        <input type="submit" value="Update Situation">
+        <input type="submit" value="更新情境">
     </form>
-    <a href="{{ url_for('admin.admin_conversation_situations') }}" class="back-button">Back to Situations</a>
+    
 
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}

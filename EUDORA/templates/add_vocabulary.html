@@ -10,40 +10,40 @@
   </head>
   <body>
     <div class="container">
-      <h1>Add Vocabulary</h1>
+      <h1>新增單字</h1>
       <form method="post" enctype="multipart/form-data">
-        <label for="topic_id">Topic:</label>
+        <label for="topic_id">主題:</label>
         <select id="topic_id" name="topic_id" required>
           {% for topic in topics %}
           <option value="{{ topic[0] }}">{{ topic[1] }}</option>
           {% endfor %}</select
         ><br />
-        <label for="vocabulary_en">Vocabulary (English):</label>
+        <label for="vocabulary_en">單字(英文):</label>
         <input
           type="text"
           id="vocabulary_en"
           name="vocabulary_en"
           required
         /><br />
-        <label for="vocabulary_tw">Vocabulary (Chinese):</label>
+        <label for="vocabulary_tw">單字 (中文):</label>
         <input
           type="text"
           id="vocabulary_tw"
           name="vocabulary_tw"
           required
         /><br />
-        <label for="part_of_speech">Part of Speech:</label>
+        <label for="part_of_speech">詞性：</label>
         <input
           type="text"
           id="part_of_speech"
           name="part_of_speech"
           required
         /><br />
-        <label for="ipa">IPA:</label>
+        <label for="ipa">音標:</label>
         <input type="text" id="ipa" name="ipa" required /><br />
-        <label for="example">Example:</label>
+        <label for="example">例句：</label>
         <input type="text" id="example" name="example" required /><br />
-        <label for="class">Class:</label>
+        <label for="class">難度：</label>
         <select id="class" name="class" required>
           <option value="A1">A1</option>
           <option value="A2">A2</option>
@@ -52,7 +52,7 @@
           <option value="C1">C1</option>
           <option value="C2">C2</option></select
         ><br />
-        <label for="vocabulary_voice">Upload Voice (MP3):</label>
+        <label for="vocabulary_voice">上傳音檔(MP3):</label>
         <input
           type="file"
           id="vocabulary_voice"
@@ -60,7 +60,7 @@
           accept=".mp3"
           required
         /><br /><br />
-        <input type="submit" value="Add Vocabulary" />
+        <input type="submit" value="新增單字" />
       </form>
 
       {% with messages = get_flashed_messages(with_categories=true) %} {% if

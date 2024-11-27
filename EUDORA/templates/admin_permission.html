@@ -7,19 +7,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Welcome, {{ name }}</h1>
+    <h1>歡迎,{{ name }}</h1>
     <form method="post" action="{{ url_for('admin.admin_permission') }}">
-        <input type="text" name="search" placeholder="Search by name or email" value="{{ search_query }}">
-        <button type="submit">Search</button>
+        <input type="text" name="search" placeholder="用名字和Email搜尋" value="{{ search_query }}">
+        <button type="submit">搜尋</button>
     </form>
     <table>
         <thead>
             <tr>
-                <th>Name</th>
+                <th>名稱</th>
                 <th>Email</th>
-                <th>Role</th>
-                <th>Icon</th>
-                <th>Action</th>
+                <th>身分</th>
+                <th>頭像</th>
+                <th>操作</th>
             </tr>
         </thead>
         <tbody>
@@ -31,11 +31,11 @@
                     <form method="post" action="{{ url_for('admin.update_user_role') }}">
                         <input type="hidden" name="user_id" value="{{ user.id }}">
                         <select name="role">
-                            <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
-                            <option value="teacher" {% if user.role == 'teacher' %}selected{% endif %}>Teacher</option>
-                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                            <option value="user" {% if user.role == 'user' %}selected{% endif %}>使用者</option>
+                            <option value="teacher" {% if user.role == 'teacher' %}selected{% endif %}>老師</option>
+                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>管理者</option>
                         </select>
-                        <button type="submit">Update</button>
+                        <button type="submit">更新</button>
                     </form>
                 </td>
                 <td>
@@ -46,7 +46,7 @@
                 <td>
                     <form method="post" action="{{ url_for('admin.delete_user') }}">
                         <input type="hidden" name="user_id" value="{{ user.id }}">
-                        <button type="submit">Delete</button>
+                        <button type="submit">刪除</button>
                     </form>
                 </td>
             </tr>

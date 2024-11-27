@@ -11,12 +11,12 @@
   </head>
   <body>
     <div class="container">
-      <h1>Vocabulary Topics</h1>
+      <h1>單字主題</h1>
       <table>
         <tr>
-          <th>Vocabulary Topics</th>
+          <th>單字主題</th>
 
-          <th>Actions</th>
+          <th>操作</th>
         </tr>
         {% for topic in topics %}
         <tr>
@@ -26,13 +26,13 @@
             <a
               href="{{ url_for('admin.edit_vocabulary_topic', topic_id=topic[0]) }}"
               class="edit-btn"
-              >Edit</a
+              >編輯</a
             >
             <a
               href="{{ url_for('admin.delete_vocabulary_topic', topic_id=topic[0]) }}"
               onclick="return confirm('Are you sure?')"
               class="delete-btn"
-              >Delete</a
+              >刪除</a
             >
           </td>
         </tr>

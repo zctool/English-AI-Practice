@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Characters</title>
+    <title>角色總覽</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <style>
@@ -90,13 +90,13 @@ a:hover {
 </style>
 
 <body>
-    <h1>Characters</h1>
+    <h1>角色總覽</h1>
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Character Name</th>
-                <th>Actions</th>
+                <th>角色名稱</th>
+                <th>操作</th>
             </tr>
         </thead>
         <tbody>
@@ -105,13 +105,12 @@ a:hover {
                 <td>{{ character[0] }}</td>
                 <td>{{ character[1] }}</td>
                 <td>
-                    <a href="{{ url_for('admin.edit_character', character_id=character[0], situation_id=situation_id) }}">Edit</a>
-                    <a href="{{ url_for('admin.delete_character', character_id=character[0], situation_id=situation_id) }}" onclick="return confirm('Are you sure you want to delete this character?');">Delete</a>
+                    <a href="{{ url_for('admin.edit_character', character_id=character[0], situation_id=situation_id) }}">編輯</a>
+                    <a href="{{ url_for('admin.delete_character', character_id=character[0], situation_id=situation_id) }}" onclick="return confirm('Are you sure you want to delete this character?');">刪除</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    <a href="{{ url_for('admin.admin_conversation_situations') }}" class="back-button">Back to Situations</a>
 </body>
 </html>

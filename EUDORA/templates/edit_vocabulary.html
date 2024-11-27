@@ -7,27 +7,27 @@
 </head>
 <body>
     <div class="container">
-        <h1>Edit Vocabulary</h1>
+        <h1>編輯單字</h1>
         <form method="post" enctype="multipart/form-data">
-            <label for="topic_id">Topic:</label>
+            <label for="topic_id">主題:</label>
             <select id="topic_id" name="topic_id" required>
                 {% for topic in topics %}
                 <option value="{{ topic[0] }}" {% if topic[0] == vocabulary[1] %}selected{% endif %}>{{ topic[1] }}</option>
                 {% endfor %}
             </select><br>
-            <label for="vocabulary_en">Vocabulary (English):</label>
+            <label for="vocabulary_en">單字(英文):</label>
             <input type="text" id="vocabulary_en" name="vocabulary_en" value="{{ vocabulary[2] }}" required><br>
-            <label for="vocabulary_tw">Vocabulary (Chinese):</label>
+            <label for="vocabulary_tw">單字(中文):</label>
             <input type="text" id="vocabulary_tw" name="vocabulary_tw" value="{{ vocabulary[3] }}" required><br>
-            <label for="part_of_speech">Part of Speech:</label>
+            <label for="part_of_speech">詞性:</label>
             <input type="text" id="part_of_speech" name="part_of_speech" value="{{ vocabulary[4] }}" required><br>
-            <label for="ipa">IPA:</label>
+            <label for="ipa">音標:</label>
             <input type="text" id="ipa" name="ipa" value="{{ vocabulary[5] }}" required><br>
-            <label for="example">Example Sentence:</label>
+            <label for="example">例句:</label>
             <input type="text" id="example" name="example" value="{{ vocabulary[6] }}" required><br>
-            <label for="vocabulary_voice">Upload Voice (MP3):</label>
+            <label for="vocabulary_voice">上傳音檔(MP3):</label>
             <input type="file" id="vocabulary_voice" name="vocabulary_voice" accept=".mp3"><br>
-            <label for="class">Class (Difficulty):</label>
+            <label for="class">難度:</label>
             <select id="class" name="class" required>
                 <option value="A1" {% if vocabulary[7] == 'A1' %}selected{% endif %}>A1</option>
                 <option value="A2" {% if vocabulary[7] == 'A2' %}selected{% endif %}>A2</option>
@@ -36,7 +36,7 @@
                 <option value="C1" {% if vocabulary[7] == 'C1' %}selected{% endif %}>C1</option>
                 <option value="C2" {% if vocabulary[7] == 'C2' %}selected{% endif %}>C2</option>
             </select><br><br>
-            <input type="submit" value="Update Vocabulary">
+            <input type="submit" value="更新單字">
         </form>
     </div>
 </body>

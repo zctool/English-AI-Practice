@@ -142,6 +142,17 @@
             border-radius: 5px;
             margin-top: 15px;
         }
+        .upload-label {
+            display: inline-block; /* 讓標籤和按鈕排列在同一行 */
+            margin-right: 5px; /* 調整文字與按鈕之間的距離 */
+            font-size: 16px; /* 調整字體大小 */
+            font-weight: bold; /* 加粗文字 */
+            color: #333; /* 調整顏色 */
+            padding-left:20px;
+        }
+        #fileUpload {
+            display: inline-block; /* 確保按鈕保持在同一行 */
+        }
     </style>
 </head>
 
@@ -171,8 +182,8 @@
                     <div class="login">
                         <form action="{{ url_for('register') }}" method="post" enctype="multipart/form-data">
                             <input type="text" name="username" placeholder="使用者名稱" required />
-                            <input type="email" name="email" placeholder="電子郵件" required />
-                            <input type="file" id="fileUpload" name="icon" accept="image/*" />
+                            <input type="email" name="email" placeholder="電子郵件" required /><br />
+                            <label for="fileUpload" class="upload-label">上傳頭像：</label><input type="file" id="fileUpload" name="icon" accept="image/*" />
                             <button class="submit-btn" type="submit">註冊</button>
                         </form>
                     </div>

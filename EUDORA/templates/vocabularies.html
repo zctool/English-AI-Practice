@@ -10,12 +10,12 @@
   </head>
   <body>
     <div class="container">
-      <h1>Vocabularies</h1>
+      <h1>單字</h1>
       <table>
         <tr>
-          <th>Vocabulary (English)</th>
-          <th>Vocabulary (Chinese)</th>
-          <th>Actions</th>
+          <th>單字(英文)</th>
+          <th>單字(中文)</th>
+          <th>操作</th>
         </tr>
         {% for vocabulary in vocabularies %}
         <tr>
@@ -25,13 +25,13 @@
             <a
               href="{{ url_for('admin.edit_vocabulary', vocabulary_id=vocabulary[0]) }}"
               class="edit-btn"
-              >Edit</a
+              >編輯</a
             >
             <a
               href="{{ url_for('admin.delete_vocabulary', vocabulary_id=vocabulary[0]) }}"
               class="delete-btn"
               onclick="return confirm('Are you sure you want to delete this vocabulary?');"
-              >Delete</a
+              >刪除</a
             >
           </td>
         </tr>
