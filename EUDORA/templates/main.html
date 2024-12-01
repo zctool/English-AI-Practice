@@ -358,6 +358,43 @@
     .dropdown-content a:hover {
       background-color: #f1f1f1;
     }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+  }
+
+  .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 300px;
+      text-align: center;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      position: relative;
+  }
+
+  .close-btn {
+      color: #aaa;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+  }
+
+  .close-btn:hover {
+      color: black;
+  }
   </style>
 </head>
 
@@ -399,6 +436,14 @@
   <!-- Navbar End -->
 
   <!-- Header Start -->
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>歡迎!</h2>
+        <p>桌上型設備要自行準備麥克風喔!</p>
+    </div>
+</div>
+  </div>
   <main class="content">
     <div class="container">
       <section id="home">
@@ -578,6 +623,31 @@
           top: 0,
           behavior: "smooth",
         });
+      });
+      const modal = document.getElementById('myModal');
+      const closeSpan = document.querySelector('.close-btn');
+
+      // 開啟 Modal 的函數
+      function openModal() {
+          modal.style.display = 'block';
+      }
+
+      // 關閉 Modal 的函數
+      function closeModal() {
+          modal.style.display = 'none';
+      }
+
+      // 頁面載入後立即執行
+      window.onload = openModal;
+
+      // 綁定事件監聽器
+      closeSpan.addEventListener('click', closeModal);
+
+      // 點擊 Modal 外部關閉
+      window.addEventListener('click', function(event) {
+          if (event.target === modal) {
+              closeModal();
+          }
       });
   </script>
 
